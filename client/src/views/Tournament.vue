@@ -8,6 +8,7 @@
 <script>
 import MatchEditDialog from "../components/MatchEditDialog.vue"
 import TournamentBracket from "../components/TournamentBracket.vue"
+import http from "../http";
 
 export default {
     name: 'Tournament',
@@ -39,7 +40,7 @@ export default {
     },
     methods: {
         async updateBracket() {
-            let response = await this.$http.get("/tournament/" + this.$route.params.tid);
+            let response = await http.get("/api/tournaments/" + this.$route.params.tid);
             this.rounds = response.data.rounds;
         },
         onMatchSelect(val) {
@@ -66,7 +67,13 @@ export default {
                 score2: match.score2
                 }
 
-                await this.$http.patch("/tournament/" + this.$route.params.tid + "/updateMatch/" + match.id, data);
+                let response = await http.patch("/api/tournaments/" + this.$route.params.tid + "/updateMatch/" + match.id, data);
+                if(response.data.status == "unauthorized") {
+                    this.$notify.error({
+                        title: 'Unauthorized',
+                        message: "You're not authorized to edit this match.",
+                    });
+                }
                 await this.updateBracket();
             }
             

@@ -7,7 +7,7 @@ import { connect, disconnect } from "../database/database";
     await reseedTourney.reseedRandomly();
 
     let pushTourney = await db.TournamentModel.findOneOrCreate("TournamentForPushing");
-    await pushTourney.addParticipant("Yes", 1);
+    await pushTourney.addParticipant("Yes");
 
     disconnect();
 })();

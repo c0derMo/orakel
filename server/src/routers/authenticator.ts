@@ -1,11 +1,11 @@
-import * as express from "express"
+import { Router }  from "express"
 import * as bcrypt from "bcrypt"
 import * as jwt from "jsonwebtoken"
-import { UserModel } from "./database/schemas/users";
+import { UserModel } from "../database/schemas/users";
 
 const secretToken = process.env.TOKENSECRET;
 
-const router = express.Router();
+const router = Router();
 
 router.post("/login", async (req, res) => {
     let username = req.body.username;

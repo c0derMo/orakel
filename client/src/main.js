@@ -27,15 +27,6 @@ const app = createApp(App);
 
 Axios.defaults.headers.common['Authorization'] = `Bearer ${store.state.token}`;
 
-let url = "http://localhost:5002"
-
-app.$http = Axios.create({
-    baseURL: url,
-    headers: {
-        "Content-type": "application/json"
-    }
-});
-
 app.use(ElementPlus);
 app.use(store);
 app.use(router);

@@ -8,6 +8,8 @@
 </template>
 
 <script>
+import http from "../http";
+
 export default {
     name: "Login",
     data() {
@@ -25,7 +27,7 @@ export default {
     },
     methods: {
         async login() {
-            let response = await this.$http.post("/login", {username: this.username, password: this.password});
+            let response = await http.post("/api/users/login", {username: this.username, password: this.password});
             if(response.data.authenticated == true) {
                 let token = response.data.token;
                 let user = response.data.user;
