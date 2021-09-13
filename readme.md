@@ -1,9 +1,9 @@
-# Oracle
+# Orakel
 A fully open-source tournament platform.
 
 <i>Warning: This is still heavily in development.</i>
 
-Oracle is a tournament platform (similar to Challonge or Battlefy), which can be self-hosted and expanded, and is fully open source.
+Orakel is a tournament platform (similar to Challonge or Battlefy), which can be self-hosted and expanded, and is fully open source.
 
 ## Usage:
 TODO
