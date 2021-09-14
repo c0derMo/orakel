@@ -1,4 +1,5 @@
 import { Schema, Document, Model, model, Types } from 'mongoose';
+import { hasPermission, Permissions } from "../../routers/authenticator";
 
 interface IParticipant {
     name: string;
@@ -8,7 +9,7 @@ interface IParticipant {
 
 interface ITournament {
     name: String;
-    organizor: Types.ObjectId;
+    organizor: string;
     participants: IParticipant[];
     matches: {id: string, score1: number, score2: number}[];
 }
@@ -18,8 +19,8 @@ interface ITournamentDocument extends ITournament, Document {
     reseedRandomly: (this: ITournamentDocument) => Promise<void>;
     getParticipantBySeed: (this: ITournamentDocument, seed: number) => Promise<string>;
     setParticipants: (this: ITournamentDocument, participants: IParticipant[]) => Promise<boolean>;
-    updateMatch: (this: ITournamentDocument, matchId: string, score1: number, score2: number, userId: Types.ObjectId) => Promise<void>;
-    hasPermissions: (this: ITournamentDocument, userId: Types.ObjectId) => Promise<boolean>;
+    updateMatch: (this: ITournamentDocument, matchId: string, score1: number, score2: number, userId: string) => Promise<void>;
+    hasPermissions: (this: ITournamentDocument, userId: string) => Promise<boolean>;
 }
 
 interface ITournamentModel extends Model<ITournamentDocument> {
@@ -87,7 +88,7 @@ async function getParticipantBySeed(this: ITournamentDocument, seed: number): Pr
     }
 }
 
-async function updateMatch(this: ITournamentDocument, matchId: string, score1: number, score2: number, userId: Types.ObjectId): Promise<void> {
+async function updateMatch(this: ITournamentDocument, matchId: string, score1: number, score2: number, userId: string): Promise<void> {
     if(!this.hasPermissions(userId)) return;
     let match = this.matches.find(e => { return e.id == matchId });
     if(match) {
@@ -103,8 +104,9 @@ async function updateMatch(this: ITournamentDocument, matchId: string, score1: n
     await this.save();
 }
 
-async function hasPermissions(this: ITournamentDocument, userId: Types.ObjectId): Promise<boolean> {
+async function hasPermissions(this: ITournamentDocument, userId: string): Promise<boolean> {
     if(this.organizor === userId) return true;
+    if(hasPermission(userId, Permissions.ROOT) || hasPermission(userId, Permissions.ADMINISTRATOR)) return true;
     return false;
 }
 

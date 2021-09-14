@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { TournamentModel } from "../database/schemas/tournament";
 import * as jwt from "jsonwebtoken"
-import { Types } from "mongoose";
+import { getUserIdFromToken } from "./authenticator";
 
 const secretToken = process.env.TOKENSECRET;
 
@@ -100,10 +100,8 @@ router.patch("/:tid/updateMatch/:mID", async (req, res) => {
     let matchid = req.params.mID;
     let token: string = req.headers["authorization"] as string;
 
-    let uID;
-    try {
-        uID = jwt.verify(token.substring(7), secretToken);
-    } catch(err) {
+    let uID = getUserIdFromToken(token.substring(7));
+    if(!uID) {
         res.json({"status": "unauthorized"});
         return;
     }
@@ -114,12 +112,12 @@ router.patch("/:tid/updateMatch/:mID", async (req, res) => {
         res.json({"status": "error"});
         return;
     }
-    if(!tourney.hasPermissions(new Types.ObjectId(uID.userId))) {
+    if(!tourney.hasPermissions(uID)) {
         res.json({"status": "unauthorized"});
         return;
     }
 
-    await tourney.updateMatch(matchid, req.body.score1, req.body.score2, new Types.ObjectId(uID.userId));
+    await tourney.updateMatch(matchid, req.body.score1, req.body.score2, uID);
 
     res.json({"status": "ok"});
 });

@@ -4,12 +4,12 @@ interface IUser {
     username: String;
     displayname: String;
     passwordHash: string;
-    permissions: Number;
+    permissions: number;
     dateOfEntry?: Date;
     lastUpdated?: Date;
 }
 
-interface IUserDocument extends IUser, Document {
+export interface IUserDocument extends IUser, Document {
     setLastUpdated: (this: IUserDocument) => Promise<void>;
 }
 interface IUserModel extends Model<IUserDocument> {
