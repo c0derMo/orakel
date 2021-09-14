@@ -28,26 +28,39 @@ export default {
                 score2: 0
             },
             tournamentMetaData: {
-
+                "organizor": {
+                    "id": ""
+                }
             }
         }
     },
     async created() {
-        await this.updateBracket();
+        await this.updateTournament();
         this.$watch(() => this.$route.params.tid, async () => {
-            await this.updateBracket();
+            await this.updateTournament();
         });
     },
     methods: {
+        async updateTournament() {
+            await this.updateBracket();
+            let response = await http.get("/api/tournaments/" + this.$route.params.tid + "/metadata");
+            if(response.data.status == "ok") this.tournamentMetaData = response.data;
+        },
         async updateBracket() {
             let response = await http.get("/api/tournaments/" + this.$route.params.tid);
             this.rounds = response.data.rounds;
         },
         onMatchSelect(val) {
             console.log(val);
+
+            if(!this.$store.getters.isLoggedIn) return;
+            if(this.tournamentMetaData.organizor.id !== this.$store.getters.getUser.userId &&
+                !this.$store.getters.getUser.permissions["ROOT"] &&
+                !this.$store.getters.getUser.permissions["ADMINISTRATOR"]) return;
+
             let match = undefined;
             this.rounds.forEach(element => {
-                let tmp = element.matchs.find((e) => e.id == val);
+                let tmp = element.matches.find((e) => e.id == val);
                 if(tmp) match = tmp;
             });
             this.matchToEdit.id = val;
