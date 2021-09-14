@@ -1,6 +1,7 @@
 import { Router }  from "express"
 import * as bcrypt from "bcrypt"
 import * as jwt from "jsonwebtoken"
+import { randomBytes } from "crypto";
 import { UserModel, IUserDocument } from "../database/schemas/users";
 
 export enum Permissions {
@@ -9,7 +10,7 @@ export enum Permissions {
     ADMINISTRATOR
 }
 
-const secretToken = process.env.TOKENSECRET;
+const secretToken = randomBytes(64).toString('hex');
 
 const router = Router();
 
@@ -26,8 +27,9 @@ router.post("/login", async (req, res) => {
 
     if(match) {
         let userObj = {
+            "userId": user._id,
             "displayName": user.displayname,
-            "permissions": user.permissions
+            "permissions": convertPermissionsToObject(user.permissions)
         }
         let token = jwt.sign({
             userId: user._id
@@ -117,4 +119,21 @@ function upgradePermissions(permissions: number): number {
     permissions = encodePermissions(decodedPerms);
 
     return permissions
+}
+
+function convertPermissionsToObject(permissions: number): object {
+    if(permissions < 2 ** (Object.keys(Permissions).length)-1) {
+        permissions = upgradePermissions(permissions);
+    }
+
+    let decodedPerms = decodePermissions(permissions);
+    let result = {};
+
+    Object.keys(Permissions).forEach(e => {
+        if(isNaN(parseInt(e))) {
+            result[e] = decodedPerms[Permissions[e]];
+        }
+    });
+
+    return result;
 }

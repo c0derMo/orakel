@@ -1,9 +1,6 @@
 import { Router } from "express";
 import { TournamentModel } from "../database/schemas/tournament";
-import * as jwt from "jsonwebtoken"
 import { getUserIdFromToken } from "./authenticator";
-
-const secretToken = process.env.TOKENSECRET;
 
 const router = Router();
 
@@ -53,8 +50,8 @@ router.get("/:tid", async(req, res) => {
                     match.winner = match.team1.id;
                 }
             } else {
-                let topMatch = rounds[i-1].matchs[j*2];
-                let bottomMatch = rounds[i-1].matchs[(j*2)+1];
+                let topMatch = rounds[i-1].matches[j*2];
+                let bottomMatch = rounds[i-1].matches[(j*2)+1];
                 let teams = [];
                 if(topMatch.winner !== "0") {
                     teams.push(topMatch.winner);
@@ -86,13 +83,30 @@ router.get("/:tid", async(req, res) => {
             matches.push(match);
         }
         rounds.push({
-            matchs: matches,
             matches: matches
         });
         amountMatches /= 2;
     }
 
     res.json({ rounds: rounds });
+});
+
+router.get("/:tid/metadata", async (req, res) => {
+    let tourneyname = req.params.tid;
+
+    let tourney = await TournamentModel.findOne({name: tourneyname});
+
+    if(!tourney) {
+        res.send({"status": "error"});
+        return;
+    }
+
+    res.send({
+        "status": "ok",
+        "organizor": {
+            "id": tourney.organizor
+        }
+    })
 });
 
 router.patch("/:tid/updateMatch/:mID", async (req, res) => {
