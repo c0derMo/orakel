@@ -56,7 +56,7 @@ export function getUserIdFromToken(token: string): string {
     }
 }
 
-export async function hasPermission(user: string | IUserDocument, permission: Permissions) {
+export async function hasPermission(user: string | IUserDocument, permission: Permissions, rootOverridable: boolean = true) {
     if(typeof(user) == "string") {
         user = await UserModel.findById(user);
     }
@@ -69,6 +69,7 @@ export async function hasPermission(user: string | IUserDocument, permission: Pe
 
     let permissions = decodePermissions(user.permissions);
 
+    if(rootOverridable && permissions[Permissions.ROOT]) return true;
     return permissions[permission];
 }
 

@@ -12,6 +12,7 @@ interface ITournament {
     organizor: string;
     participants: IParticipant[];
     matches: {id: string, score1: number, score2: number}[];
+    private: boolean;
 }
 
 interface ITournamentDocument extends ITournament, Document {
@@ -31,7 +32,8 @@ const TournamentSchema = new Schema({
     name: String,
     organizor: Types.ObjectId,
     participants: [{ name: String, seed: Number, associatedUserId: { type: Types.ObjectId, required: false }}],
-    matches: [{id: String, player1: String, player2: String, score1: Number, score2: Number}]
+    matches: [{id: String, player1: String, player2: String, score1: Number, score2: Number}],
+    private: Boolean,
 });
 
 TournamentSchema.methods.addParticipant = addParticipant;

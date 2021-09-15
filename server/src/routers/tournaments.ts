@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { TournamentModel } from "../database/schemas/tournament";
-import { getUserIdFromToken } from "./authenticator";
+import { UserModel } from "../database/schemas/users";
+import { getUserIdFromToken, hasPermission, Permissions } from "./authenticator";
 
 const router = Router();
 
@@ -139,12 +140,27 @@ router.patch("/get/:tid/updateMatch/:mID", async (req, res) => {
 router.get("/list", async (req, res) => {
     let tourneys = await TournamentModel.find();
     let result = [];
+    let token: string = req.headers["authorization"] as string;
 
-    tourneys.forEach((e) => {
-        result.push({
-            name: e.name
-        });
-    });
+    let uID = getUserIdFromToken(token.substring(7));
+    let admin = false;
+    if(uID) {
+        admin = await hasPermission(uID, Permissions.ADMINISTRATOR);
+    }
+
+    for(let e of tourneys) {
+        if(!e.private || admin) {
+            let creator = "SYSTEM";
+            if(e.organizor) {
+                creator = (await UserModel.findById(e.organizor)).displayname;
+            }
+            result.push({
+                name: e.name,
+                private: e.private,
+                organizor: creator
+            });
+        }
+    }
     
     res.json(result);
 });

@@ -1,8 +1,8 @@
 import { Schema, Document, Model, model } from "mongoose";
 
 interface IUser {
-    username: String;
-    displayname: String;
+    username: string;
+    displayname: string;
     passwordHash: string;
     permissions: number;
     dateOfEntry?: Date;
