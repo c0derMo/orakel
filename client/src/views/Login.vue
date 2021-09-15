@@ -20,7 +20,6 @@ export default {
         }
     },
     created() {
-        this.activeMenu = "2";
         if(this.$store.getters.isLoggedIn) {
             this.$router.push("/");
         }

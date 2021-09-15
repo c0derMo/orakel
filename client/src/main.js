@@ -11,11 +11,17 @@ import App from './App.vue'
 import Landing from './views/Landing.vue'
 import Tournament from './views/Tournament.vue'
 import Login from './views/Login.vue'
+import Profile from './views/Profile.vue'
+import Logout from './views/Logout.vue'
+import TournamentList from './views/TournamentList.vue'
 
 const routes = [
     { path: "/", component: Landing },
     { path: "/tournament/:tid", component: Tournament },
-    { path: "/login", component: Login }
+    { path: "/login", component: Login },
+    { path: "/profile", component: Profile },
+    { path: "/logout", component: Logout },
+    { path: "/tournaments", component: TournamentList }
 ]
 
 const router = VueRouter.createRouter({

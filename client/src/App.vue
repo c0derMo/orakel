@@ -2,15 +2,17 @@
     <div>
         <el-menu
           mode="horizontal"
-          :default-active="currentActivePage"
+          :default-active="this.$route.path"
           @select="menuSelect"
         >
-            <el-menu-item index="1">Orakel</el-menu-item>
-            <el-menu-item index="2">
-                <el-input placeholder="Tournament ID" v-model="tournamentId" @change="findTournament"></el-input>
-            </el-menu-item>
-            <el-menu-item class="dock-right" v-if="!this.$store.getters.isLoggedIn" index="3">Login</el-menu-item>
-            <el-menu-item class="dock-right" v-else index="4">Welcome {{ this.$store.getters.getUser.displayName }}</el-menu-item>
+            <el-menu-item index="/">Orakel</el-menu-item>
+            <el-menu-item index="/tournaments">Browse</el-menu-item>
+            <el-menu-item class="dock-right" v-if="!this.$store.getters.isLoggedIn" index="/login">Login</el-menu-item>
+            <el-sub-menu class="dock-right" v-else>
+                <template #title>Welcome {{ this.$store.getters.getUser.displayName }}</template>
+                <el-menu-item index="/profile">Profile</el-menu-item>
+                <el-menu-item index="/logout">Logout</el-menu-item>
+            </el-sub-menu>
         </el-menu>
         <router-view></router-view>
     </div>
@@ -19,45 +21,9 @@
 <script>
 export default {
     name: "App",
-    data() {
-        return {
-            tournamentId: "",
-            currentActivePage: "0"
-        }
-    },
-    created() {
-        this.$watch(
-            () => this.$route.path,
-            () => { this.updateMenu() },
-            { immediate: true }
-        )
-    },
     methods: {
         menuSelect(idx) {
-            switch(idx) {
-                case "1":
-                    this.$router.push("/");
-                    break;
-                case "3":
-                    this.$router.push("/login");
-                    break;
-                case "4":
-                    this.$store.dispatch("logout");
-                    break;
-            }
-        },
-        findTournament(id) {
-            this.$router.push("/tournament/" + id);
-        },
-        updateMenu() {
-            let routesToIndexes = {
-                "/": "1",
-                "/tournament/.*": "2",
-                "/login": "3"
-            }
-            for(let key in routesToIndexes) {
-                if(this.$route.path.match(key)) this.currentActivePage = routesToIndexes[key];
-            }
+            this.$router.push(idx);
         }
     }
 }
@@ -68,6 +34,9 @@ export default {
         display: block;
     }
     .el-menu--horizontal > .el-menu-item.dock-right {
+        float: right;
+    }
+    .el-menu--horizontal > .el-sub-menu.dock-right {
         float: right;
     }
 </style>

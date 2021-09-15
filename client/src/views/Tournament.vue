@@ -43,11 +43,11 @@ export default {
     methods: {
         async updateTournament() {
             await this.updateBracket();
-            let response = await http.get("/api/tournaments/" + this.$route.params.tid + "/metadata");
+            let response = await http.get("/api/tournaments/get/" + this.$route.params.tid + "/metadata");
             if(response.data.status == "ok") this.tournamentMetaData = response.data;
         },
         async updateBracket() {
-            let response = await http.get("/api/tournaments/" + this.$route.params.tid);
+            let response = await http.get("/api/tournaments/get/" + this.$route.params.tid);
             this.rounds = response.data.rounds;
         },
         onMatchSelect(val) {
@@ -80,7 +80,7 @@ export default {
                 score2: match.score2
                 }
 
-                let response = await http.patch("/api/tournaments/" + this.$route.params.tid + "/updateMatch/" + match.id, data);
+                let response = await http.patch("/api/tournaments/get/" + this.$route.params.tid + "/updateMatch/" + match.id, data);
                 if(response.data.status == "unauthorized") {
                     this.$notify.error({
                         title: 'Unauthorized',

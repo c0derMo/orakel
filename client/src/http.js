@@ -1,12 +1,6 @@
 import Axios from 'axios'
 
 let url = "http://localhost:5002"
-// export default Axios.create({
-//     baseURL: url,
-//     headers: {
-//         "Content-type": "application/json"
-//     }
-// });
 
 export default {
     async get(path) {
