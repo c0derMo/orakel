@@ -4,7 +4,7 @@ import { getUserIdFromToken } from "./authenticator";
 
 const router = Router();
 
-router.get("/:tid", async(req, res) => {
+router.get("/get/:tid", async(req, res) => {
     let tourneyname = req.params.tid;
 
     let tourney = await TournamentModel.findOne({name: tourneyname});
@@ -91,7 +91,7 @@ router.get("/:tid", async(req, res) => {
     res.json({ rounds: rounds });
 });
 
-router.get("/:tid/metadata", async (req, res) => {
+router.get("/get/:tid/metadata", async (req, res) => {
     let tourneyname = req.params.tid;
 
     let tourney = await TournamentModel.findOne({name: tourneyname});
@@ -109,7 +109,7 @@ router.get("/:tid/metadata", async (req, res) => {
     })
 });
 
-router.patch("/:tid/updateMatch/:mID", async (req, res) => {
+router.patch("/get/:tid/updateMatch/:mID", async (req, res) => {
     let tourneyname = req.params.tid;
     let matchid = req.params.mID;
     let token: string = req.headers["authorization"] as string;
@@ -134,6 +134,19 @@ router.patch("/:tid/updateMatch/:mID", async (req, res) => {
     await tourney.updateMatch(matchid, req.body.score1, req.body.score2, uID);
 
     res.json({"status": "ok"});
+});
+
+router.get("/list", async (req, res) => {
+    let tourneys = await TournamentModel.find();
+    let result = [];
+
+    tourneys.forEach((e) => {
+        result.push({
+            name: e.name
+        });
+    });
+    
+    res.json(result);
 });
 
 export default router;

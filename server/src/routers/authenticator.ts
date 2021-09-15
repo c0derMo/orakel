@@ -10,7 +10,7 @@ export enum Permissions {
     ADMINISTRATOR
 }
 
-const secretToken = randomBytes(64).toString('hex');
+const secretToken = process.env.TOKENSECRET || randomBytes(64).toString('hex');
 
 const router = Router();
 
