@@ -3,6 +3,7 @@ import * as bcrypt from "bcrypt"
 import * as jwt from "jsonwebtoken"
 import { randomBytes } from "crypto";
 import { UserModel, IUserDocument } from "../database/schemas/users";
+import { TournamentModel } from "../database/schemas/tournament";
 
 export enum Permissions {
     NULL,
@@ -28,7 +29,7 @@ router.post("/login", async (req, res) => {
     if(match) {
         let userObj = {
             "userId": user._id,
-            "displayName": user.displayname,
+            "username": user.username,
             "permissions": convertPermissionsToObject(user.permissions)
         }
         let token = jwt.sign({
@@ -41,7 +42,47 @@ router.post("/login", async (req, res) => {
     } else {
         res.json({"authenticated": false});
     }
-})
+});
+
+router.get("/get/:user", async(req, res) => {
+    let user = req.params.user;
+
+    let userObj = await UserModel.findOne({username: user});
+    if(!userObj) {
+        res.json({"status": "not found"});
+    }
+
+    let tournaments = await TournamentModel.find({organizor: userObj._id});
+
+    let tourneys = [];
+    tournaments.forEach((e) => {
+        tourneys.push(e.name);
+    })
+
+    let highestRank = "";
+    if(hasPermission(userObj, Permissions.ROOT, false)) {
+        highestRank = "Root Administrator";
+    } else if(hasPermission(userObj, Permissions.ADMINISTRATOR, false)) {
+        highestRank = "Administrator";
+    }
+    
+    let token: string = getUserIdFromToken(req.headers["authorization"] as string);
+    let permissions = {};
+    if(token) {
+        if(hasPermission(token, Permissions.ADMINISTRATOR)) {
+            permissions = convertPermissionsToObject(userObj.permissions);
+        }
+    }
+
+    res.json({
+        "username": userObj.username,
+        "lastUpdated": userObj.lastUpdated,
+        "joined": userObj.dateOfEntry,
+        "adminOfTournaments": tourneys,
+        "rank": highestRank,
+        "permissions": permissions
+    });
+});
 
 export default router;
 

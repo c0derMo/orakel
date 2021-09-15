@@ -2,7 +2,6 @@ import { Schema, Document, Model, model } from "mongoose";
 
 interface IUser {
     username: string;
-    displayname: string;
     passwordHash: string;
     permissions: number;
     dateOfEntry?: Date;
@@ -18,7 +17,6 @@ interface IUserModel extends Model<IUserDocument> {
 
 const UserSchema = new Schema({
     username: String,
-    displayname: String,
     passwordHash: String,
     permissions: Number,
     dateOfEntry: {

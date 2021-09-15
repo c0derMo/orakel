@@ -152,7 +152,7 @@ router.get("/list", async (req, res) => {
         if(!e.private || admin) {
             let creator = "SYSTEM";
             if(e.organizor) {
-                creator = (await UserModel.findById(e.organizor)).displayname;
+                creator = (await UserModel.findById(e.organizor)).username;
             }
             result.push({
                 name: e.name,
