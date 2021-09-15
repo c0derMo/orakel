@@ -50,13 +50,15 @@ router.get("/get/:user", async(req, res) => {
     let userObj = await UserModel.findOne({username: user});
     if(!userObj) {
         res.json({"status": "not found"});
+        return;
     }
 
-    let tournaments = await TournamentModel.find({organizor: userObj._id});
+    let uID = userObj._id.toString()
+    let tournaments = await TournamentModel.find();
 
     let tourneys = [];
     tournaments.forEach((e) => {
-        tourneys.push(e.name);
+        if(e.organizor == uID) tourneys.push(e.name);
     })
 
     let highestRank = "";
@@ -66,7 +68,7 @@ router.get("/get/:user", async(req, res) => {
         highestRank = "Administrator";
     }
     
-    let token: string = getUserIdFromToken(req.headers["authorization"] as string);
+    let token: string = getUserIdFromToken((req.headers["authorization"] as string).substring(7));
     let permissions = {};
     if(token) {
         if(hasPermission(token, Permissions.ADMINISTRATOR)) {
@@ -76,7 +78,6 @@ router.get("/get/:user", async(req, res) => {
 
     res.json({
         "username": userObj.username,
-        "lastUpdated": userObj.lastUpdated,
         "joined": userObj.dateOfEntry,
         "adminOfTournaments": tourneys,
         "rank": highestRank,
@@ -110,7 +111,9 @@ export async function hasPermission(user: string | IUserDocument, permission: Pe
 
     let permissions = decodePermissions(user.permissions);
 
-    if(rootOverridable && permissions[Permissions.ROOT]) return true;
+    if(rootOverridable && permissions[Permissions.ROOT]) {
+        return true;
+    }
     return permissions[permission];
 }
 

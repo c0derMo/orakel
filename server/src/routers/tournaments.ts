@@ -116,7 +116,7 @@ router.get("/get/:tid/metadata", async (req, res) => {
     }
 
     if(tourney.private) {
-        let uID = getUserIdFromToken(getUserIdFromToken(req.headers["authorization"] as string));
+        let uID = getUserIdFromToken((req.headers["authorization"] as string).substring(7));
         if(!uID) {
             res.json({"status": "unauthorized"});
             return;
