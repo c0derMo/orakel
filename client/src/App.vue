@@ -8,13 +8,15 @@
             <el-menu-item index="/">Orakel</el-menu-item>
             <el-menu-item index="/tournaments">Browse</el-menu-item>
             <el-menu-item class="dock-right" v-if="!this.$store.getters.isLoggedIn" index="/login">Login</el-menu-item>
-            <el-sub-menu class="dock-right" v-else>
-                <template #title>Welcome {{ this.$store.getters.getUser.displayName }}</template>
+            <el-sub-menu class="dock-right" index="/profile" v-else>
+                <template #title>Welcome {{ this.$store.getters.getUser.username }}</template>
                 <el-menu-item index="/profile">Profile</el-menu-item>
                 <el-menu-item index="/logout">Logout</el-menu-item>
             </el-sub-menu>
         </el-menu>
-        <router-view></router-view>
+        <el-row>
+            <el-col :span="16" :offset="4"><router-view></router-view></el-col>
+        </el-row>
     </div>
 </template>
 

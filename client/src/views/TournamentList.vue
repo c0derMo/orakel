@@ -1,7 +1,13 @@
 <template>
     <div>
         <el-table :data="matchList">
-            <el-table-column prop="name" label="Name"></el-table-column>
+            <el-table-column label="Name">
+                <template #default="scope">
+                    <span>{{ scope.row.name }}</span>
+                    <el-tag type="danger" size="mini" v-if="scope.row.private">Private</el-tag>
+                </template>
+            </el-table-column>
+            <el-table-column label="Creator" prop="organizor"></el-table-column>
             <el-table-column>
                 <template #default="scope">
                     <el-button size="mini" @click="clickMatch(scope.row.name)">View</el-button>

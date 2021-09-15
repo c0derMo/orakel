@@ -14,6 +14,7 @@ import Login from './views/Login.vue'
 import Profile from './views/Profile.vue'
 import Logout from './views/Logout.vue'
 import TournamentList from './views/TournamentList.vue'
+import User from './views/User.vue'
 
 const routes = [
     { path: "/", component: Landing },
@@ -21,7 +22,8 @@ const routes = [
     { path: "/login", component: Login },
     { path: "/profile", component: Profile },
     { path: "/logout", component: Logout },
-    { path: "/tournaments", component: TournamentList }
+    { path: "/tournaments", component: TournamentList },
+    { path: "/user/:user", component: User }
 ]
 
 const router = VueRouter.createRouter({

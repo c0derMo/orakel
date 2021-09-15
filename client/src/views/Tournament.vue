@@ -1,5 +1,7 @@
 <template>
     <div>
+        <h1>{{ this.$route.params.tid }}</h1>
+        <el-divider></el-divider>
         <MatchEditDialog v-if="editDialogVisible" :match="matchToEdit" @matchEdited="matchEdited" />
         <TournamentBracket :rounds="rounds" @onMatchClick="onMatchSelect" />
     </div>

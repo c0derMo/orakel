@@ -1,36 +1,23 @@
 <template>
     <div>
-        <span>{{ this.$store.getters.getUser.displayName }}</span>
+        <h1>{{ this.$store.getters.getUser.username }}</h1>
         <el-divider></el-divider>
-        Permissions: <span>{{ computedPermissions }}</span><br>
+        <UserProfile :userId="this.$store.getters.getUser.username"></UserProfile>
     </div>
 </template>
 
 <script>
+import UserProfile from "../components/UserProfile.vue"
+
 export default {
     name: "Profile",
+    components: {
+        UserProfile
+    },
     created() {
         if(!this.$store.getters.isLoggedIn) {
             this.$router.push("/login");
         }  
-    },
-    computed: {
-        computedPermissions() {
-            let p = [];
-            for(let perm in this.$store.getters.getUser.permissions) {
-                if(this.$store.getters.getUser.permissions[perm] == true) {
-                    switch(perm) {
-                        case "ROOT":
-                            p.push("Root Administrator");
-                            break;
-                        case "ADMINISTRATOR":
-                            p.push("Administrator");
-                            break;
-                    }
-                }
-            }
-            return p.join(", ");
-        }
     }
 }
 </script>
