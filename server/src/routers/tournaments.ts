@@ -15,6 +15,19 @@ router.get("/get/:tid", async(req, res) => {
         return;
     }
 
+    if(tourney.private) {
+        let uID = getUserIdFromToken(getUserIdFromToken(req.headers["authorization"] as string));
+        if(!uID) {
+            res.json({"status": "unauthorized"});
+            return;
+        } else {
+            if(uID != tourney.organizor && !hasPermission(uID, Permissions.ADMINISTRATOR)) {
+                res.json({"status": "unauthorized"});
+                return;
+            }
+        }
+    }
+
     let amountRounds = Math.ceil(Math.log2(tourney.participants.length));
     let amountMatches = (2**(Math.ceil(Math.log2(tourney.participants.length)))) / 2;
 
@@ -100,6 +113,19 @@ router.get("/get/:tid/metadata", async (req, res) => {
     if(!tourney) {
         res.send({"status": "error"});
         return;
+    }
+
+    if(tourney.private) {
+        let uID = getUserIdFromToken(getUserIdFromToken(req.headers["authorization"] as string));
+        if(!uID) {
+            res.json({"status": "unauthorized"});
+            return;
+        } else {
+            if(uID != tourney.organizor && !hasPermission(uID, Permissions.ADMINISTRATOR)) {
+                res.json({"status": "unauthorized"});
+                return;
+            }
+        }
     }
 
     res.send({
