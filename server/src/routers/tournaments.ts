@@ -16,7 +16,7 @@ router.get("/get/:tid", async(req, res) => {
     }
 
     if(tourney.private) {
-        let uID = getUserIdFromToken(getUserIdFromToken(req.headers["authorization"] as string));
+        let uID = getUserIdFromToken((req.headers["authorization"] as string).substring(7));
         if(!uID) {
             res.json({"status": "unauthorized"});
             return;
@@ -51,7 +51,7 @@ router.get("/get/:tid", async(req, res) => {
             }
             if(i == 0) {
                 let topSeed = j+1;
-                let bottomSeed = j+1+amountMatches;
+                let bottomSeed = (amountMatches*2) - j;
                 match.team1.id = topSeed.toString();
                 match.team2.id = bottomSeed.toString();
                 match.team1.name = await tourney.getParticipantBySeed(topSeed)
