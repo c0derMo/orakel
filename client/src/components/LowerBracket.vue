@@ -13,7 +13,7 @@
 import BracketNode from "./bracket/BracketNode.vue"
 
 export default {
-    name: "TournamentBracket",
+    name: "LowerBracket",
     components: {
         BracketNode
     },
@@ -85,9 +85,17 @@ export default {
                     continue;
                 }
 
-                for(let j = 0; j < previousRound.length; j++) {
-                    const matchForCurrentGame = Math.floor(j / 2);
-                    currentRound[matchForCurrentGame].children.push(previousRound[j]);
+                if((i+1) % 2 == 1) {
+                    // This puts two matches as a parent for each match... only applicable for rounds 3 & 5 (round%2 == 1)
+                    for(let j = 0; j < previousRound.length; j++) {
+                        const matchForCurrentGame = Math.floor(j / 2);
+                        currentRound[matchForCurrentGame].children.push(previousRound[j]);
+                    }
+                } else {
+                    // Somehow only put one match as a parent... maybe...
+                    for(let j = 0; j < previousRound.length; j++) {
+                        currentRound[j].children.push(previousRound[j]);
+                    }
                 }
 
                 previousRound = currentRound;

@@ -4,23 +4,28 @@
         <el-divider></el-divider>
         <MatchEditDialog v-if="editDialogVisible" :match="matchToEdit" @matchEdited="matchEdited" />
         <TournamentBracket :rounds="rounds" @onMatchClick="onMatchSelect" />
+        <el-divider v-if="tournamentMetaData.doubleElim"></el-divider>
+        <LowerBracket v-if="tournamentMetaData.doubleElim" :rounds="lbRounds" />
     </div>
 </template>
 
 <script>
 import MatchEditDialog from "../components/MatchEditDialog.vue"
 import TournamentBracket from "../components/TournamentBracket.vue"
+import LowerBracket from "../components/LowerBracket.vue"
 import http from "../http";
 
 export default {
     name: 'Tournament',
     components: {
         TournamentBracket,
-        MatchEditDialog
+        MatchEditDialog,
+        LowerBracket
     },
     data() {
         return {
             rounds: [],
+            lbRounds: [],
             editDialogVisible: false,
             matchToEdit: {
                 id: "",
@@ -32,7 +37,8 @@ export default {
             tournamentMetaData: {
                 "organizor": {
                     "id": ""
-                }
+                },
+                "doubleElim": false
             }
         }
     },
@@ -51,6 +57,7 @@ export default {
         async updateBracket() {
             let response = await http.get("/api/tournaments/get/" + this.$route.params.tid);
             this.rounds = response.data.rounds;
+            this.lbRounds = response.data.lbRounds;
         },
         onMatchSelect(val) {
             console.log(val);
