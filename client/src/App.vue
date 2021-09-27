@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="app">
         <el-menu
           mode="horizontal"
           :default-active="this.$route.path"
@@ -40,5 +40,10 @@ export default {
     }
     .el-menu--horizontal > .el-sub-menu.dock-right {
         float: right;
+    }
+
+    #app {
+        font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+  'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
     }
 </style>

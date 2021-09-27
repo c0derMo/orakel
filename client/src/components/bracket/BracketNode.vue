@@ -20,7 +20,7 @@
             </div>
             <div class="tb-item-child" v-if="bracketNode.children[1]">
                 <BracketNode
-                    :bracket-node="bracketNode.children[0]"
+                    :bracket-node="bracketNode.children[1]"
                     :highlighted-team-id="highlightedTeamId"
                     @onMatchClick="onMatchClick"
                     @onSelectTeam="onSelectTeam"
