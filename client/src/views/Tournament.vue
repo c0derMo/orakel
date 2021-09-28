@@ -72,10 +72,12 @@ export default {
                 let tmp = element.matches.find((e) => e.id == val);
                 if(tmp) match = tmp;
             });
-            this.lbRounds.forEach(element => {
-                let tmp = element.matches.find((e) => e.id == val);
-                if(tmp) match = tmp;
-            });
+            if(this.tournamentMetaData.doubleElim) {
+                this.lbRounds.forEach(element => {
+                    let tmp = element.matches.find((e) => e.id == val);
+                    if(tmp) match = tmp;
+                });
+            }
             this.matchToEdit.id = val;
             this.matchToEdit.player1 = match.team1.name;
             this.matchToEdit.player2 = match.team2.name;
