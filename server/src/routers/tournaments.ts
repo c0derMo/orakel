@@ -90,7 +90,7 @@ router.get("/get/:tid", async(req, res) => {
                     teams.push(bottomMatch.winner);
                 }
                 if(teams.length > 1) {
-                    teams.sort().reverse();
+                    teams.sort((a,b) => { return parseInt(a) - parseInt(b) });
                     match.team1.id = teams[0];
                     match.team1.name = await tourney.getParticipantBySeed(parseInt(teams[0]));
                     match.team2.id = teams[1];
@@ -245,7 +245,7 @@ router.get("/get/:tid", async(req, res) => {
                 if(match.team1.id !== "" && match.team2.id !== "") {
                     // If we have both teams, we need to sort them
                     let teams = [match.team1.id, match.team2.id];
-                    teams.sort().reverse();
+                    teams.sort((a,b) => { return parseInt(a) - parseInt(b) });
                     match.team1.id = teams[0];
                     match.team1.name = await tourney.getParticipantBySeed(parseInt(teams[0]));
                     match.team2.id = teams[1];
