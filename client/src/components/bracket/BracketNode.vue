@@ -155,8 +155,6 @@ export default {
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
-  margin-top: 10px;
-  margin-bottom: 10px;
   position: relative;
 }
 .tb-item-child:before {

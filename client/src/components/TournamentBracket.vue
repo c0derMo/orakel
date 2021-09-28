@@ -57,7 +57,7 @@ export default {
             this.$emit("onMatchClick", match);
         },
         onSelectTeam(team) {
-            this.highlightedTeamId = team;
+            if(team != "") this.highlightedTeamId = team;
         },
         onDeselectTeam() {
             this.highlightedTeamId = undefined;
