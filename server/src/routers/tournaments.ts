@@ -34,6 +34,16 @@ router.get("/get/:tid", async(req, res) => {
     let rounds = [];
     let matchCounter = 1;
 
+    let firstRoundTopSeeds = [1,2];
+
+    while(firstRoundTopSeeds.length < amountMatches) {
+        let newLength = (firstRoundTopSeeds.length * 2) + 1
+        let currentLength = firstRoundTopSeeds.length;
+        for(let i=0;i<currentLength;i++) {
+            firstRoundTopSeeds.splice((2*i)+1, 0, newLength - firstRoundTopSeeds[(i*2)]);
+        }
+    }
+
     for(let i = 0; i<amountRounds; i++) {
         let matches = [];
         for(let j = 0; j<amountMatches; j++) {
@@ -54,8 +64,10 @@ router.get("/get/:tid", async(req, res) => {
             }
             if(tourney.doubleElim) match.title = "WB" + matchCounter;
             if(i == 0) {
-                let topSeed = j+1;
-                let bottomSeed = (amountMatches*2) - j;
+                //let topSeed = j+1;
+                let topSeed = firstRoundTopSeeds[j];
+                //let bottomSeed = (amountMatches*2) - j;
+                let bottomSeed = (amountMatches*2) - topSeed + 1;
                 match.team1.id = topSeed.toString();
                 match.team2.id = bottomSeed.toString();
                 match.team1.name = await tourney.getParticipantBySeed(topSeed)
@@ -78,7 +90,7 @@ router.get("/get/:tid", async(req, res) => {
                     teams.push(bottomMatch.winner);
                 }
                 if(teams.length > 1) {
-                    teams.sort();
+                    teams.sort().reverse();
                     match.team1.id = teams[0];
                     match.team1.name = await tourney.getParticipantBySeed(parseInt(teams[0]));
                     match.team2.id = teams[1];
@@ -233,7 +245,7 @@ router.get("/get/:tid", async(req, res) => {
                 if(match.team1.id !== "" && match.team2.id !== "") {
                     // If we have both teams, we need to sort them
                     let teams = [match.team1.id, match.team2.id];
-                    teams.sort();
+                    teams.sort().reverse();
                     match.team1.id = teams[0];
                     match.team1.name = await tourney.getParticipantBySeed(parseInt(teams[0]));
                     match.team2.id = teams[1];
