@@ -5,7 +5,7 @@
         <MatchEditDialog v-if="editDialogVisible" :match="matchToEdit" @matchEdited="matchEdited" />
         <TournamentBracket :rounds="rounds" @onMatchClick="onMatchSelect" />
         <el-divider v-if="tournamentMetaData.doubleElim"></el-divider>
-        <LowerBracket v-if="tournamentMetaData.doubleElim" :rounds="lbRounds" />
+        <LowerBracket v-if="tournamentMetaData.doubleElim" :rounds="lbRounds" @onMatchClick="onMatchSelect" />
     </div>
 </template>
 
@@ -72,6 +72,10 @@ export default {
                 let tmp = element.matches.find((e) => e.id == val);
                 if(tmp) match = tmp;
             });
+            this.lbRounds.forEach(element => {
+                let tmp = element.matches.find((e) => e.id == val);
+                if(tmp) match = tmp;
+            });
             this.matchToEdit.id = val;
             this.matchToEdit.player1 = match.team1.name;
             this.matchToEdit.player2 = match.team2.name;
@@ -85,8 +89,8 @@ export default {
                 console.log(match);
 
                 let data = {
-                score1: match.score1,
-                score2: match.score2
+                    score1: match.score1,
+                    score2: match.score2
                 }
 
                 let response = await http.patch("/api/tournaments/get/" + this.$route.params.tid + "/updateMatch/" + match.id, data);
