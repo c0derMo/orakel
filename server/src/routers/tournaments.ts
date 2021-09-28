@@ -34,8 +34,6 @@ router.get("/get/:tid", async(req, res) => {
     let rounds = [];
     let matchCounter = 1;
 
-    let lbMatchCounter = amountMatches;
-
     for(let i = 0; i<amountRounds; i++) {
         let matches = [];
         for(let j = 0; j<amountMatches; j++) {
@@ -54,7 +52,7 @@ router.get("/get/:tid", async(req, res) => {
                 },
                 title: undefined
             }
-            if(tourney.doubleElim) match.title = matchCounter;
+            if(tourney.doubleElim) match.title = "WB" + matchCounter;
             if(i == 0) {
                 let topSeed = j+1;
                 let bottomSeed = (amountMatches*2) - j;
@@ -106,12 +104,6 @@ router.get("/get/:tid", async(req, res) => {
         rounds.push({
             matches: matches
         });
-        if(tourney.doubleElim) {
-            if(i % 2 == 0) {
-                lbMatchCounter /= 2;
-            }
-            matchCounter += lbMatchCounter;
-        }
         amountMatches /= 2;
     }
 
@@ -125,13 +117,19 @@ router.get("/get/:tid", async(req, res) => {
         let amountLBRounds = (Math.ceil(Math.log2(tourney.participants.length))-1) * 2;
         let amountUBMatches = (2**(Math.ceil(Math.log2(tourney.participants.length)))) / 2;
         let amountLBMatches = amountUBMatches;
-        let lbMatchCounter = amountUBMatches+1;
+        let lbMatchCounter = 1;
         
         let lbRounds = [];
+        let loserCounter = 1;
+        let dropDownRoundCounter = 0;
+        let dropDownMatchCounter = 0;
 
         for(let i = 0; i<amountLBRounds; i++) {
             if(i % 2 == 0) {
                 amountLBMatches /= 2;
+            } else if(i % 2 == 1) {
+                dropDownRoundCounter++;
+                dropDownMatchCounter = 0;
             }
             if(i+1 == amountLBRounds) {
                 lbMatchCounter++;
@@ -144,36 +142,135 @@ router.get("/get/:tid", async(req, res) => {
                     team1: {
                         id: "",
                         name: "",
-                        score: 0
+                        score: 0,
+                        dropDownFromRound: -1,
+                        dropDownFromMatch: -1
                     },
                     team2: {
                         id: "",
                         name: "",
-                        score: 0
+                        score: 0,
+                        dropDownFromRound: -1,
+                        dropDownFromMatch: -1
                     },
-                    title: lbMatchCounter
+                    title: "LB" + lbMatchCounter
                 };
 
                 // Fill the matches with "Loser of X"... This might be fun
                 if(i == 0) {
                     // If we're in the first round, we just count up
-                    match.team1.name = "Loser of " + ((2*j)+1);
-                    match.team2.name = "Loser of " + ((2*j)+2);
-                } else if(i+1 == amountLBRounds) {
-                    // As with everything, there's a speciality for the last round
-                    match.team1.name = "Loser of " + (match.title - 3)
+                    match.team1.name = "Loser of WB" + loserCounter;
+                    match.team1.dropDownFromRound = dropDownRoundCounter;
+                    match.team1.dropDownFromMatch = dropDownMatchCounter;
+                    dropDownMatchCounter++;
+                    loserCounter++;
+                    match.team2.name = "Loser of WB" + loserCounter;
+                    match.team2.dropDownFromRound = dropDownRoundCounter;
+                    match.team2.dropDownFromMatch = dropDownMatchCounter;
+                    dropDownMatchCounter++;
+                    loserCounter++;
                 } else if(i % 2 == 1) {
                     // Only every second round we get new losers
                     // THERE'S A FORMULA FOR THAT
-                    match.team1.name = "Loser of " + (match.title - amountLBMatches);
+                    match.team1.name = "Loser of WB" + loserCounter;
+                    match.team1.dropDownFromRound = dropDownRoundCounter;
+                    match.team1.dropDownFromMatch = dropDownMatchCounter;
+                    dropDownMatchCounter++;
+                    loserCounter++;
+                }
+
+                // Populating the LB by iterating over UB, seeing if it has losers
+                if(match.team1.dropDownFromMatch !== -1) {
+                    // Here, a new team drops down
+                    const dropMatch = result.rounds[match.team1.dropDownFromRound].matches[match.team1.dropDownFromMatch];
+                    
+                    if(dropMatch.winner === dropMatch.team1.id) {
+                        match.team1.id = dropMatch.team2.id;
+                    } else if(dropMatch.winner === dropMatch.team2.id) {
+                        match.team1.id = dropMatch.team1.id;
+                    }
+                } else {
+                    // This spot will be taken from previous winner
+                    let winMatch;
+                    if(i % 2 == 0) {
+                        // Last round has twice this one's matches
+                        winMatch = lbRounds[i-1].matches[(j*2)];
+                    } else {
+                        // Last round has same amount of amatches
+                        winMatch = lbRounds[i-1].matches[j];
+                    }
+                    if(winMatch.winner === winMatch.team1.id) {
+                        match.team1.id = winMatch.team1.id;
+                    } else if(winMatch.winner === winMatch.team2.id) {
+                        match.team1.id = winMatch.team2.id;
+                    }
+                }
+                if(match.team2.dropDownFromMatch !== -1) {
+                    // Here, a new team drops down
+                    const dropMatch = result.rounds[match.team2.dropDownFromRound].matches[match.team2.dropDownFromMatch]
+                    if(dropMatch.winner === dropMatch.team1.id) {
+                        match.team2.id = dropMatch.team2.id;
+                    } else if(dropMatch.winner === dropMatch.team2.id) {
+                        match.team2.id = dropMatch.team1.id;
+                    }
+                } else {
+                    // This spot will be taken from previous winner
+                    let winMatch;
+                    if(i % 2 == 0) {
+                        // Last round has twice this one's matches
+                        winMatch = lbRounds[i-1].matches[(j*2)+1];
+                    } else {
+                        // Last round has same amount of amatches
+                        winMatch = lbRounds[i-1].matches[j];
+                    }
+                    if(winMatch.winner === winMatch.team1.id) {
+                        match.team2.id = winMatch.team1.id;
+                    } else if(winMatch.winner === winMatch.team2.id) {
+                        match.team2.id = winMatch.team2.id;
+                    }
+                }
+
+                if(match.team1.id !== "" && match.team2.id !== "") {
+                    // If we have both teams, we need to sort them
+                    let teams = [match.team1.id, match.team2.id];
+                    teams.sort();
+                    match.team1.id = teams[0];
+                    match.team1.name = await tourney.getParticipantBySeed(parseInt(teams[0]));
+                    match.team2.id = teams[1];
+                    match.team2.name = await tourney.getParticipantBySeed(parseInt(teams[1]));
+
+                    // Since we have a "working match", we can see if we have data for it
+                    if(match.team1.name == "BYE") {
+                        match.winner = match.team2.id;
+                        match.team2.score = 1;
+                    } else if(match.team2.name == "BYE") {
+                        match.winner = match.team1.id;
+                        match.team1.score = 1;
+                    } else {
+                        const matchData = tourney.matches.find(e => { return e.id == match.id });
+                        if(matchData) {
+                            match.team1.score = matchData.score1;
+                            match.team2.score = matchData.score2;
+                            if(matchData.score1 > matchData.score2) {
+                                match.winner = match.team1.id;
+                            } else if(matchData.score2 > matchData.score1) {
+                                match.winner = match.team2.id;
+                            }
+                        }
+                    }
+                } else {
+                    if(match.team1.id !== "") {
+                        match.team1.name = await tourney.getParticipantBySeed(parseInt(match.team1.id));
+                    }
+                    if(match.team2.id !== "") {
+                        match.team2.name = await tourney.getParticipantBySeed(parseInt(match.team2.id));
+                    }
                 }
 
                 lbMatchCounter++;
                 matches.push(match);
             }
             lbRounds.push({matches: matches});
-            amountUBMatches = Math.floor(amountUBMatches / 2);
-            lbMatchCounter += amountUBMatches;
         }
         // fixing the last match-title... maybe
         lbRounds[amountLBRounds-1].matches[0].title -= 1;
@@ -196,10 +293,11 @@ router.get("/get/:tid", async(req, res) => {
                 name: "Winner of LB",
                 score: 0
             },
-            title: 0
+            title: ""
         };
 
-        match.title = result.lbRounds[((2**(Math.ceil(Math.log2(tourney.participants.length)))) / 4)-1].matches[0].title + 1;
+        match.title = "WB" + matchCounter;
+        matchCounter++;
 
         let ubWinner = undefined;
         let lbWinner = undefined;
