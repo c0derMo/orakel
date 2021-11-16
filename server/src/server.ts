@@ -20,6 +20,8 @@ app.use(bodyParser.json());
 app.use("/api/users", AuthenticatorRouter);
 app.use("/api/tournaments", TournamentsRouter);
 
+app.use("/", express.static("html"));
+
 app.listen(port, () => {
     console.log(`Server started on http://localhost:${port}`);
 });

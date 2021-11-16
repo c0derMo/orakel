@@ -1,6 +1,6 @@
 import Axios from 'axios'
 
-let url = "http://localhost:5002"
+let url = window.location.hostname.includes('localhost') ? "http://localhost:5002" : window.location.origin;
 
 export default {
     async get(path) {
