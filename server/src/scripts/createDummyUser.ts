@@ -1,11 +1,14 @@
 import { UserModel } from "../database/schemas/users";
 import { connect, disconnect } from "../database/database";
+require("dotenv").config();
+import * as bcrypt from "bcrypt"
 
 (async () => {
     connect();
     const tourneys = [
-        { username: "currymaker", displayname: "CurryMaker", passwordHash: "abc123", permissions: 2, dateOfEntry: new Date(), lastUpdated: new Date() },
-        { username: "in4fun", displayname: "In4Fun", passwordHash: "abc123", permissions: 1, dateOfEntry: new Date(), lastUpdated: new Date() }
+        { username: "CurryMaker", passwordHash: bcrypt.hashSync("RecapCurry", 10), permissions: 5, dateOfEntry: new Date(), lastUpdated: new Date() },
+        { username: "In4Fun", passwordHash: bcrypt.hashSync("RecapFun", 10), permissions: 4, dateOfEntry: new Date(), lastUpdated: new Date() },
+        { username: "GKPunk", passwordHash: bcrypt.hashSync("RecapPunk", 10), permissions: 4, dateOfEntry: new Date(), lastUpdated: new Date() }
     ]
     try {
         for(const tourney of tourneys) {

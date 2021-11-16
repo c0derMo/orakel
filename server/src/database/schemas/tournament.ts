@@ -1,5 +1,5 @@
 import { Schema, Document, Model, model, Types } from 'mongoose';
-import { hasPermission, Permissions } from "../../routers/authenticator";
+import { hasPermission, Permissions } from '../../routers/authenticator';
 
 interface IParticipant {
     name: string;
@@ -9,11 +9,12 @@ interface IParticipant {
 
 interface ITournament {
     name: String;
-    organizor: string;
+    organizor: String;
     participants: IParticipant[];
     matches: {id: string, score1: number, score2: number}[];
     private: boolean;
     doubleElim?: boolean;
+    admins?: String[];
 }
 
 interface ITournamentDocument extends ITournament, Document {
@@ -31,11 +32,12 @@ interface ITournamentModel extends Model<ITournamentDocument> {
 
 const TournamentSchema = new Schema({
     name: String,
-    organizor: Types.ObjectId,
+    organizor: String,
     participants: [{ name: String, seed: Number, associatedUserId: { type: Types.ObjectId, required: false }}],
     matches: [{id: String, player1: String, player2: String, score1: Number, score2: Number}],
     private: Boolean,
-    doubleElim: Boolean
+    doubleElim: Boolean,
+    admins: [String]
 });
 
 TournamentSchema.methods.addParticipant = addParticipant;
@@ -93,7 +95,7 @@ async function getParticipantBySeed(this: ITournamentDocument, seed: number): Pr
 }
 
 async function updateMatch(this: ITournamentDocument, matchId: string, score1: number, score2: number, userId: string): Promise<void> {
-    if(!this.hasPermissions(userId)) return;
+    if(!await this.hasPermissions(userId)) return;
     let match = this.matches.find(e => { return e.id == matchId });
     if(match) {
         match.score1 = score1;
@@ -110,7 +112,8 @@ async function updateMatch(this: ITournamentDocument, matchId: string, score1: n
 
 async function hasPermissions(this: ITournamentDocument, userId: string): Promise<boolean> {
     if(this.organizor === userId) return true;
-    if(hasPermission(userId, Permissions.ROOT) || hasPermission(userId, Permissions.ADMINISTRATOR)) return true;
+    if(this.admins.includes(userId)) return true;
+    if(await hasPermission(userId, Permissions.ROOT) || await hasPermission(userId, Permissions.ADMINISTRATOR)) return true;
     return false;
 }
 

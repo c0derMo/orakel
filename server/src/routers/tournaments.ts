@@ -21,7 +21,7 @@ router.get("/get/:tid", async(req, res) => {
             res.json({"status": "unauthorized"});
             return;
         } else {
-            if(uID != tourney.organizor && !hasPermission(uID, Permissions.ADMINISTRATOR)) {
+            if(uID != tourney.organizor && !await hasPermission(uID, Permissions.ADMINISTRATOR) && !await tourney.hasPermissions(uID)) {
                 res.json({"status": "unauthorized"});
                 return;
             }
@@ -373,7 +373,7 @@ router.get("/get/:tid/metadata", async (req, res) => {
             res.json({"status": "unauthorized"});
             return;
         } else {
-            if(uID != tourney.organizor && !hasPermission(uID, Permissions.ADMINISTRATOR)) {
+            if(uID != tourney.organizor && !await hasPermission(uID, Permissions.ADMINISTRATOR) && !await tourney.hasPermissions(uID)) {
                 res.json({"status": "unauthorized"});
                 return;
             }
@@ -385,7 +385,8 @@ router.get("/get/:tid/metadata", async (req, res) => {
         "organizor": {
             "id": tourney.organizor
         },
-        "doubleElim": tourney.doubleElim
+        "doubleElim": tourney.doubleElim,
+        "admins": tourney.admins
     })
 });
 
@@ -406,7 +407,7 @@ router.patch("/get/:tid/updateMatch/:mID", async (req, res) => {
         res.json({"status": "error"});
         return;
     }
-    if(!tourney.hasPermissions(uID)) {
+    if(!await tourney.hasPermissions(uID)) {
         res.json({"status": "unauthorized"});
         return;
     }

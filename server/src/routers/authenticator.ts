@@ -58,20 +58,20 @@ router.get("/get/:user", async(req, res) => {
 
     let tourneys = [];
     tournaments.forEach((e) => {
-        if(e.organizor == uID) tourneys.push(e.name);
+        if(e.organizor == uID || e.admins.includes(uID)) tourneys.push(e.name);
     })
 
     let highestRank = "";
-    if(hasPermission(userObj, Permissions.ROOT, false)) {
+    if(await hasPermission(userObj, Permissions.ROOT, false)) {
         highestRank = "Root Administrator";
-    } else if(hasPermission(userObj, Permissions.ADMINISTRATOR, false)) {
+    } else if(await hasPermission(userObj, Permissions.ADMINISTRATOR, false)) {
         highestRank = "Administrator";
     }
     
     let token: string = getUserIdFromToken((req.headers["authorization"] as string).substring(7));
     let permissions = {};
     if(token) {
-        if(hasPermission(token, Permissions.ADMINISTRATOR)) {
+        if(await hasPermission(token, Permissions.ADMINISTRATOR)) {
             permissions = convertPermissionsToObject(userObj.permissions);
         }
     }
@@ -105,7 +105,7 @@ export async function hasPermission(user: string | IUserDocument, permission: Pe
     if(!user?.permissions) {
         return false;
     }
-    if(user.permissions < 2 ** (Object.keys(Permissions).length)-1) {
+    if(user.permissions < 2 ** ((Object.keys(Permissions).length/2)-1)) {
         user.permissions = upgradePermissions(user.permissions);
     }
 
@@ -167,11 +167,11 @@ function upgradePermissions(permissions: number): number {
 }
 
 function convertPermissionsToObject(permissions: number): object {
-    if(permissions < 2 ** (Object.keys(Permissions).length)-1) {
+    if(permissions < 2 ** (Object.keys(Permissions).length/2)-1) {
         permissions = upgradePermissions(permissions);
     }
 
-    let decodedPerms = decodePermissions(permissions);
+    let decodedPerms = decodePermissions(permissions).reverse();
     let result = {};
 
     Object.keys(Permissions).forEach(e => {

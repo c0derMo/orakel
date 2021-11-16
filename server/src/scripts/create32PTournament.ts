@@ -1,19 +1,24 @@
 import { TournamentModel } from "../database/schemas/tournament";
 import { connect, disconnect } from "../database/database";
+require("dotenv").config();
+
+// CurryUID 6193ca690b7cae9d4c04c864
+//  PunkUID 6193ca690b7cae9d4c04c869
+//   FunUID 6193ca690b7cae9d4c04c867
 
 (async () => {
     connect();
     const tourneys = [
-        { name: "32PlayerTournament", organizor: "613b72f284f66dac05aeacea", participants: [
-            {name: "Player1", seed: 1}, {name: "Player2", seed: 2}, {name: "Player3", seed: 3}, {name: "Player4", seed: 4},
-            {name: "Player5", seed: 5}, {name: "Player6", seed: 6}, {name: "Player7", seed: 7}, {name: "Player8", seed: 8},
-            {name: "Player9", seed: 9}, {name: "Player10", seed: 10}, {name: "Player11", seed: 11}, {name: "Player12", seed: 12},
-            {name: "Player13", seed: 13}, {name: "Player14", seed: 14}, {name: "Player15", seed: 15}, {name: "Player16", seed: 16},
-            {name: "Player17", seed: 17}, {name: "Player18", seed: 18}, {name: "Player19", seed: 19}, {name: "Player20", seed: 20},
-            {name: "Player21", seed: 21}, {name: "Player22", seed: 22}, {name: "Player23", seed: 23}, {name: "Player24", seed: 24},
-            {name: "Player25", seed: 25}, {name: "Player26", seed: 26}, {name: "Player27", seed: 27}, {name: "Player28", seed: 28},
-            {name: "Player29", seed: 29}, {name: "Player30", seed: 30}, {name: "Player31", seed: 31}, {name: "Player32", seed: 32},
-        ], doubleElim: true, private: false },
+        { name: "Roulette Recap - GKPunk's Prediction", organizor: "6193ca690b7cae9d4c04c869", participants: [
+            {name: "In4Fun", seed: 1}, {name: "Ducker", seed: 2}, {name: "Frote7", seed: 3}, {name: "k-kaneta", seed: 4},
+            {name: "ChrisX3", seed: 5}, {name: "T_Nort23", seed: 6}, {name: "DaniButa", seed: 7}, {name: "IlikeHitman", seed: 8},
+            {name: "Pigiero", seed: 9}, {name: "Yannini", seed: 10}, {name: "ChromeX", seed: 11}, {name: "AgentMando", seed: 12},
+            {name: "Blithe", seed: 13}, {name: "Rommel", seed: 14}, {name: "Papierfresse", seed: 15}, {name: "MrMike", seed: 16},
+            {name: "SomRandomPerson", seed: 17}, {name: "Agent 420", seed: 18}, {name: "JoeBabyGrabber", seed: 19}, {name: "linux_penguin", seed: 20},
+            {name: "Fuzk", seed: 21}, {name: "Speedster", seed: 22}, {name: "The_Buff_Guy", seed: 23}, {name: "JohnnyAxXx", seed: 24},
+            {name: "Crewdy", seed: 25}, {name: "CurryMaker", seed: 26}, {name: "Meme Junkie", seed: 27}, {name: "KOats", seed: 28},
+            {name: "PapaLevy", seed: 29}, {name: "mikulers", seed: 30}, {name: "Brainfixer", seed: 31}, {name: "davidredsox", seed: 32},
+        ], doubleElim: true, private: false, admins: ["6193ca690b7cae9d4c04c864"] },
     ]
     try {
         for(const tourney of tourneys) {

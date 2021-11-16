@@ -1,13 +1,15 @@
 import { connect, disconnect } from "../database/database";
+import { encodePermissions, hasPermission, Permissions } from "../routers/authenticator";
+require("dotenv").config();
 
 (async() => {
-    const db = connect();
+    const db = await connect();
 
-    let reseedTourney = await db.TournamentModel.findOneOrCreate("TournamentForReseeding");
-    await reseedTourney.reseedRandomly();
-
-    let pushTourney = await db.TournamentModel.findOneOrCreate("TournamentForPushing");
-    await pushTourney.addParticipant("Yes");
+    let reseedTourney = await db.TournamentModel.findOneOrCreate("RRWC2021 - Actual tournament");
+    console.log(Object.keys(Permissions).length);
+    console.log(await reseedTourney.hasPermissions("6193ca690b7cae9d4c04c869")); // 6193ca690b7cae9d4c04c864
+    console.log(await hasPermission("6193ca690b7cae9d4c04c869", Permissions.ADMINISTRATOR));
+    console.log(await hasPermission("6193ca690b7cae9d4c04c869", Permissions.ROOT));
 
     disconnect();
 })();

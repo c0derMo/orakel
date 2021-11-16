@@ -38,6 +38,7 @@ export default {
                 "organizor": {
                     "id": ""
                 },
+                "admins": [],
                 "doubleElim": false
             }
         }
@@ -47,6 +48,7 @@ export default {
         this.$watch(() => this.$route.params.tid, async () => {
             await this.updateTournament();
         });
+        setInterval(async () => {await this.updateTournament()}, 5000)
     },
     methods: {
         async updateTournament() {
