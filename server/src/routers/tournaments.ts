@@ -136,12 +136,24 @@ router.get("/get/:tid", async(req, res) => {
         let dropDownRoundCounter = 0;
         let dropDownMatchCounter = 0;
 
+        let dropDownMatches = [];
+        let tmp2 = 0;
+
         for(let i = 0; i<amountLBRounds; i++) {
             if(i % 2 == 0) {
                 amountLBMatches /= 2;
             } else if(i % 2 == 1) {
                 dropDownRoundCounter++;
                 dropDownMatchCounter = 0;
+                dropDownMatches = [...Array(amountLBMatches)].map((_,i) => {return {ident: i + loserCounter, index: i}});
+                if((i-3) % 2 == 0 && dropDownMatches.length > 1 && i != 1) {
+                    let tmp = dropDownMatches.length / 2;
+                    dropDownMatches = [...dropDownMatches.slice(tmp), ...dropDownMatches.slice(0, tmp)];
+                } else if((i-3) % 2 == 1 && dropDownMatches.length > 1 && i != 1) {
+                    dropDownMatches.reverse()
+                    let tmp = dropDownMatches.length / 2;
+                    dropDownMatches = [...dropDownMatches.slice(tmp), ...dropDownMatches.slice(0, tmp)];
+                }
             }
             if(i+1 == amountLBRounds) {
                 lbMatchCounter++;
@@ -184,10 +196,11 @@ router.get("/get/:tid", async(req, res) => {
                 } else if(i % 2 == 1) {
                     // Only every second round we get new losers
                     // THERE'S A FORMULA FOR THAT
-                    match.team1.name = "Loser of WB" + loserCounter;
+                    // ...maybe
+                    let dropDownMatch = dropDownMatches.pop()
+                    match.team1.name = "Loser of WB" + dropDownMatch.ident;
                     match.team1.dropDownFromRound = dropDownRoundCounter;
-                    match.team1.dropDownFromMatch = dropDownMatchCounter;
-                    dropDownMatchCounter++;
+                    match.team1.dropDownFromMatch = dropDownMatch.index;
                     loserCounter++;
                 }
 
