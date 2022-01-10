@@ -1,13 +1,13 @@
 <template>
-    <span></span>
+  <span></span>
 </template>
 
 <script>
 export default {
-    name: "Logout",
-    created() {
-        this.$store.dispatch('logout');
-        this.$router.push("/");
-    }
-}
+  name: "Logout",
+  created() {
+    this.$store.dispatch("logout");
+    this.$router.push("/");
+  },
+};
 </script>

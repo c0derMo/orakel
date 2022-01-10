@@ -1,83 +1,85 @@
 <template>
-    <div class="tb-item" v-if="matchesArePresent()">
-        <div :class="getGameMatchClass(bracketNode)">
-            <BracketMatch
-                :bracket-node="bracketNode"
-                :highlighted-team-id="highlightedTeamId"
-                @onMatchClick="onMatchClick"
-                @onSelectTeam="onSelectTeam"
-                @onDeselectTeam="onDeselectTeam" />
-        </div>
-
-        <div v-if="bracketNode.children[0] || bracketNode.children[1]" class="tb-item-children">
-            <div class="tb-item-child" v-if="bracketNode.children[0]">
-                <BracketNode
-                    :bracket-node="bracketNode.children[0]"
-                    :highlighted-team-id="highlightedTeamId"
-                    @onMatchClick="onMatchClick"
-                    @onSelectTeam="onSelectTeam"
-                    @onDeselectTeam="onDeselectTeam" />
-            </div>
-            <div class="tb-item-child" v-if="bracketNode.children[1]">
-                <BracketNode
-                    :bracket-node="bracketNode.children[1]"
-                    :highlighted-team-id="highlightedTeamId"
-                    @onMatchClick="onMatchClick"
-                    @onSelectTeam="onSelectTeam"
-                    @onDeselectTeam="onDeselectTeam" />
-            </div>
-        </div>
+  <div class="tb-item" v-if="matchesArePresent()">
+    <div :class="getGameMatchClass(bracketNode)">
+      <BracketMatch
+        :bracket-node="bracketNode"
+        :highlighted-team-id="highlightedTeamId"
+        @onMatchClick="onMatchClick"
+        @onSelectTeam="onSelectTeam"
+        @onDeselectTeam="onDeselectTeam"
+      />
     </div>
+
+    <div
+      v-if="bracketNode.children[0] || bracketNode.children[1]"
+      class="tb-item-children"
+    >
+      <div class="tb-item-child" v-if="bracketNode.children[0]">
+        <BracketNode
+          :bracket-node="bracketNode.children[0]"
+          :highlighted-team-id="highlightedTeamId"
+          @onMatchClick="onMatchClick"
+          @onSelectTeam="onSelectTeam"
+          @onDeselectTeam="onDeselectTeam"
+        />
+      </div>
+      <div class="tb-item-child" v-if="bracketNode.children[1]">
+        <BracketNode
+          :bracket-node="bracketNode.children[1]"
+          :highlighted-team-id="highlightedTeamId"
+          @onMatchClick="onMatchClick"
+          @onSelectTeam="onSelectTeam"
+          @onDeselectTeam="onDeselectTeam"
+        />
+      </div>
+    </div>
+  </div>
 </template>
 
-<script lang="ts">
-import BracketMatch from "./BracketMatch.vue"
+<script>
+import BracketMatch from "./BracketMatch.vue";
 
 export default {
-    name: "BracketNode",
-    components: {
-        BracketMatch
+  name: "BracketNode",
+  components: {
+    BracketMatch,
+  },
+  emits: ["onMatchClick", "onSelectTeam", "onDeselectTeam"],
+  props: {
+    bracketNode: {
+      type: Object,
+      default() {
+        return {
+          children: [],
+          match: undefined,
+          hasParent: undefined,
+        };
+      },
     },
-    emits: [
-        "onMatchClick",
-        "onSelectTeam",
-        "onDeselectTeam"
-    ],
-    props: {
-        bracketNode: {
-            type: Object,
-            default() {
-                return {
-                    children: [],
-                    match: undefined,
-                    hasParent: undefined
-                }
-            }
-        },
-        highlightedTeamId: String
+    highlightedTeamId: String,
+  },
+  methods: {
+    matchesArePresent() {
+      return this.bracketNode.match !== undefined;
     },
-    methods: {
-        matchesArePresent() {
-            return this.bracketNode.match !== undefined;
-        },
-        getGameMatchClass(node) {
-            if(node.children[0] || node.children[1]) {
-                return "tb-item-parent";
-            }
-            if(node.hasParent) return "tb-item-child";
-            return "";
-        },
-        onMatchClick(matchId) {
-            this.$emit("onMatchClick", matchId);
-        },
-        onSelectTeam(team) {
-            this.$emit("onSelectTeam", team);
-        },
-        onDeselectTeam() {
-            this.$emit("onDeselectTeam");
-        }
-    }
-}
+    getGameMatchClass(node) {
+      if (node.children[0] || node.children[1]) {
+        return "tb-item-parent";
+      }
+      if (node.hasParent) return "tb-item-child";
+      return "";
+    },
+    onMatchClick(matchId) {
+      this.$emit("onMatchClick", matchId);
+    },
+    onSelectTeam(team) {
+      this.$emit("onSelectTeam", team);
+    },
+    onDeselectTeam() {
+      this.$emit("onDeselectTeam");
+    },
+  },
+};
 </script>
 
 <style>

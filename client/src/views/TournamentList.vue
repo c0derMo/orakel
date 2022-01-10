@@ -1,40 +1,51 @@
 <template>
-    <div>
-        <el-table :data="matchList">
-            <el-table-column label="Name">
-                <template #default="scope">
-                    <span>{{ scope.row.name }}</span>
-                    <el-tag type="danger" size="mini" v-if="scope.row.private">Private</el-tag>
-                </template>
-            </el-table-column>
-            <el-table-column label="Creator" prop="organizor"></el-table-column>
-            <el-table-column>
-                <template #default="scope">
-                    <el-button size="mini" @click="clickMatch(scope.row.name)">View</el-button>
-                </template>
-            </el-table-column>
-        </el-table>
-    </div>
+  <v-row>
+    <v-col offset="2" md="8">
+      <v-list>
+        <v-list-item
+          v-for="tournament in tournamentList"
+          :key="tournament._id"
+          two-line
+        >
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ tournament.name }}
+              <v-chip color="red" text-color="white" v-if="tournament.private"
+                >Private</v-chip
+              >
+            </v-list-item-title>
+            <v-list-item-subtitle
+              >Organizor: {{ tournament.organizor }}</v-list-item-subtitle
+            >
+          </v-list-item-content>
+          <v-spacer></v-spacer>
+          <v-list-item-action>
+            <v-btn text @click="clickTournament(tournament.name)">View</v-btn>
+          </v-list-item-action>
+        </v-list-item>
+      </v-list>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
-import http from "../http.js"
+import http from "../http";
 
 export default {
-    nane: "TournamentList",
-    data() {
-        return {
-            matchList: []
-        }
+  nane: "TournamentList",
+  data() {
+    return {
+      tournamentList: [],
+    };
+  },
+  async created() {
+    const response = await http.get("/api/tournaments/list");
+    this.tournamentList = response.data;
+  },
+  methods: {
+    clickTournament(name) {
+      this.$router.push("/tournament/" + name);
     },
-    async created() {
-        const response = await http.get("/api/tournaments/list");
-        this.matchList = response.data;
-    },
-    methods: {
-        clickMatch(name) {
-            this.$router.push("/tournament/" + name);
-        }
-    }
-}
+  },
+};
 </script>

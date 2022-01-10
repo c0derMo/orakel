@@ -11,7 +11,7 @@ TODO
 ## Development:
 The project is built up in two parts: the frontend-client and the backend-server.
 ### Client development
-All client code is inside `client`. The client is written using Vue V3.
+All client code is inside `client`. The client is written using Vue V3 & vuetify.
 
 An development server can be ran using `yarn serve`.
 ### Server development
