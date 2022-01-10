@@ -37,7 +37,7 @@ export async function setLastUpdated(this: IUserDocument): Promise<void> {
     const n = new Date();
     if(!this.lastUpdated || this.lastUpdated < n) {
         this.lastUpdated = n;
-        await this.save;
+        await this.save();
     }
 }
 
@@ -50,4 +50,4 @@ export async function findOneOrCreate(username: string): Promise<IUserDocument> 
     }
 }
 
-export const UserModel = model<IUserDocument>("user", UserSchema);
+export const UserModel = model<IUserDocument>("user", UserSchema) as IUserModel;
