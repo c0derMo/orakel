@@ -42,7 +42,7 @@ export async function setLastUpdated(this: IUserDocument): Promise<void> {
 }
 
 export async function findOneOrCreate(username: string): Promise<IUserDocument> {
-    const record = await this.findOne({username});
+    const record = await UserModel.findOne({username});
     if(record) {
         return record;
     } else {

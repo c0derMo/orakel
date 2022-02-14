@@ -4,6 +4,12 @@ import * as jwt from "jsonwebtoken"
 import { randomBytes } from "crypto";
 import { UserModel, IUserDocument } from "../database/schemas/users";
 import { TournamentModel } from "../database/schemas/tournament";
+import {Types} from "mongoose";
+
+interface LoginBody {
+    username: string;
+    password: string;
+}
 
 export enum Permissions {
     NULL,
@@ -16,24 +22,24 @@ const secretToken = process.env.TOKENSECRET || randomBytes(64).toString('hex');
 const router = Router();
 
 router.post("/login", async (req, res) => {
-    let username = req.body.username;
-    let password = req.body.password;
+    const username = (req.body as LoginBody).username;
+    const password = (req.body as LoginBody).password;
 
-    let user = await UserModel.findOne({username: username});
+    const user = await UserModel.findOne({username: username});
     if(!user) {
         res.json({"authenticated": false});
         return;
     }
-    let match = await bcrypt.compare(password, user.passwordHash);
+    const match = await bcrypt.compare(password, user.passwordHash);
 
     if(match) {
-        let userObj = {
-            "userId": user._id,
+        const userObj = {
+            "userId": user._id as string,
             "username": user.username,
             "permissions": convertPermissionsToObject(user.permissions)
         }
-        let token = jwt.sign({
-            userId: user._id
+        const token = jwt.sign({
+            userId: user._id as string
         },
         secretToken, {
             expiresIn: '7d'
@@ -45,20 +51,20 @@ router.post("/login", async (req, res) => {
 });
 
 router.get("/get/:user", async(req, res) => {
-    let user = req.params.user;
+    const user = req.params.user;
 
-    let userObj = await UserModel.findOne({username: user});
+    const userObj = await UserModel.findOne({username: user}).exec();
     if(!userObj) {
         res.json({"status": "not found"});
         return;
     }
 
-    let uID = userObj._id.toString()
-    let tournaments = await TournamentModel.find();
+    const uID = (userObj._id as Types.ObjectId).toString()
+    const tournaments = await TournamentModel.find();
 
-    let tourneys = [];
+    const tourneys: string[] = [];
     tournaments.forEach((e) => {
-        if(e.organizor == uID || e.admins.includes(uID)) tourneys.push(e.name);
+        if(e.organizor === uID || e.admins.includes(uID)) tourneys.push(e.name);
     })
 
     let highestRank = "";
@@ -67,8 +73,8 @@ router.get("/get/:user", async(req, res) => {
     } else if(await hasPermission(userObj, Permissions.ADMINISTRATOR, false)) {
         highestRank = "Administrator";
     }
-    
-    let token: string = getUserIdFromToken((req.headers["authorization"] as string).substring(7));
+
+    const token = getUserIdFromToken((req.headers.authorization).substring(7));
     let permissions = {};
     if(token) {
         if(await hasPermission(token, Permissions.ADMINISTRATOR)) {
@@ -91,15 +97,15 @@ export default router;
 
 export function getUserIdFromToken(token: string): string {
     try {
-        let user = jwt.verify(token, secretToken) as jwt.JwtPayload;
-        return user.userId;
+        const user = jwt.verify(token, secretToken) as jwt.JwtPayload;
+        return user.userId as string;
     } catch(err) {
         return undefined;
     }
 }
 
-export async function hasPermission(user: string | IUserDocument, permission: Permissions, rootOverridable: boolean = true) {
-    if(typeof(user) == "string") {
+export async function hasPermission(user: string | IUserDocument, permission: Permissions, rootOverridable = true) {
+    if(typeof(user) === "string") {
         user = await UserModel.findById(user);
     }
     if(!user?.permissions) {
@@ -109,7 +115,7 @@ export async function hasPermission(user: string | IUserDocument, permission: Pe
         user.permissions = upgradePermissions(user.permissions);
     }
 
-    let permissions = decodePermissions(user.permissions);
+    const permissions = decodePermissions(user.permissions);
 
     if(rootOverridable && permissions[Permissions.ROOT]) {
         return true;
@@ -118,7 +124,7 @@ export async function hasPermission(user: string | IUserDocument, permission: Pe
 }
 
 export function decodePermissions(permissions: number): boolean[] {
-    let result = Array(Object.keys(Permissions).length/2).fill(false);
+    const result: boolean[] = Array(Object.keys(Permissions).length/2).fill(false) as boolean[];
     for(let i=(Object.keys(Permissions).length/2)-1; i>=0; i--) {
         if(permissions >= (2 ** i)) {
             permissions = permissions - (2 ** i);
@@ -147,7 +153,7 @@ function upgradePermissions(permissions: number): number {
     }
 
     // Decoding old permissions
-    let decodedPerms = Array(permissionsSize+1).fill(false);
+    const decodedPerms: boolean[] = Array(permissionsSize+1).fill(false) as boolean[];
     for(let i=permissionsSize; i>=0; i--) {
         if(permissions >= (2 ** i)) {
             permissions = permissions - (2 ** i);
@@ -171,12 +177,12 @@ function convertPermissionsToObject(permissions: number): object {
         permissions = upgradePermissions(permissions);
     }
 
-    let decodedPerms = decodePermissions(permissions).reverse();
-    let result = {};
+    const decodedPerms = decodePermissions(permissions).reverse();
+    const result = {};
 
     Object.keys(Permissions).forEach(e => {
         if(isNaN(parseInt(e))) {
-            result[e] = decodedPerms[Permissions[e]];
+            result[e] = decodedPerms[Permissions[e] as number];
         }
     });
 

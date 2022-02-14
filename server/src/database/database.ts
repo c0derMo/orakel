@@ -4,19 +4,21 @@ import { UserModel } from "./schemas/users"
 
 let database: Mongoose.Connection;
 
-export const connect = () => {
-    // add your own uri below
-    // const uri = "mongodb+srv://<username>:<password>@cluster0-v6q0g.mongodb.net/test?retryWrites=true&w=majority";
+export async function connect() {
+    /*
+     * add your own uri below
+     * const uri = "mongodb+srv://<username>:<password>@cluster0-v6q0g.mongodb.net/test?retryWrites=true&w=majority";
+     */
     const uri = process.env.MONGODBURI;
     if (database) {
         return;
     }
-    Mongoose.connect(uri, {
+    await Mongoose.connect(uri, {
         autoIndex: true,
         autoCreate: true
     });
     database = Mongoose.connection;
-    database.once("open", async () => {
+    database.once("open", () => {
         console.log("Connected to database");
     });
     database.on("error", () => {
@@ -26,10 +28,11 @@ export const connect = () => {
         TournamentModel,
         UserModel
     };
-};
-export const disconnect = () => {
+}
+
+export function disconnect() {
     if (!database) {
         return;
     }
-    Mongoose.disconnect();
-};
+    void Mongoose.disconnect();
+}

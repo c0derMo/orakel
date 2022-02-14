@@ -8,13 +8,13 @@ interface IParticipant {
 }
 
 interface ITournament {
-    name: String;
-    organizor: String;
+    name: string;
+    organizor: string;
     participants: IParticipant[];
     matches: {id: string, score1: number, score2: number}[];
     private: boolean;
     doubleElim?: boolean;
-    admins?: String[];
+    admins?: string[];
 }
 
 interface ITournamentDocument extends ITournament, Document {
@@ -49,8 +49,8 @@ TournamentSchema.methods.hasPermissions = hasPermissions;
 
 TournamentSchema.statics.findOneOrCreate = findOneOrCreate;
 
-async function setParticipants(this: ITournamentDocument, participants: IParticipant[]): Promise<boolean> {
-    let seeds = [];
+function setParticipants(this: ITournamentDocument, participants: IParticipant[]): boolean {
+    const seeds = [];
     let ok = true;
     participants.forEach(e => {
         if(seeds.includes(e.seed)) {
@@ -67,7 +67,7 @@ async function setParticipants(this: ITournamentDocument, participants: IPartici
 }
 
 async function addParticipant(this: ITournamentDocument, name: string): Promise<void> {
-    let user = {
+    const user = {
         name: name,
         seed: this.participants.length+1,
         associatedUserID: undefined
@@ -77,16 +77,16 @@ async function addParticipant(this: ITournamentDocument, name: string): Promise<
 }
 
 async function reseedRandomly(this: ITournamentDocument): Promise<void> {
-    let seeds = Array.from({length: this.participants.length}, (_, i) => i + 1)
+    const seeds = Array.from({length: this.participants.length}, (_, i) => i + 1)
     this.participants.forEach(e => {
-        let rand = Math.floor((Math.random() * seeds.length));
+        const rand = Math.floor((Math.random() * seeds.length));
         e.seed = seeds.splice(rand, 1)[0];
     });
     await this.save();
 }
 
-async function getParticipantBySeed(this: ITournamentDocument, seed: number): Promise<string> {
-    let part = this.participants.find(e => { return e.seed == seed });
+function getParticipantBySeed(this: ITournamentDocument, seed: number): string {
+    const part = this.participants.find(e => { return e.seed === seed });
     if(part) {
         return part.name;
     } else {
@@ -96,7 +96,7 @@ async function getParticipantBySeed(this: ITournamentDocument, seed: number): Pr
 
 async function updateMatch(this: ITournamentDocument, matchId: string, score1: number, score2: number, userId: string): Promise<void> {
     if(!await this.hasPermissions(userId)) return;
-    let match = this.matches.find(e => { return e.id == matchId });
+    const match = this.matches.find(e => { return e.id === matchId });
     if(match) {
         match.score1 = score1;
         match.score2 = score2;
@@ -118,7 +118,7 @@ async function hasPermissions(this: ITournamentDocument, userId: string): Promis
 }
 
 async function findOneOrCreate(name: string, userId?: Types.ObjectId): Promise<ITournamentDocument> {
-    const record = await this.findOne({ name: name });
+    const record = await TournamentModel.findOne({ name: name }).exec();
     if(record) {
         return record;
     } else {
