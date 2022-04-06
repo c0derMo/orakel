@@ -1,5 +1,5 @@
-import { TournamentModel } from "../database/schemas/tournament";
-import { connect, disconnect } from "../database/database";
+import { TournamentModel } from "../database/mongodb/schemas/tournament";
+import { connect, disconnect } from "../database/mongodb/database";
 require("dotenv").config();
 
 // CurryUID 6193ca690b7cae9d4c04c864

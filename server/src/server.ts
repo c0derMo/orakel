@@ -1,14 +1,15 @@
 import * as express from "express";
-import { connect } from "./database/database";
 import * as cors from 'cors';
 import * as bodyParser from "body-parser";
 import "dotenv/config";
+
+import { getDatabase } from "./database/databaseConnector";
 
 import AuthenticatorRouter from "./routers/authenticator";
 import TournamentsRouter from "./routers/tournaments"
 
 async function main() {
-    await connect();
+    await getDatabase().initialize();
 
     const app = express();
     const port = 5002;

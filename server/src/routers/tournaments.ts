@@ -1,7 +1,6 @@
 import { Router } from "express";
-import { TournamentModel } from "../database/schemas/tournament";
-import { UserModel } from "../database/schemas/users";
 import { getUserIdFromToken, hasPermission, Permissions } from "../lib/auth";
+import {getDatabase} from "../database/databaseConnector";
 
 const router = Router();
 
@@ -39,7 +38,7 @@ interface BracketMatch {
 router.get("/get/:tid", async (req, res) => {
     const tourneyname = req.params.tid;
 
-    const tourney = await TournamentModel.findOne({name: tourneyname});
+    const tourney = await getDatabase().getTournamentByName(tourneyname);
 
     if (!tourney) {
         res.json({"status": "error"});
@@ -105,8 +104,8 @@ router.get("/get/:tid", async (req, res) => {
                     const bottomSeed = (amountMatches * 2) - topSeed + 1;
                     match.team1.id = topSeed.toString();
                     match.team2.id = bottomSeed.toString();
-                    match.team1.name = await tourney.getParticipantBySeed(topSeed)
-                    match.team2.name = await tourney.getParticipantBySeed(bottomSeed)
+                    match.team1.name = tourney.getParticipantByBracketIndex(bracketName, topSeed).name
+                    match.team2.name = tourney.getParticipantByBracketIndex(bracketName, bottomSeed).name
                     if (match.team1.name === "BYE") {
                         match.team2.score = 1;
                         match.winner = match.team2.id;
@@ -129,12 +128,12 @@ router.get("/get/:tid", async (req, res) => {
                             return parseInt(a) - parseInt(b)
                         });
                         match.team1.id = teams[0];
-                        match.team1.name = await tourney.getParticipantBySeed(parseInt(teams[0]));
+                        match.team1.name = tourney.getParticipantByBracketIndex(bracketName, parseInt(teams[0])).name;
                         match.team2.id = teams[1];
-                        match.team2.name = await tourney.getParticipantBySeed(parseInt(teams[1]));
+                        match.team2.name = tourney.getParticipantByBracketIndex(bracketName, parseInt(teams[1])).name;
                     } else if (teams.length > 0) {
                         match.team1.id = teams[0];
-                        match.team1.name = await tourney.getParticipantBySeed(parseInt(teams[0]));
+                        match.team1.name = tourney.getParticipantByBracketIndex(bracketName, parseInt(teams[0])).name;
                     }
                 }
                 const matchInfo = bracket.matches.find(e => {
@@ -304,9 +303,9 @@ router.get("/get/:tid", async (req, res) => {
                             return parseInt(a) - parseInt(b)
                         });
                         match.team1.id = teams[0];
-                        match.team1.name = await tourney.getParticipantBySeed(parseInt(teams[0]));
+                        match.team1.name = tourney.getParticipantByBracketIndex(bracketName, parseInt(teams[0])).name;
                         match.team2.id = teams[1];
-                        match.team2.name = await tourney.getParticipantBySeed(parseInt(teams[1]));
+                        match.team2.name = tourney.getParticipantByBracketIndex(bracketName, parseInt(teams[1])).name;
 
                         // Since we have a "working match", we can see if we have data for it
                         if (match.team1.name === "BYE") {
@@ -331,10 +330,10 @@ router.get("/get/:tid", async (req, res) => {
                         }
                     } else {
                         if (match.team1.id !== "") {
-                            match.team1.name = await tourney.getParticipantBySeed(parseInt(match.team1.id));
+                            match.team1.name = tourney.getParticipantByBracketIndex(bracketName, parseInt(match.team1.id)).name;
                         }
                         if (match.team2.id !== "") {
-                            match.team2.name = await tourney.getParticipantBySeed(parseInt(match.team2.id));
+                            match.team2.name = tourney.getParticipantByBracketIndex(bracketName, parseInt(match.team2.id)).name;
                         }
                     }
 
@@ -388,17 +387,17 @@ router.get("/get/:tid", async (req, res) => {
                 ];
                 teams.sort();
                 match.team1.id = teams[0];
-                match.team1.name = await tourney.getParticipantBySeed(parseInt(teams[0]));
+                match.team1.name = tourney.getParticipantByBracketIndex(bracketName, parseInt(teams[0])).name;
                 match.team2.id = teams[1];
-                match.team2.name = await tourney.getParticipantBySeed(parseInt(teams[1]));
+                match.team2.name = tourney.getParticipantByBracketIndex(bracketName, parseInt(teams[1])).name;
             } else {
                 if (ubWinner !== undefined) {
                     match.team1.id = ubWinner;
-                    match.team1.name = await tourney.getParticipantBySeed(parseInt(ubWinner));
+                    match.team1.name = tourney.getParticipantByBracketIndex(bracketName, parseInt(ubWinner)).name;
                 }
                 if (lbWinner !== undefined) {
                     match.team2.id = lbWinner;
-                    match.team2.name = await tourney.getParticipantBySeed(parseInt(lbWinner));
+                    match.team2.name = tourney.getParticipantByBracketIndex(bracketName, parseInt(lbWinner)).name;
                 }
             }
 
@@ -429,7 +428,7 @@ router.get("/get/:tid", async (req, res) => {
 router.get("/get/:tid/metadata", async (req, res) => {
     const tourneyname = req.params.tid;
 
-    const tourney = await TournamentModel.findOne({name: tourneyname});
+    const tourney = await getDatabase().getTournamentByName(tourneyname);
 
     if(!tourney) {
         res.send({"status": "error"});
@@ -455,13 +454,14 @@ router.get("/get/:tid/metadata", async (req, res) => {
             "id": tourney.organizor
         },
         "brackets": tourney.brackets,
-        "admins": tourney.admins
+        "admins": tourney.administrators
     })
 });
 
-router.patch("/get/:tid/updateMatch/:mID", async (req, res) => {
+router.patch("/get/:tid/:bracket/updateMatch/:mID", async (req, res) => {
     const tourneyname = req.params.tid;
     const matchid = req.params.mID;
+    const bracket = req.params.bracket;
     const token = req.headers.authorization;
 
     const uID = getUserIdFromToken(token.substring(7));
@@ -470,7 +470,7 @@ router.patch("/get/:tid/updateMatch/:mID", async (req, res) => {
         return;
     }
 
-    const tourney = await TournamentModel.findOne({name: tourneyname});
+    const tourney = await getDatabase().getTournamentByName(tourneyname);
 
     if(!tourney) {
         res.json({"status": "error"});
@@ -481,13 +481,17 @@ router.patch("/get/:tid/updateMatch/:mID", async (req, res) => {
         return;
     }
 
-    await tourney.updateMatch(matchid, (req.body as UpdateBody).score1, (req.body as UpdateBody).score2, uID);
+    await tourney.updateMatch(bracket, {
+        id: matchid,
+        score1: (req.body as UpdateBody).score1,
+        score2: (req.body as UpdateBody).score2
+    });
 
     res.json({"status": "ok"});
 });
 
 router.get("/list", async (req, res) => {
-    const tourneys = await TournamentModel.find().exec();
+    const tourneys = await getDatabase().getAllTournaments();
     const result = [];
     const token = req.headers.authorization;
 
@@ -501,7 +505,7 @@ router.get("/list", async (req, res) => {
         if(!e.private || admin) {
             let creator = "SYSTEM";
             if(e.organizor) {
-                creator = (await UserModel.findById(e.organizor)).username;
+                creator = (await getDatabase().getUserById(e.organizor)).username;
             }
             result.push({
                 name: e.name,

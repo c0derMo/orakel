@@ -1,7 +1,7 @@
-import {IUserDocument, UserModel} from "../database/schemas/users";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken"
 import {randomBytes} from "crypto";
+import {getDatabase} from "../database/databaseConnector";
 
 const secretToken = process.env.TOKENSECRET || randomBytes(64).toString('hex');
 
@@ -28,19 +28,19 @@ export interface IAuthorizationResult {
 //endregion
 
 export async function tryLogin(username: string, password: string): Promise<IAuthorizationResult> {
-    const user = await UserModel.findOne({ username: username });
+    const user = await getDatabase().getUserByName(username);
     if (!user) {
         return {authenticated: false}
     }
     const match = await bcrypt.compare(password, user.passwordHash);
     if (match) {
         const userObj = {
-            userId: user._id as string,
+            userId: user.id,
             username: user.username,
             permissions: convertPermissionsToObject(user.permissions)
         };
         const token = jwt.sign({
-            userId: user._id as string
+            userId: user.id
         }, secretToken, { expiresIn: '7d' });
         return {authenticated: true, user: userObj, token: token}
     }
@@ -56,14 +56,15 @@ export function getUserIdFromToken(token: string): string {
     }
 }
 
-export async function hasPermission(user: string | IUserDocument, permission: Permissions, rootOverridable = true): Promise<boolean> {
-    if(typeof(user) === "string") {
-        user = await UserModel.findById(user);
-    }
+export async function hasPermission(userId: string, permission: Permissions, rootOverridable = true): Promise<boolean> {
+    const user = await getDatabase().getUserById(userId);
     if(!user?.permissions) {
         return false;
     }
-    user.permissions = upgradePermissions(user.permissions);
+    if (needsUpgrade(user.permissions)) {
+        user.permissions = upgradePermissions(user.permissions);
+        await user.save();
+    }
 
     const permissions = decodePermissions(user.permissions);
 
@@ -125,6 +126,11 @@ function upgradePermissions(permissions: number): number {
     permissions = encodePermissions(decodedPerms);
 
     return permissions
+}
+
+function needsUpgrade(permissions: number): boolean {
+    return permissions < 2 ** (Object.keys(Permissions).length / 2) - 1;
+
 }
 
 export function convertPermissionsToObject(permissions: number): IPermissionsObject {

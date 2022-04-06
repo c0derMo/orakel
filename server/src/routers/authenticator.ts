@@ -1,8 +1,6 @@
 import { Router }  from "express"
-import { UserModel } from "../database/schemas/users";
-import { TournamentModel } from "../database/schemas/tournament";
-import { Types } from "mongoose";
 import { tryLogin, getUserIdFromToken, Permissions, hasPermission, convertPermissionsToObject } from "../lib/auth";
+import { getDatabase } from "../database/databaseConnector";
 
 interface LoginBody {
     username: string;
@@ -21,18 +19,18 @@ router.post("/login", async (req, res) => {
 router.get("/get/:user", async(req, res) => {
     const user = req.params.user;
 
-    const userObj = await UserModel.findOne({username: user}).exec();
+    const userObj = await getDatabase().getUserByName(user);
     if(!userObj) {
         res.json({"status": "not found"});
         return;
     }
 
-    const uID = (userObj._id as Types.ObjectId).toString()
-    const tournaments = await TournamentModel.find();
+    const uID = userObj.id;
+    const tournaments = await getDatabase().getAllTournaments();
 
     const tourneys: string[] = [];
     tournaments.forEach((e) => {
-        if(e.organizor === uID || e.admins.includes(uID)) tourneys.push(e.name);
+        if(e.organizor === uID || e.administrators.includes(uID)) tourneys.push(e.name);
     })
 
     const highestRank = userObj.getTitle();
@@ -48,7 +46,7 @@ router.get("/get/:user", async(req, res) => {
     res.json({
         "status": "ok",
         "username": userObj.username,
-        "joined": userObj.dateOfEntry,
+        "joined": userObj.registrationDate,
         "adminOfTournaments": tourneys,
         "rank": highestRank,
         "permissions": permissions

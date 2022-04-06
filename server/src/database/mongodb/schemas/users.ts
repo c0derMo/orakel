@@ -1,5 +1,4 @@
 import { Schema, Document, Model, model } from "mongoose";
-import {hasPermission, Permissions} from "../../lib/auth";
 
 interface IUser {
     username: string;
@@ -34,7 +33,6 @@ const UserSchema = new Schema({
 UserSchema.statics.findOneOrCreate = findOneOrCreate;
 
 UserSchema.methods.setLastUpdated = setLastUpdated;
-UserSchema.methods.getTitle = getTitle;
 
 export async function setLastUpdated(this: IUserDocument): Promise<void> {
     const n = new Date();
@@ -42,12 +40,6 @@ export async function setLastUpdated(this: IUserDocument): Promise<void> {
         this.lastUpdated = n;
         await this.save();
     }
-}
-
-async function getTitle(this: IUserDocument): Promise<string> {
-    if (await hasPermission(this, Permissions.ROOT)) return "Root Administrator";
-    if (await hasPermission(this, Permissions.ADMINISTRATOR)) return "Site Adminstrator";
-    return "";
 }
 
 export async function findOneOrCreate(username: string): Promise<IUserDocument> {

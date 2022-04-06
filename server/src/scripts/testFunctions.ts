@@ -1,4 +1,4 @@
-import { connect, disconnect } from "../database/database";
+import { connect, disconnect } from "../database/mongodb/database";
 import { encodePermissions, hasPermission, Permissions } from "../routers/authenticator";
 require("dotenv").config();
 

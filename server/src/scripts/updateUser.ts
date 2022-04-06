@@ -1,4 +1,4 @@
-import { connect, disconnect } from "../database/database";
+import { connect, disconnect } from "../database/mongodb/database";
 import * as readline from 'readline';
 import * as bcrypt from 'bcrypt';
 

@@ -1,5 +1,5 @@
-import { TournamentModel } from "../database/schemas/tournament";
-import { connect, disconnect } from "../database/database";
+import { TournamentModel } from "../database/mongodb/schemas/tournament";
+import { connect, disconnect } from "../database/mongodb/database";
 
 (async () => {
     connect();

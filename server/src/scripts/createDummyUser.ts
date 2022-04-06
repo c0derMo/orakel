@@ -1,5 +1,5 @@
-import { UserModel } from "../database/schemas/users";
-import { connect, disconnect } from "../database/database";
+import { UserModel } from "../database/mongodb/schemas/users";
+import { connect, disconnect } from "../database/mongodb/database";
 require("dotenv").config();
 import * as bcrypt from "bcrypt"
 
