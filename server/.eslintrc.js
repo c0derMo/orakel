@@ -25,7 +25,6 @@ module.exports = {
         "no-unmodified-loop-condition": "warn",
         "no-unreachable-loop": "error",
         "camelcase": "warn",
-        "class-methods-use-this": "error",
         "curly": ["warn", "multi-line"],
         "default-case-last": "error",
         "dot-notation": "error",

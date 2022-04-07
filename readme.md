@@ -19,6 +19,8 @@ All server code is inside `server`. The server is written using TypeScript & Exp
 
 An development server can be ran using `yarn dev`.
 
+API documentation can be found [here](https://app.swaggerhub.com/apis-docs/c0derMo/orakel_backend/0.1.0).
+
 ## Motivation:
 - Boredom
 - Limited functionality / extensibility of already available tournament platforms
