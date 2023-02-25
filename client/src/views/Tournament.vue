@@ -2,6 +2,9 @@
   <div>
     <h1>{{ this.$route.params.tid }}</h1>
     <v-divider></v-divider>
+    <v-btn active>Bracket</v-btn>
+    <v-btn @click="editTournament" v-if="canEditTournament" class="ml-5">Edit Tournament</v-btn>
+    <v-divider></v-divider>
     <MatchEditDialog
       v-if="editDialogVisible"
       :match="matchToEdit"
@@ -50,6 +53,14 @@ export default {
         doubleElim: false,
       },
     };
+  },
+  computed: {
+    canEditTournament() {
+      return this.tournamentMetaData.organizor.id ===  this.$store.getters.getUser.userId ||
+        this.tournamentMetaData.admins.includes(this.$store.getters.getUser.userId) ||
+        this.$store.getters.getUser.permissions["ROOT"] ||
+        this.$store.getters.getUser.permissions["ADMINISTRATOR"]
+    }
   },
   async created() {
     await this.updateTournament();
