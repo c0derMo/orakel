@@ -1,13 +1,32 @@
-import { createApp } from "vue";
-import App from "./App.vue";
-import router from "./router";
-import store from "./store";
-import vuetify from "./plugins/vuetify";
-import Axios from "axios";
-import { loadFonts } from "./plugins/webfontloader";
+import { createApp } from 'vue';
+import { Quasar } from "quasar";
+import { createRouter, createWebHistory } from 'vue-router';
+import './style.css'
+import App from './App.vue'
+import { routes } from "vue-router/auto-routes";
+import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
-loadFonts();
+import "@quasar/extras/material-icons/material-icons.css";
+import "quasar/src/css/index.sass";
 
-Axios.defaults.headers.common["Authorization"] = `Bearer ${store.state.token}`;
+const app = createApp(App);
 
-createApp(App).use(router).use(store).use(vuetify).mount("#app");
+const router = createRouter({
+    history: createWebHistory(),
+    routes
+});
+
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
+
+app.use(Quasar, {
+    plugins: {},
+    config: {
+        dark: 'auto'
+    }
+});
+app.use(router);
+app.use(pinia);
+
+app.mount('#app')

@@ -1,37 +1,28 @@
 {
-  "name": "tournamentplatform",
+  "name": "orakel_server",
   "version": "1.0.0",
-  "main": "src/server.ts",
-  "author": "c0derMo",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon ./index.ts"
+  },
+  "author": "",
   "license": "MIT",
-  "private": true,
+  "description": "",
   "dependencies": {
-    "bcrypt": "^5.0.1",
-    "body-parser": "^1.19.0",
-    "cors": "^2.8.5",
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.0.5"
+    "bcrypt": "^5.1.1",
+    "consola": "^3.3.3",
+    "dotenv": "^16.4.7",
+    "h3": "latest",
+    "http-shutdown": "^1.2.2",
+    "jsonwebtoken": "^9.0.2",
+    "sqlite3": "^5.1.7",
+    "typeorm": "^0.3.20"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.0",
-    "@types/cors": "^2.8.12",
-    "@types/express": "^4.17.13",
-    "@types/jsonwebtoken": "^8.5.5",
-    "@types/mongoose": "^5.11.97",
-    "@types/node": "^16.7.10",
-    "@typescript-eslint/eslint-plugin": "^5.11.0",
-    "@typescript-eslint/parser": "^5.11.0",
-    "eslint": "^8.9.0",
-    "nodemon": "^2.0.12",
-    "typescript": "^4.5.5"
-  },
-  "scripts": {
-    "start": "ts-node ./src/server.ts",
-    "dev": "nodemon",
-    "build": "tsc",
-    "script": "cd src/scripts && ts-node",
-    "lint": "eslint ."
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.10.2",
+    "nodemon": "^3.1.9",
+    "tsx": "^4.19.2"
   }
 }

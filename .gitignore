@@ -3,3 +3,6 @@
 .DS_Store
 */dist/*
 .idea
+*.db
+*.db-shm
+*.db-wal
