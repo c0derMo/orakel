@@ -1,9 +1,10 @@
+import { IBracket } from "@shared/interfaces/ITournament";
 import { BaseEntity, Column, Entity, PrimaryColumn } from "typeorm";
 
 @Entity()
-export class Bracket extends BaseEntity {
+export class Bracket extends BaseEntity implements IBracket {
     @PrimaryColumn("text")
-    tournament: string;
+    tournamentId: string;
     @PrimaryColumn("text")
     name: string;
     @Column("text")

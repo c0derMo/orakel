@@ -5,6 +5,9 @@
         "moduleResolution": "node",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "paths": {
+            "@shared/*": ["../shared/*"]
+        }
     }
 }

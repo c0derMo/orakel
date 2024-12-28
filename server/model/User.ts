@@ -9,24 +9,24 @@ import {
 } from "typeorm";
 import { AccessPermission } from "./AccessPermission";
 import { Tournament } from "./Tournament";
+import type { IFullUser, IUserPermissions } from "@shared/interfaces/IUser";
 
 @Entity()
-export class User extends BaseEntity {
+export class User extends BaseEntity implements IFullUser {
     @PrimaryGeneratedColumn("uuid")
     id: string;
     @Column("text")
     username: string;
     @Column("text")
     passwordHash: string;
-    // TODO: Permissions!
     @Column("simple-json")
-    permissions: unknown[];
+    permissions: IUserPermissions[];
     @CreateDateColumn()
     registrationDate: Date;
     @UpdateDateColumn()
     lastUpdated: Date;
-    @OneToMany(() => AccessPermission, (ap) => ap.user)
-    accessableTournaments: AccessPermission[];
+    @OneToMany(() => AccessPermission, (ap) => ap.userId)
+    accessibleTournaments: AccessPermission[];
     @OneToMany(() => Tournament, (t) => t.owner)
     owningTournaments: Tournament[];
 }

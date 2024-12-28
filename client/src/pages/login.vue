@@ -32,6 +32,7 @@ import { useAPI } from "../composables/http";
 import { useUserStore } from "../composables/userStore";
 import { FetchError } from "ofetch";
 import { useRouter } from "vue-router";
+import type { IPublicUser } from "@shared/interfaces/IUser";
 
 const username = ref("");
 const password = ref("");
@@ -41,23 +42,18 @@ const errorMessage = ref("");
 const userStore = useUserStore();
 const router = useRouter();
 
-// TODO: Move to shared file
-interface User {
-    username: string;
-}
-
 async function tryLogin() {
     try {
-        const reply = await useAPI().fetch<{ token: string; user: User }>(
-            "/api/auth/login",
-            {
-                method: "POST",
-                body: {
-                    username: username.value,
-                    password: password.value,
-                },
+        const reply = await useAPI().fetch<{
+            token: string;
+            user: IPublicUser;
+        }>("/api/auth/login", {
+            method: "POST",
+            body: {
+                username: username.value,
+                password: password.value,
             },
-        );
+        });
         userStore.login(reply.token, reply.user);
         await router.push("/");
     } catch (e) {

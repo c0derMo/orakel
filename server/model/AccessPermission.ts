@@ -1,12 +1,15 @@
+import {
+    IAccessPermission,
+    TournamentPermission,
+} from "@shared/interfaces/ITournament";
 import { BaseEntity, Column, Entity, PrimaryColumn } from "typeorm";
 
 @Entity()
-export class AccessPermission extends BaseEntity {
+export class AccessPermission extends BaseEntity implements IAccessPermission {
     @PrimaryColumn("text")
-    tournament: string;
+    tournamentId: string;
     @PrimaryColumn("text")
-    user: string;
-    // TODO: Permission type!
+    userId: string;
     @Column("simple-json")
-    permissions: unknown;
+    permissions: TournamentPermission[];
 }

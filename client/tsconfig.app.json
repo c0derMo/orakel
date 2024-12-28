@@ -9,7 +9,10 @@
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true,
-        "moduleResolution": "bundler"
+        "moduleResolution": "bundler",
+        "paths": {
+            "@shared/*": ["../shared/*"]
+        }
     },
     "include": [
         "src/**/*.ts",
