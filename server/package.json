@@ -1,28 +1,35 @@
 {
-  "name": "orakel_server",
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "nodemon ./index.ts"
-  },
-  "author": "",
-  "license": "MIT",
-  "description": "",
-  "dependencies": {
-    "bcrypt": "^5.1.1",
-    "consola": "^3.3.3",
-    "dotenv": "^16.4.7",
-    "h3": "latest",
-    "http-shutdown": "^1.2.2",
-    "jsonwebtoken": "^9.0.2",
-    "sqlite3": "^5.1.7",
-    "typeorm": "^0.3.20"
-  },
-  "devDependencies": {
-    "@types/bcrypt": "^5.0.2",
-    "@types/jsonwebtoken": "^9.0.7",
-    "@types/node": "^22.10.2",
-    "nodemon": "^3.1.9",
-    "tsx": "^4.19.2"
-  }
+    "name": "orakel_server",
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "nodemon ./index.ts",
+        "lint": "eslint .",
+        "prettier": "prettier . --write"
+    },
+    "author": "",
+    "license": "MIT",
+    "description": "",
+    "dependencies": {
+        "bcrypt": "^5.1.1",
+        "consola": "^3.3.3",
+        "dotenv": "^16.4.7",
+        "h3": "latest",
+        "http-shutdown": "^1.2.2",
+        "jsonwebtoken": "^9.0.2",
+        "sqlite3": "^5.1.7",
+        "typeorm": "^0.3.20"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.17.0",
+        "@types/bcrypt": "^5.0.2",
+        "@types/jsonwebtoken": "^9.0.7",
+        "@types/node": "^22.10.2",
+        "eslint": "^9.17.0",
+        "nodemon": "^3.1.9",
+        "prettier": "^3.4.2",
+        "tsx": "^4.19.2",
+        "typescript": "^5.7.2",
+        "typescript-eslint": "^8.18.2"
+    }
 }

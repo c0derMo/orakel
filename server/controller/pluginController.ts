@@ -27,8 +27,14 @@ export default class PluginController {
 
     async findAllPlugins(): Promise<void> {
         try {
-            const directoryContents = await readdir(this.pluginDir, { withFileTypes: true });
-            logger.debug("Read %s directory, found %d entries", this.pluginDir, directoryContents.length);
+            const directoryContents = await readdir(this.pluginDir, {
+                withFileTypes: true,
+            });
+            logger.debug(
+                "Read %s directory, found %d entries",
+                this.pluginDir,
+                directoryContents.length,
+            );
             for (const entry of directoryContents) {
                 if (!entry.isDirectory()) {
                     logger.debug("%s: Not a directory", entry.name);
@@ -39,10 +45,14 @@ export default class PluginController {
                     entrypoint: join(entry.parentPath, entry.name, "index.ts"),
                     loaded: false,
                 };
-                logger.debug("Found plugin %s: %s", plugin.name, plugin.entrypoint);
-                this.plugins.push(plugin)
+                logger.debug(
+                    "Found plugin %s: %s",
+                    plugin.name,
+                    plugin.entrypoint,
+                );
+                this.plugins.push(plugin);
             }
-        } catch(e) {
+        } catch (e) {
             logger.debug("Error while reading plugin directory:");
             logger.debug(e);
         }
@@ -55,9 +65,9 @@ export default class PluginController {
                 await this.loadPlugin(plugin);
                 plugin.loaded = true;
                 logger.info("Plugin %s loaded successfully.", plugin.name);
-            } catch (e) {
+            } catch (e: unknown) {
                 plugin.loaded = false;
-                plugin.error = e;
+                plugin.error = e as Error;
                 logger.error("Plugin %s could not be loaded!", plugin.name);
                 logger.error(e);
             }
@@ -65,8 +75,8 @@ export default class PluginController {
     }
 
     async loadPlugin(plugin: PluginMetadata) {
-        const defaultExport = await import(plugin.entrypoint);
+        const defaultExport = (await import(plugin.entrypoint)) as unknown;
         // TODO: Actually do something with the require here
-        consola.debug(Object.getOwnPropertyNames(defaultExport))
+        consola.debug(Object.getOwnPropertyNames(defaultExport));
     }
 }

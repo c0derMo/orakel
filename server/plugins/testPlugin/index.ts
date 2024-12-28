@@ -5,5 +5,5 @@ export default function ree() {
 }
 
 export function otherFunc() {
-    
+    //
 }

@@ -1,4 +1,12 @@
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+    BaseEntity,
+    Column,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+} from "typeorm";
 import { User } from "./User";
 import { Bracket } from "./Bracket";
 
@@ -12,7 +20,7 @@ export class Tournament extends BaseEntity {
     owner: string;
     @ManyToOne(() => User)
     @JoinColumn({
-        name: "owner"
+        name: "owner",
     })
     owningUser?: User;
     @Column("text")

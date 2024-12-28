@@ -1,32 +1,39 @@
 {
-  "name": "orakel_client",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@quasar/extras": "^1.16.15",
-    "ofetch": "^1.4.1",
-    "pinia": "^2.3.0",
-    "pinia-plugin-persistedstate": "^4.2.0",
-    "quasar": "^2.17.5",
-    "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
-  },
-  "devDependencies": {
-    "@quasar/vite-plugin": "^1.8.1",
-    "@types/node": "^22.10.2",
-    "@vitejs/plugin-vue": "^5.2.1",
-    "@vue/tsconfig": "^0.7.0",
-    "sass-embedded": "^1.83.0",
-    "typescript": "~5.6.2",
-    "unplugin-vue-components": "^0.28.0",
-    "unplugin-vue-router": "^0.10.9",
-    "vite": "^6.0.5",
-    "vue-tsc": "^2.2.0"
-  }
+    "name": "orakel_client",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vue-tsc -b && vite build",
+        "preview": "vite preview",
+        "lint": "eslint .",
+        "prettier": "prettier . --write"
+    },
+    "dependencies": {
+        "@quasar/extras": "^1.16.15",
+        "ofetch": "^1.4.1",
+        "pinia": "^2.3.0",
+        "pinia-plugin-persistedstate": "^4.2.0",
+        "quasar": "^2.17.5",
+        "vue": "^3.5.13",
+        "vue-router": "^4.5.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.17.0",
+        "@quasar/vite-plugin": "^1.8.1",
+        "@types/node": "^22.10.2",
+        "@vitejs/plugin-vue": "^5.2.1",
+        "@vue/tsconfig": "^0.7.0",
+        "eslint": "^9.17.0",
+        "eslint-plugin-vue": "^9.32.0",
+        "prettier": "^3.4.2",
+        "sass-embedded": "^1.83.0",
+        "typescript": "~5.6.2",
+        "typescript-eslint": "^8.18.2",
+        "unplugin-vue-components": "^0.28.0",
+        "unplugin-vue-router": "^0.10.9",
+        "vite": "^6.0.5",
+        "vue-tsc": "^2.2.0"
+    }
 }

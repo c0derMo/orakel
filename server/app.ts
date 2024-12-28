@@ -9,8 +9,8 @@ app.use(router);
 app.use(useBase("/api/auth", authRouter.handler));
 
 router.get(
-  "/",
-  defineEventHandler((event) => {
-    return { path: event.path, message: "Hello World!" };
-  }),
+    "/",
+    defineEventHandler((event) => {
+        return { path: event.path, message: "Hello World!" };
+    }),
 );

@@ -11,27 +11,28 @@ export class DatabaseController {
     private dataSource: DataSource;
 
     constructor(database: string) {
-        const entities = [
-            User,
-            Bracket,
-            AccessPermission,
-            Tournament
-        ];
+        const entities = [User, Bracket, AccessPermission, Tournament];
 
-        logger.debug("Creating sqlite(%s) DataSource for %d entities", database, entities.length);
+        logger.debug(
+            "Creating sqlite(%s) DataSource for %d entities",
+            database,
+            entities.length,
+        );
         logger.debug(entities.map((c) => c.name));
 
         this.dataSource = new DataSource({
             type: "sqlite",
             database: database,
             entities: entities,
-            synchronize: true
+            synchronize: true,
         });
     }
 
     async connect() {
         if (this.dataSource.isInitialized) {
-            logger.warn("connect() called even though database is already connected!");
+            logger.warn(
+                "connect() called even though database is already connected!",
+            );
             return;
         }
         await this.dataSource.initialize();
@@ -40,7 +41,9 @@ export class DatabaseController {
 
     async disconnect() {
         if (!this.dataSource.isInitialized) {
-            logger.warn("disconnect() called even though database is not connected!");
+            logger.warn(
+                "disconnect() called even though database is not connected!",
+            );
             return;
         }
         await this.dataSource.destroy();

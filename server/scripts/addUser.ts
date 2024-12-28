@@ -7,8 +7,12 @@ async function addUser() {
     const db = new DatabaseController("./orakel.db");
     await db.connect();
 
-    const username = await consola.prompt("Please enter the username:", { type: "text" });
-    const password = await consola.prompt("Please enter the password:", { type: "text" });
+    const username = await consola.prompt("Please enter the username:", {
+        type: "text",
+    });
+    const password = await consola.prompt("Please enter the password:", {
+        type: "text",
+    });
 
     const user = new User();
     user.username = username;
