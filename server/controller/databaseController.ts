@@ -4,6 +4,7 @@ import { AccessPermission } from "../model/AccessPermission";
 import { Tournament } from "../model/Tournament";
 import { Bracket } from "../model/Bracket";
 import consola from "consola";
+import { TournamentParticipant } from "../model/TournamentParticipant";
 
 const logger = consola.withTag("Database");
 
@@ -11,7 +12,13 @@ export class DatabaseController {
     private dataSource: DataSource;
 
     constructor(database: string) {
-        const entities = [User, Bracket, AccessPermission, Tournament];
+        const entities = [
+            User,
+            Bracket,
+            AccessPermission,
+            Tournament,
+            TournamentParticipant,
+        ];
 
         logger.debug(
             "Creating sqlite(%s) DataSource for %d entities",

@@ -1,4 +1,7 @@
-import { IBracket } from "@shared/interfaces/ITournament";
+import {
+    IBracket,
+    IBracketEnrollmentConfig,
+} from "@shared/interfaces/IBracket";
 import { BaseEntity, Column, Entity, PrimaryColumn } from "typeorm";
 
 @Entity()
@@ -9,4 +12,6 @@ export class Bracket extends BaseEntity implements IBracket {
     name: string;
     @Column("text")
     type: string;
+    @Column("simple-json")
+    enrollmentConfig: IBracketEnrollmentConfig;
 }

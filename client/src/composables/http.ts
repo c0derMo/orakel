@@ -1,22 +1,20 @@
 import { ofetch, type $Fetch } from "ofetch";
+import { useUserStore } from "./userStore";
 
 interface APIInterface {
     fetch: $Fetch;
 }
 
 const baseURL = "http://localhost:3000";
-let authToken: string | null = null;
-
-export function setAuthToken(token: string | null) {
-    authToken = token;
-}
 
 export function useAPI(): APIInterface {
+    const authToken = useUserStore().token;
+
     return {
         fetch: ofetch.create({
             baseURL: baseURL,
             headers:
-                authToken != null
+                authToken != ""
                     ? {
                           Authorization: `Bearer ${authToken}`,
                       }

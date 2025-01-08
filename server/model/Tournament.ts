@@ -9,7 +9,11 @@ import {
 } from "typeorm";
 import { User } from "./User";
 import { Bracket } from "./Bracket";
-import { ITournament } from "@shared/interfaces/ITournament";
+import {
+    ITournament,
+    ITournamentParticipant,
+} from "@shared/interfaces/ITournament";
+import { TournamentParticipant } from "./TournamentParticipant";
 
 @Entity()
 export class Tournament extends BaseEntity implements ITournament {
@@ -30,4 +34,9 @@ export class Tournament extends BaseEntity implements ITournament {
     private: boolean;
     @OneToMany(() => Bracket, (bracket) => bracket.tournamentId)
     brackets: Bracket[];
+    @OneToMany(
+        () => TournamentParticipant,
+        (participant) => participant.tournamentId,
+    )
+    participants: ITournamentParticipant[];
 }
