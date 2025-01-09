@@ -1,7 +1,9 @@
-import { createError, createRouter, eventHandler, readBody } from "h3";
+import { createError, createRouter, eventHandler } from "h3";
 import { getUser } from "../controller/authController";
 import { ITournament } from "@shared/interfaces/ITournament";
 import { Tournament } from "../model/Tournament";
+import { z } from "zod";
+import { readValidatedBody } from "h3";
 
 export const tournamentRouter = createRouter();
 
@@ -16,8 +18,18 @@ tournamentRouter.put(
             });
         }
 
-        // TODO: Validate body
-        const tournamentData = await readBody<Partial<ITournament>>(event);
+        const tournamentSchema = z
+            .object({
+                urlName: z.string(),
+                name: z.string(),
+                private: z.boolean(),
+            })
+            .strict();
+
+        // TODO: Custom "read validated body" with better error returning?
+        const tournamentData = await readValidatedBody(event, (body) =>
+            tournamentSchema.parse(body),
+        );
 
         // TODO: Validate url is unique, etc.
 

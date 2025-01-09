@@ -8,6 +8,7 @@
         "strictNullChecks": true,
         "paths": {
             "@shared/*": ["../shared/*"]
-        }
+        },
+        "strict": true
     }
 }

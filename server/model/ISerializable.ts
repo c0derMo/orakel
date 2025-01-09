@@ -1,4 +1,4 @@
-import { isObject } from "lodash-es";
+import { isError, isObject } from "lodash-es";
 import consola from "consola";
 
 const logger = consola.withTag("Serializer");
@@ -8,7 +8,7 @@ export interface ISerializable {
 }
 
 export function ensureSerialized(body: unknown, route: string): unknown {
-    if (!isObject(body)) {
+    if (!isObject(body) || isError(body)) {
         return body;
     }
 
@@ -32,7 +32,14 @@ export function ensureSerialized(body: unknown, route: string): unknown {
         if (key === "serialized") {
             continue;
         }
-        body[key] = ensureSerialized(body[key], route);
+        const descriptor = Object.getOwnPropertyDescriptor(body, key);
+        if (!descriptor?.writable) {
+            continue;
+        }
+        (body as Record<string, unknown>)[key] = ensureSerialized(
+            (body as Record<string, unknown>)[key],
+            route,
+        );
     }
     return body;
 }

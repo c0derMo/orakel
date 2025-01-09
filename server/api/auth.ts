@@ -1,16 +1,21 @@
-import { createError, createRouter, eventHandler, readBody } from "h3";
+import { createError, createRouter, eventHandler, readValidatedBody } from "h3";
 import { AuthController } from "../controller/authController";
+import { z } from "zod";
 
 export const authRouter = createRouter();
 
 authRouter.post(
     "/login",
     eventHandler(async (event) => {
-        // TODO: Verify body
-        const data = await readBody<{
-            username: string;
-            password: string;
-        }>(event);
+        const bodySchema = z.object({
+            username: z.string(),
+            password: z.string(),
+        });
+
+        // TODO: Custom "read validated body" with better error returning?
+        const data = await readValidatedBody(event, (body) =>
+            bodySchema.parse(body),
+        );
 
         const authResult = await AuthController.tryLogin(
             data.username,
