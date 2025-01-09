@@ -9,10 +9,16 @@ import {
 } from "typeorm";
 import { AccessPermission } from "./AccessPermission";
 import { Tournament } from "./Tournament";
-import type { IFullUser, IUserPermissions } from "@shared/interfaces/IUser";
+import type {
+    IExtendedUser,
+    IFullUser,
+    IPublicUser,
+    IUserPermissions,
+} from "@shared/interfaces/IUser";
+import { ISerializable } from "./ISerializable";
 
 @Entity()
-export class User extends BaseEntity implements IFullUser {
+export class User extends BaseEntity implements IFullUser, ISerializable {
     @PrimaryGeneratedColumn("uuid")
     id: string;
     @Column("text")
@@ -29,4 +35,27 @@ export class User extends BaseEntity implements IFullUser {
     accessibleTournaments: AccessPermission[];
     @OneToMany(() => Tournament, (t) => t.owner)
     owningTournaments: Tournament[];
+
+    serialized = false;
+
+    toPublicUser(): IPublicUser & ISerializable {
+        return {
+            id: this.id,
+            username: this.username,
+            registrationDate: this.registrationDate,
+            serialized: true,
+        };
+    }
+
+    toExtendedUser(): IExtendedUser & ISerializable {
+        return {
+            id: this.id,
+            username: this.username,
+            registrationDate: this.registrationDate,
+            permissions: this.permissions,
+            accessibleTournaments: this.accessibleTournaments,
+            owningTournaments: this.owningTournaments,
+            serialized: true,
+        };
+    }
 }

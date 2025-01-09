@@ -40,8 +40,6 @@ export class AuthController {
             { expiresIn: "7d" },
         );
 
-        // TODO: Leaking the entire user here might not be the best idea...
-
         return { token, user };
     }
 

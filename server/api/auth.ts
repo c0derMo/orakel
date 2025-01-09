@@ -24,6 +24,9 @@ authRouter.post(
             });
         }
 
-        return authResult;
+        return {
+            token: authResult.token,
+            user: authResult.user.toExtendedUser(),
+        };
     }),
 );

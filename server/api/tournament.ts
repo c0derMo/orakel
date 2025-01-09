@@ -38,7 +38,11 @@ tournamentRouter.get(
             },
         });
 
-        // TODO: Also dont leak entire users here
+        tournaments.map<ITournament>((tournament) => {
+            (tournament as ITournament).owningUser =
+                tournament.owningUser.toPublicUser();
+            return tournament;
+        });
 
         return tournaments;
     }),
