@@ -3,7 +3,7 @@ import { getUser } from "../controller/authController";
 import { ITournament } from "@shared/interfaces/ITournament";
 import { Tournament } from "../model/Tournament";
 import { z } from "zod";
-import { readValidatedBody } from "h3";
+import { validateBody } from "../utils/bodyValidation";
 
 export const tournamentRouter = createRouter();
 
@@ -26,10 +26,7 @@ tournamentRouter.put(
             })
             .strict();
 
-        // TODO: Custom "read validated body" with better error returning?
-        const tournamentData = await readValidatedBody(event, (body) =>
-            tournamentSchema.parse(body),
-        );
+        const tournamentData = await validateBody(event, tournamentSchema);
 
         // TODO: Validate url is unique, etc.
 
