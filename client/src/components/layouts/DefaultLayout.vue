@@ -25,7 +25,9 @@
         </q-header>
 
         <q-page-container>
-            <slot />
+            <q-page class="flex flex-column justify-center items-start">
+                <slot />
+            </q-page>
         </q-page-container>
     </q-layout>
 </template>

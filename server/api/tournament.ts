@@ -28,3 +28,18 @@ tournamentRouter.put(
         return tournament.id;
     }),
 );
+
+tournamentRouter.get(
+    "/",
+    eventHandler(async () => {
+        const tournaments = await Tournament.find({
+            relations: {
+                owningUser: true,
+            },
+        });
+
+        // TODO: Also dont leak entire users here
+
+        return tournaments;
+    }),
+);
