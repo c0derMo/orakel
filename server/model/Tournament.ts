@@ -8,7 +8,7 @@ import {
     PrimaryGeneratedColumn,
 } from "typeorm";
 import { User } from "./User";
-import { Bracket } from "./Bracket";
+import { TournamentStage } from "./TournamentStage";
 import {
     ITournament,
     ITournamentParticipant,
@@ -32,8 +32,8 @@ export class Tournament extends BaseEntity implements ITournament {
     name: string;
     @Column("boolean")
     private: boolean;
-    @OneToMany(() => Bracket, (bracket) => bracket.tournamentId)
-    brackets: Bracket[];
+    @OneToMany(() => TournamentStage, (stage) => stage.tournamentId)
+    stages: TournamentStage[];
     @OneToMany(
         () => TournamentParticipant,
         (participant) => participant.tournamentId,

@@ -2,9 +2,10 @@ import { DataSource } from "typeorm";
 import { User } from "../model/User";
 import { AccessPermission } from "../model/AccessPermission";
 import { Tournament } from "../model/Tournament";
-import { Bracket } from "../model/Bracket";
-import consola from "consola";
+import { TournamentStage } from "../model/TournamentStage";
 import { TournamentParticipant } from "../model/TournamentParticipant";
+import { StageParticipant } from "../model/StageParticipant";
+import consola from "consola";
 
 const logger = consola.withTag("Database");
 
@@ -14,10 +15,11 @@ export class DatabaseController {
     constructor(database: string) {
         const entities = [
             User,
-            Bracket,
+            TournamentStage,
             AccessPermission,
             Tournament,
             TournamentParticipant,
+            StageParticipant
         ];
 
         logger.debug(

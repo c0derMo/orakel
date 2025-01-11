@@ -1,4 +1,4 @@
-import type { IBracket } from "./IBracket";
+import type { ITournamentStage } from "./ITournamentStage";
 import type { IPublicUser } from "./IUser";
 
 export interface ITournament {
@@ -7,7 +7,7 @@ export interface ITournament {
     owningUser: IPublicUser;
     name: string;
     private: boolean;
-    brackets: IBracket[];
+    stages: ITournamentStage[];
     participants: ITournamentParticipant[];
 }
 

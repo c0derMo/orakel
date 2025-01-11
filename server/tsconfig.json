@@ -9,6 +9,7 @@
         "paths": {
             "@shared/*": ["../shared/*"]
         },
-        "strict": true
+        "strict": true,
+        "strictPropertyInitialization": false
     }
 }
