@@ -19,7 +19,7 @@ export class DatabaseController {
             AccessPermission,
             Tournament,
             TournamentParticipant,
-            StageParticipant
+            StageParticipant,
         ];
 
         logger.debug(
@@ -32,9 +32,16 @@ export class DatabaseController {
         this.dataSource = new DataSource({
             type: "sqlite",
             database: database,
+            subscribers: [],
             entities: entities,
             synchronize: true,
         });
+    }
+
+    addSubscriber(subscriber: string | Function) {
+        (this.dataSource.options.subscribers as (string | Function)[]).push(
+            subscriber,
+        );
     }
 
     async connect() {

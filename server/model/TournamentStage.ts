@@ -8,7 +8,7 @@ import { BaseEntity, Column, Entity, PrimaryColumn } from "typeorm";
 export class TournamentStage extends BaseEntity implements ITournamentStage {
     @PrimaryColumn("text")
     tournamentId: string;
-    @PrimaryColumn("int32")
+    @PrimaryColumn("integer")
     stageNumber: number;
     @Column("text")
     name: string;
