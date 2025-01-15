@@ -52,7 +52,7 @@ if (!userStore.isLoggedIn) {
     username.value = userStore.user!.username;
 }
 
-const urlPrefix = new URL(window.location).origin + "/tournaments/";
+const urlPrefix = new URL(window.location.toString()).origin + "/tournaments/";
 
 async function submitForm() {
     try {

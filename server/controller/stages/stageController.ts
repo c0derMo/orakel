@@ -78,13 +78,13 @@ export class StageController {
     }
 
     private addEventListeners(listener: DatabaseListener) {
-        listener.tournament.on("updated", async (tournament) => {
-            await this.callForEachStage(tournament.id, (stage, config) =>
+        listener.tournament.on("updated", (tournament) => {
+            void this.callForEachStage(tournament.id, (stage, config) =>
                 config.emit("tournamentUpdated", stage, tournament),
             );
         });
-        listener.tournamentParticipant.on("inserted", async (participant) => {
-            await this.callForEachStage(
+        listener.tournamentParticipant.on("inserted", (participant) => {
+            void this.callForEachStage(
                 participant.tournamentId,
                 (stage, config) =>
                     config.emit(
@@ -94,8 +94,8 @@ export class StageController {
                     ),
             );
         });
-        listener.tournamentParticipant.on("updated", async (participant) => {
-            await this.callForEachStage(
+        listener.tournamentParticipant.on("updated", (participant) => {
+            void this.callForEachStage(
                 participant.tournamentId,
                 (stage, config) =>
                     config.emit(
@@ -105,8 +105,8 @@ export class StageController {
                     ),
             );
         });
-        listener.tournamentParticipant.on("removed", async (participant) => {
-            await this.callForEachStage(
+        listener.tournamentParticipant.on("removed", (participant) => {
+            void this.callForEachStage(
                 participant.tournamentId,
                 (stage, config) =>
                     config.emit(
@@ -116,43 +116,43 @@ export class StageController {
                     ),
             );
         });
-        listener.tournamentStage.on("inserted", async (stage) => {
-            await this.callForEachStage(
+        listener.tournamentStage.on("inserted", (stage) => {
+            void this.callForEachStage(
                 stage.tournamentId,
                 (targetStage, config) =>
                     config.emit("tournamentStageInserted", stage, targetStage),
             );
         });
-        listener.tournamentStage.on("updated", async (stage) => {
-            await this.callForEachStage(
+        listener.tournamentStage.on("updated", (stage) => {
+            void this.callForEachStage(
                 stage.tournamentId,
                 (targetStage, config) =>
                     config.emit("tournamentStageUpdated", stage, targetStage),
             );
         });
-        listener.tournamentStage.on("removed", async (stage) => {
-            await this.callForEachStage(
+        listener.tournamentStage.on("removed", (stage) => {
+            void this.callForEachStage(
                 stage.tournamentId,
                 (targetStage, config) =>
                     config.emit("tournamentStageRemoved", stage, targetStage),
             );
         });
-        listener.stageParticipant.on("inserted", async (participant) => {
-            await this.callForEachStage(
+        listener.stageParticipant.on("inserted", (participant) => {
+            void this.callForEachStage(
                 participant.tournamentId,
                 (stage, config) =>
                     config.emit("stageParticipantInserted", stage, participant),
             );
         });
-        listener.stageParticipant.on("updated", async (participant) => {
-            await this.callForEachStage(
+        listener.stageParticipant.on("updated", (participant) => {
+            void this.callForEachStage(
                 participant.tournamentId,
                 (stage, config) =>
                     config.emit("stageParticipantUpdated", stage, participant),
             );
         });
-        listener.stageParticipant.on("removed", async (participant) => {
-            await this.callForEachStage(
+        listener.stageParticipant.on("removed", (participant) => {
+            void this.callForEachStage(
                 participant.tournamentId,
                 (stage, config) =>
                     config.emit("stageParticipantRemoved", stage, participant),

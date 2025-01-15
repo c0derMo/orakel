@@ -9,17 +9,17 @@ export class AllParticipantsEnrollmentConfig extends EnrollmentConfig {
         this.on("tournamentParticipantRemoved", this.participantRemoved);
     }
 
-    async participantAdded(
+    public participantAdded = (
         stage: ITournamentStage,
         participant: ITournamentParticipant,
-    ) {
-        this.addToStage(stage, participant);
-    }
+    ) => {
+        void this.addToStage(stage, participant);
+    };
 
-    async participantRemoved(
+    public participantRemoved = (
         stage: ITournamentStage,
         participant: ITournamentParticipant,
-    ) {
-        this.removeFromStage(stage, participant);
-    }
+    ) => {
+        void this.removeFromStage(stage, participant);
+    };
 }

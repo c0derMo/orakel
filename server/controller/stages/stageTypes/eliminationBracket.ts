@@ -16,7 +16,7 @@ export class EliminationBracketStageType extends StageType {
                 tournamentId: stage.tournamentId,
                 stageNumber: stage.stageNumber,
                 groupNumber: i,
-                title: `Round ${i+1}`
+                title: `Round ${i + 1}`,
             });
         }
 
@@ -40,38 +40,75 @@ export class EliminationBracketStageType extends StageType {
                     precessorGames: [],
                     templateParticipantNames: [],
                     participants: 2,
-                }
+                };
                 if (i === 0) {
                     // In first round, we add all the players who are participating
-                    game.participantIds.push(stage.participants[2 * (gameNumber - 1)]?.participantId ?? "BYE");
-                    game.participantIds.push(stage.participants[(2 * (gameNumber - 1)) + 1]?.participantId ?? "BYE");
+                    game.participantIds.push(
+                        stage.participants[2 * (gameNumber - 1)]
+                            ?.participantId ?? "BYE",
+                    );
+                    game.participantIds.push(
+                        stage.participants[2 * (gameNumber - 1) + 1]
+                            ?.participantId ?? "BYE",
+                    );
                 } else {
                     const gamesInPreviousRound = gamesThisRound * 2;
-                    const firstGameThisGroup = games.findIndex((g) => g.groupNumber === i)
-                    const gameNumberThisGroup = firstGameThisGroup === -1 ? 0 : gameNumber - firstGameThisGroup - 1;
-                    game.precessorGames.push(gameNumber - gamesInPreviousRound + gameNumberThisGroup);
-                    game.precessorGames.push(gameNumber - gamesInPreviousRound + gameNumberThisGroup + 1);
+                    const firstGameThisGroup = games.findIndex(
+                        (g) => g.groupNumber === i,
+                    );
+                    const gameNumberThisGroup =
+                        firstGameThisGroup === -1
+                            ? 0
+                            : gameNumber - firstGameThisGroup - 1;
+                    game.precessorGames.push(
+                        gameNumber - gamesInPreviousRound + gameNumberThisGroup,
+                    );
+                    game.precessorGames.push(
+                        gameNumber -
+                            gamesInPreviousRound +
+                            gameNumberThisGroup +
+                            1,
+                    );
 
-                    game.templateParticipantNames.push(`Winner of game ${game.precessorGames[0]}`);
-                    game.templateParticipantNames.push(`Winner of game ${game.precessorGames[1]}`);
+                    game.templateParticipantNames.push(
+                        `Winner of game ${game.precessorGames[0]}`,
+                    );
+                    game.templateParticipantNames.push(
+                        `Winner of game ${game.precessorGames[1]}`,
+                    );
 
-                    const upperMatchWinner = this.getMatchWinnerIndex(stage, game.precessorGames[0]);
+                    const upperMatchWinner = this.getMatchWinnerIndex(
+                        stage,
+                        game.precessorGames[0],
+                    );
                     if (upperMatchWinner != null) {
-                        game.participantIds.push(games[game.precessorGames[0] - 1].participantIds[upperMatchWinner]);
+                        game.participantIds.push(
+                            games[game.precessorGames[0] - 1].participantIds[
+                                upperMatchWinner
+                            ],
+                        );
                     } else {
                         game.participantIds.push(null);
                     }
 
-                    const lowerMatchWinner = this.getMatchWinnerIndex(stage, game.precessorGames[1]);
+                    const lowerMatchWinner = this.getMatchWinnerIndex(
+                        stage,
+                        game.precessorGames[1],
+                    );
                     if (lowerMatchWinner != null) {
-                        game.participantIds.push(games[game.precessorGames[1] - 1].participantIds[lowerMatchWinner]);
+                        game.participantIds.push(
+                            games[game.precessorGames[1] - 1].participantIds[
+                                lowerMatchWinner
+                            ],
+                        );
                     } else {
                         game.participantIds.push(null);
                     }
                 }
 
-                
-                const match = stage.reportedGames.find((match) => match.matchNumber === gameNumber);
+                const match = stage.reportedGames.find(
+                    (match) => match.matchNumber === gameNumber,
+                );
                 if (match != null) {
                     game.result = match;
                 }
@@ -87,8 +124,13 @@ export class EliminationBracketStageType extends StageType {
         return games;
     }
 
-    getMatchWinnerIndex(stage: TournamentStage, matchNumber: number): number | null {
-        const match = stage.reportedGames.find((match) => match.matchNumber === matchNumber);
+    getMatchWinnerIndex(
+        stage: TournamentStage,
+        matchNumber: number,
+    ): number | null {
+        const match = stage.reportedGames.find(
+            (match) => match.matchNumber === matchNumber,
+        );
         if (match == null) {
             return null;
         }

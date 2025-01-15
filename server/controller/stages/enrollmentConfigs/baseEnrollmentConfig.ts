@@ -57,7 +57,7 @@ export class EnrollmentConfig extends EventEmitter<EnrollmentConfigEvents> {
         this.name = name;
     }
 
-    async addToStage(
+    public async addToStage(
         stage: ITournamentStage,
         participant: ITournamentParticipant,
         additionalData?: Record<string, unknown>,
@@ -71,7 +71,7 @@ export class EnrollmentConfig extends EventEmitter<EnrollmentConfigEvents> {
         await stageParticipant.save();
     }
 
-    async removeFromStage(
+    public async removeFromStage(
         stage: ITournamentStage,
         participant: ITournamentParticipant,
     ): Promise<void> {

@@ -13,14 +13,20 @@ export function buildH3App(stageController: StageController) {
             response.body = ensureSerialized(response.body, event.path);
         },
     });
-    
+
     const router = createRouter();
     app.use(router);
-    
+
     app.use(useBase("/api/auth", authRouter.handler));
     // app.use(useBase("/api/tournament", buildTournamentRouter(stageController).handler));
-    router.use("/api/tournament/**", useBase("/api/tournament", buildTournamentRouter(stageController).handler));
-    
+    router.use(
+        "/api/tournament/**",
+        useBase(
+            "/api/tournament",
+            buildTournamentRouter(stageController).handler,
+        ),
+    );
+
     router.get(
         "/",
         defineEventHandler((event) => {
@@ -30,4 +36,3 @@ export function buildH3App(stageController: StageController) {
 
     return app;
 }
-

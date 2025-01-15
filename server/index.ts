@@ -29,7 +29,9 @@ async function start() {
 
     await db.connect();
 
-    server = withShutdown(createServer(toNodeListener(buildH3App(stageController))));
+    server = withShutdown(
+        createServer(toNodeListener(buildH3App(stageController))),
+    );
 
     server.listen(3000);
     consola.success("Server started.");

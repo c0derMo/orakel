@@ -40,10 +40,13 @@ export class DatabaseController {
         });
     }
 
-    addSubscriber(subscriber: string | Function) {
-        (this.dataSource.options.subscribers as (string | Function)[]).push(
-            subscriber,
-        );
+    addSubscriber<T>(subscriber: string | (new () => T)) {
+        (
+            this.dataSource.options.subscribers as (
+                | string
+                | (new () => unknown)
+            )[]
+        ).push(subscriber);
     }
 
     async connect() {

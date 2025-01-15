@@ -10,5 +10,4 @@ export abstract class StageType {
 
     abstract getGameGroups(stage: TournamentStage): IStageGameGroup[];
     abstract getGames(stage: TournamentStage): IStageGame[];
-
 }

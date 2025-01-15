@@ -50,10 +50,10 @@ export class DatabaseListener {
     }
 }
 
-function buildDatabaseSubscriber<T extends Function>(
-    entity: T,
+function buildDatabaseSubscriber<T>(
+    entity: new () => T,
     emitter: EventEmitter<DatabaseEvents<T>>,
-): Function {
+): new () => EntitySubscriberInterface<T> {
     @EventSubscriber()
     class DatabaseSubscriber implements EntitySubscriberInterface<T> {
         listenTo() {

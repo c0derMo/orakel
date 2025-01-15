@@ -7,20 +7,22 @@ import { validateBody } from "../utils/bodyValidation";
 import { StageController } from "../controller/stages/stageController";
 import { TournamentStage } from "../model/TournamentStage";
 
-export function buildTournamentRouter(stageController: StageController): Router {
+export function buildTournamentRouter(
+    stageController: StageController,
+): Router {
     const tournamentRouter = createRouter();
 
     tournamentRouter.put(
         "/",
         eventHandler(async (event) => {
             const user = await getUser(event);
-    
+
             if (user == null) {
                 throw createError({
                     statusCode: 403,
                 });
             }
-    
+
             const tournamentSchema = z
                 .object({
                     urlName: z.string(),
@@ -28,11 +30,11 @@ export function buildTournamentRouter(stageController: StageController): Router 
                     private: z.boolean(),
                 })
                 .strict();
-    
+
             const tournamentData = await validateBody(event, tournamentSchema);
-    
+
             // TODO: Validate url is unique, etc.
-    
+
             const tournament = new Tournament();
             Object.assign(tournament, tournamentData);
             tournament.owningUser = user;
@@ -40,7 +42,7 @@ export function buildTournamentRouter(stageController: StageController): Router 
             return tournament.id;
         }),
     );
-    
+
     tournamentRouter.get(
         "/",
         eventHandler(async () => {
@@ -49,13 +51,13 @@ export function buildTournamentRouter(stageController: StageController): Router 
                     owningUser: true,
                 },
             });
-    
+
             tournaments.map<ITournament>((tournament) => {
                 (tournament as ITournament).owningUser =
                     tournament.owningUser.toPublicUser();
                 return tournament;
             });
-    
+
             return tournaments;
         }),
     );
@@ -63,45 +65,53 @@ export function buildTournamentRouter(stageController: StageController): Router 
     tournamentRouter.get(
         "/:tournamentId/stages/:stageNumber/gameGroups",
         eventHandler(async (event) => {
-            if (event.context.params?.tournamentId == null || event.context.params?.stageNumber == null) {
+            if (
+                event.context.params?.tournamentId == null ||
+                event.context.params?.stageNumber == null
+            ) {
                 throw createError({ statusCode: 400 });
             }
 
             const stage = await TournamentStage.findOne({
                 where: {
                     tournamentId: event.context.params.tournamentId,
-                    stageNumber: parseInt(event.context.params.stageNumber)
+                    stageNumber: parseInt(event.context.params.stageNumber),
                 },
                 relations: {
                     participants: true,
                     reportedGames: true,
-                }
+                },
             });
 
             if (stage == null) {
                 throw createError({ statusCode: 404 });
             }
 
-            return stageController.getStageType(stage.type).getGameGroups(stage);
-        })
+            return stageController
+                .getStageType(stage.type)
+                .getGameGroups(stage);
+        }),
     );
 
     tournamentRouter.get(
         "/:tournamentId/stages/:stageNumber/games",
         eventHandler(async (event) => {
-            if (event.context.params?.tournamentId == null || event.context.params?.stageNumber == null) {
+            if (
+                event.context.params?.tournamentId == null ||
+                event.context.params?.stageNumber == null
+            ) {
                 throw createError({ statusCode: 400 });
             }
 
             const stage = await TournamentStage.findOne({
                 where: {
                     tournamentId: event.context.params.tournamentId,
-                    stageNumber: parseInt(event.context.params.stageNumber)
+                    stageNumber: parseInt(event.context.params.stageNumber),
                 },
                 relations: {
                     participants: true,
                     reportedGames: true,
-                }
+                },
             });
 
             if (stage == null) {
@@ -109,8 +119,8 @@ export function buildTournamentRouter(stageController: StageController): Router 
             }
 
             return stageController.getStageType(stage.type).getGames(stage);
-        })
-    )
+        }),
+    );
 
     tournamentRouter.get(
         "/:tournamentId/stages",
@@ -121,12 +131,12 @@ export function buildTournamentRouter(stageController: StageController): Router 
 
             const stages = await TournamentStage.find({
                 where: {
-                    tournamentId: event.context.params.tournamentId
-                }
+                    tournamentId: event.context.params.tournamentId,
+                },
             });
 
             return stages;
-        })
+        }),
     );
 
     tournamentRouter.get(
@@ -138,20 +148,21 @@ export function buildTournamentRouter(stageController: StageController): Router 
 
             const tournament = await Tournament.findOne({
                 where: {
-                    urlName: event.context.params.tournamentId
+                    urlName: event.context.params.tournamentId,
                 },
                 relations: {
-                    owningUser: true
-                }
+                    owningUser: true,
+                },
             });
             if (tournament == null) {
                 throw createError({ statusCode: 404 });
             }
 
-            (tournament as ITournament).owningUser = tournament.owningUser.toPublicUser();
+            (tournament as ITournament).owningUser =
+                tournament.owningUser.toPublicUser();
 
             return tournament;
-        })
+        }),
     );
 
     return tournamentRouter;

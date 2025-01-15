@@ -1,5 +1,12 @@
 import { IStageParticipant } from "@shared/interfaces/ITournamentStage";
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import {
+    BaseEntity,
+    Column,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryColumn,
+} from "typeorm";
 import { TournamentStage } from "./TournamentStage";
 
 @Entity()
