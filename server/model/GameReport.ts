@@ -1,21 +1,22 @@
-import { IStageParticipant } from "@shared/interfaces/ITournamentStage";
+import { IGameReport } from "@shared/interfaces/IStageGame";
 import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { TournamentStage } from "./TournamentStage";
 
 @Entity()
-export class StageParticipant extends BaseEntity implements IStageParticipant {
+export class GameReport extends BaseEntity implements IGameReport {
     @PrimaryColumn("text")
     tournamentId: string;
     @PrimaryColumn("integer")
     stageNumber: number;
-    @PrimaryColumn("text")
-    participantId: string;
+    @PrimaryColumn("integer")
+    matchNumber: number;
     @Column("simple-json")
-    additionalInfo: Record<string, unknown>;
+    scores: number[];
+
     @ManyToOne(() => TournamentStage)
     @JoinColumn([
         { name: "tournamentId", referencedColumnName: "tournamentId" },
-        { name: "stageNumber", referencedColumnName: "stageNumber" },
+        { name: "stageNumber", referencedColumnName: "stageNumber" }
     ])
     stage: TournamentStage;
 }

@@ -1,7 +1,7 @@
 import "dotenv/config";
-import { createServer } from "node:http";
+import { Server, createServer } from "node:http";
 import { toNodeListener } from "h3";
-import { app } from "./app";
+import { buildH3App } from "./app";
 import withShutdown from "http-shutdown";
 import PluginController from "./controller/pluginController";
 import consola from "consola";
@@ -9,8 +9,7 @@ import { DatabaseController } from "./controller/databaseController";
 import { DatabaseListener } from "./controller/databaseListener";
 import { StageController } from "./controller/stages/stageController";
 
-const server = withShutdown(createServer(toNodeListener(app)));
-
+let server: Server & { shutdown: (cb: (err?: Error) => unknown) => void };
 let db: DatabaseController;
 let dbListener: DatabaseListener;
 let stageController: StageController;
@@ -24,12 +23,13 @@ async function start() {
     dbListener.addListenersToDatabase(db);
 
     stageController = new StageController(dbListener);
-    stageController.loadDefaultEnrollmentConfigs();
 
     const pm = new PluginController(import.meta.dirname);
-    await pm.findAndLoadPlugins();
+    // await pm.findAndLoadPlugins();
 
     await db.connect();
+
+    server = withShutdown(createServer(toNodeListener(buildH3App(stageController))));
 
     server.listen(3000);
     consola.success("Server started.");

@@ -6,6 +6,7 @@ import { TournamentStage } from "../model/TournamentStage";
 import { TournamentParticipant } from "../model/TournamentParticipant";
 import { StageParticipant } from "../model/StageParticipant";
 import consola from "consola";
+import { GameReport } from "../model/GameReport";
 
 const logger = consola.withTag("Database");
 
@@ -20,6 +21,7 @@ export class DatabaseController {
             Tournament,
             TournamentParticipant,
             StageParticipant,
+            GameReport,
         ];
 
         logger.debug(

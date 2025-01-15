@@ -12,7 +12,9 @@
         "moduleResolution": "bundler",
         "paths": {
             "@shared/*": ["../shared/*"]
-        }
+        },
+        "module": "esnext",
+        "target": "es2020"
     },
     "include": [
         "src/**/*.ts",

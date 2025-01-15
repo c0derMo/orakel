@@ -15,6 +15,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useAPI } from "../../composables/http";
+import { ITournament } from "@shared/interfaces/ITournament";
 
 const columnDefinition = [
     { name: "id", label: "UUID", field: "id" },

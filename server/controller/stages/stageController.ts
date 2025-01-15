@@ -4,22 +4,24 @@ import consola from "consola";
 import { DatabaseListener } from "../databaseListener";
 import { EnrollmentConfig } from "./enrollmentConfigs/baseEnrollmentConfig";
 import { AllParticipantsEnrollmentConfig } from "./enrollmentConfigs/allParticipants";
+import { StageType } from "./stageTypes/baseStageType";
+import { EliminationBracketStageType } from "./stageTypes/eliminationBracket";
 
 const logger = consola.withTag("StageController");
 
-class BracketType {}
-
 export class StageController {
     private enrollmentConfigs: Map<string, EnrollmentConfig>;
+    private stageTypes: Map<string, StageType>;
 
     constructor(listener: DatabaseListener) {
         this.enrollmentConfigs = new Map();
+        this.stageTypes = new Map();
 
         this.addEventListeners(listener);
-    }
 
-    loadDefaultEnrollmentConfigs() {
         this.addEnrollmentConfig(new AllParticipantsEnrollmentConfig());
+
+        this.addStageType(new EliminationBracketStageType());
     }
 
     addEnrollmentConfig(config: EnrollmentConfig) {
@@ -35,6 +37,21 @@ export class StageController {
             throw new Error(`No EnrollmentConfig ${name}`);
         }
         return config;
+    }
+
+    addStageType(type: StageType) {
+        if (this.stageTypes.has(type.name)) {
+            throw new Error(`StageType ${type.name} already exists`);
+        }
+        this.stageTypes.set(type.name, type);
+    }
+
+    getStageType(name: string): StageType {
+        const stageType = this.stageTypes.get(name);
+        if (stageType == null) {
+            throw new Error(`No StageType ${name}`);
+        }
+        return stageType;
     }
 
     private async getStagesOfTournament(

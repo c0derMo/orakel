@@ -2,7 +2,9 @@ import {
     ITournamentStage,
     IStageEnrollmentConfig,
 } from "@shared/interfaces/ITournamentStage";
-import { BaseEntity, Column, Entity, PrimaryColumn } from "typeorm";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+import { StageParticipant } from "./StageParticipant";
+import { GameReport } from "./GameReport";
 
 @Entity()
 export class TournamentStage extends BaseEntity implements ITournamentStage {
@@ -16,4 +18,8 @@ export class TournamentStage extends BaseEntity implements ITournamentStage {
     type: string;
     @Column("simple-json")
     enrollmentConfig: IStageEnrollmentConfig;
+    @OneToMany(() => StageParticipant, (sp) => sp.stage)
+    participants: StageParticipant[];
+    @OneToMany(() => GameReport, (g) => g.stage)
+    reportedGames: GameReport[];
 }

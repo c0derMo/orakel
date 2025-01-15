@@ -21,4 +21,12 @@ export default defineConfig({
             dts: true,
         }),
     ],
+    esbuild: {
+        supported: {
+            'top-level-await': true
+        },
+    },
+    build: {
+        target: 'esnext'
+    }
 });
