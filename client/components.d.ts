@@ -10,6 +10,7 @@ declare module 'vue' {
     DefaultLayout: typeof import('./src/components/layouts/DefaultLayout.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    StageGame: typeof import('./src/components/StageGame.vue')['default']
     StageView: typeof import('./src/components/StageView.vue')['default']
     StageViewer: typeof import('./src/components/StageViewer.vue')['default']
   }
