@@ -13,7 +13,7 @@ export function buildTournamentRouter(
     const tournamentRouter = createRouter();
 
     tournamentRouter.put(
-        "/",
+        "",
         eventHandler(async (event) => {
             const user = await getUser(event);
 
@@ -40,25 +40,6 @@ export function buildTournamentRouter(
             tournament.owningUser = user;
             await tournament.save();
             return tournament.id;
-        }),
-    );
-
-    tournamentRouter.get(
-        "/",
-        eventHandler(async () => {
-            const tournaments = await Tournament.find({
-                relations: {
-                    owningUser: true,
-                },
-            });
-
-            tournaments.map<ITournament>((tournament) => {
-                (tournament as ITournament).owningUser =
-                    tournament.owningUser.toPublicUser();
-                return tournament;
-            });
-
-            return tournaments;
         }),
     );
 
@@ -162,6 +143,25 @@ export function buildTournamentRouter(
                 tournament.owningUser.toPublicUser();
 
             return tournament;
+        }),
+    );
+
+    tournamentRouter.get(
+        "/",
+        eventHandler(async () => {
+            const tournaments = await Tournament.find({
+                relations: {
+                    owningUser: true,
+                },
+            });
+
+            tournaments.map<ITournament>((tournament) => {
+                (tournament as ITournament).owningUser =
+                    tournament.owningUser.toPublicUser();
+                return tournament;
+            });
+
+            return tournaments;
         }),
     );
 

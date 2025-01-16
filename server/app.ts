@@ -18,9 +18,7 @@ export function buildH3App(stageController: StageController) {
     app.use(router);
 
     app.use(useBase("/api/auth", authRouter.handler));
-    // app.use(useBase("/api/tournament", buildTournamentRouter(stageController).handler));
-    router.use(
-        "/api/tournament/**",
+    app.use(
         useBase(
             "/api/tournament",
             buildTournamentRouter(stageController).handler,
