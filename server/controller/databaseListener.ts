@@ -13,9 +13,9 @@ import {
 import { DatabaseController } from "./databaseController";
 
 interface DatabaseEvents<T> {
-    inserted: [entity: T];
-    updated: [entity: T];
-    removed: [entity: T];
+    inserted: [entity?: T];
+    updated: [entity?: T];
+    removed: [entity?: T];
 }
 
 export class DatabaseListener {

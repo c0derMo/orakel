@@ -1,7 +1,7 @@
 <template>
     <div class="column q-gutter-sm">
         <h3>{{ stage.name }}</h3>
-        <div class="row q-gutter-xl">
+        <div class="row no-wrap q-gutter-xl stage-box">
             <template v-for="(group, idx) in gameGroups" :key="idx">
                 <div>
                     <div>{{ group.title }}</div>
@@ -14,7 +14,7 @@
                                 <div
                                     v-for="precessorMatch in game.precessorGames"
                                     :key="`${game.matchNumber}-${precessorMatch}`"
-                                    class="match-connector top"
+                                    class="match-connector"
                                     :style="
                                         calculateMatchConnectorCSS(
                                             game,
@@ -166,8 +166,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.h-full {
-    height: 100%;
+.stage-box {
+    overflow-y: auto;
+    overflow-x: scroll;
 }
 
 .match-connector {

@@ -7,12 +7,13 @@
                     flat
                     round
                     icon="arrow_back"
-                    @click="router.push('/')"
+                    @click="router.push(`/tournaments/${tournament.urlName}`)"
                 />
                 <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
-                <q-toolbar-title>
+                <q-toolbar-title shrink>
                     Manage: {{ tournament.name }}
+                    <span v-if="title != null"> - {{ title }}</span>
                 </q-toolbar-title>
 
                 <q-space />
@@ -24,20 +25,32 @@
 
         <q-drawer v-model="leftDrawerOpen" side="left" overlay bordered>
             <q-list>
-                <q-item v-ripple clickable>
+                <q-item
+                    v-ripple
+                    clickable
+                    @click="router.push(`/manage/${tournament.urlName}/`)"
+                >
                     <q-item-section avatar>
                         <q-icon name="list" />
                     </q-item-section>
                     <q-item-section> General information </q-item-section>
                 </q-item>
-                <q-item v-ripple clickable>
+                <q-item
+                    v-ripple
+                    clickable
+                    @click="
+                        router.push(
+                            `/manage/${tournament.urlName}/participants`,
+                        )
+                    "
+                >
                     <q-item-section avatar>
                         <q-icon name="people" />
                     </q-item-section>
                     <q-item-section> Participants </q-item-section>
                 </q-item>
 
-                <q-seperator />
+                <q-separator />
                 <q-item-label header>Stages</q-item-label>
 
                 <q-item v-ripple clickable>
@@ -65,6 +78,7 @@ import type { ITournament } from "@shared/interfaces/ITournament";
 const router = useRouter();
 defineProps<{
     tournament: ITournament;
+    title?: string;
 }>();
 
 const leftDrawerOpen = ref(true);

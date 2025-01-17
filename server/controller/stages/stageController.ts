@@ -79,11 +79,13 @@ export class StageController {
 
     private addEventListeners(listener: DatabaseListener) {
         listener.tournament.on("updated", (tournament) => {
+            if (tournament == null) return;
             void this.callForEachStage(tournament.id, (stage, config) =>
                 config.emit("tournamentUpdated", stage, tournament),
             );
         });
         listener.tournamentParticipant.on("inserted", (participant) => {
+            if (participant == null) return;
             void this.callForEachStage(
                 participant.tournamentId,
                 (stage, config) =>
@@ -95,6 +97,7 @@ export class StageController {
             );
         });
         listener.tournamentParticipant.on("updated", (participant) => {
+            if (participant == null) return;
             void this.callForEachStage(
                 participant.tournamentId,
                 (stage, config) =>
@@ -106,6 +109,7 @@ export class StageController {
             );
         });
         listener.tournamentParticipant.on("removed", (participant) => {
+            if (participant == null) return;
             void this.callForEachStage(
                 participant.tournamentId,
                 (stage, config) =>
@@ -117,6 +121,7 @@ export class StageController {
             );
         });
         listener.tournamentStage.on("inserted", (stage) => {
+            if (stage == null) return;
             void this.callForEachStage(
                 stage.tournamentId,
                 (targetStage, config) =>
@@ -124,6 +129,7 @@ export class StageController {
             );
         });
         listener.tournamentStage.on("updated", (stage) => {
+            if (stage == null) return;
             void this.callForEachStage(
                 stage.tournamentId,
                 (targetStage, config) =>
@@ -131,6 +137,7 @@ export class StageController {
             );
         });
         listener.tournamentStage.on("removed", (stage) => {
+            if (stage == null) return;
             void this.callForEachStage(
                 stage.tournamentId,
                 (targetStage, config) =>
@@ -138,6 +145,7 @@ export class StageController {
             );
         });
         listener.stageParticipant.on("inserted", (participant) => {
+            if (participant == null) return;
             void this.callForEachStage(
                 participant.tournamentId,
                 (stage, config) =>
@@ -145,6 +153,7 @@ export class StageController {
             );
         });
         listener.stageParticipant.on("updated", (participant) => {
+            if (participant == null) return;
             void this.callForEachStage(
                 participant.tournamentId,
                 (stage, config) =>
@@ -152,6 +161,7 @@ export class StageController {
             );
         });
         listener.stageParticipant.on("removed", (participant) => {
+            if (participant == null) return;
             void this.callForEachStage(
                 participant.tournamentId,
                 (stage, config) =>

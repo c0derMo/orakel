@@ -20,6 +20,6 @@ export class TournamentParticipant
     username: string;
     @Column("text", { nullable: true })
     userId?: string;
-    @Column("simple-json")
-    additionalInfo: Record<string, unknown>;
+    @Column("simple-json", { nullable: true })
+    additionalInfo?: Record<string, unknown>;
 }

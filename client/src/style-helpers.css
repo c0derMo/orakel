@@ -1,0 +1,11 @@
+.w-full {
+    width: 100%;
+}
+
+.h-full {
+    height: 100%;
+}
+
+.flex-grow {
+    flex-grow: 1;
+}

@@ -16,7 +16,7 @@ export interface ITournamentParticipant {
     participantId: string;
     username: string;
     userId?: string;
-    additionalInfo: Record<string, unknown>;
+    additionalInfo?: Record<string, unknown>;
 }
 
 export interface IAccessPermission {

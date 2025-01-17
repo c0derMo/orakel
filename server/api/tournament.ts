@@ -6,6 +6,7 @@ import { z } from "zod";
 import { validateBody } from "../utils/bodyValidation";
 import { StageController } from "../controller/stages/stageController";
 import { TournamentStage } from "../model/TournamentStage";
+import { TournamentParticipant } from "../model/TournamentParticipant";
 
 export function buildTournamentRouter(
     stageController: StageController,
@@ -13,7 +14,7 @@ export function buildTournamentRouter(
     const tournamentRouter = createRouter();
 
     tournamentRouter.put(
-        "",
+        "/",
         eventHandler(async (event) => {
             const user = await getUser(event);
 
@@ -117,6 +118,86 @@ export function buildTournamentRouter(
             });
 
             return stages;
+        }),
+    );
+
+    tournamentRouter.get(
+        "/:tournamentId/participants",
+        eventHandler(async (event) => {
+            if (event.context.params?.tournamentId == null) {
+                throw createError({ statusCode: 400 });
+            }
+
+            const participants = await TournamentParticipant.find({
+                where: {
+                    tournamentId: event.context.params.tournamentId,
+                },
+            });
+
+            return participants;
+        }),
+    );
+
+    tournamentRouter.patch(
+        "/:tournamentId/participants",
+        eventHandler(async (event) => {
+            // TODO: Check for authorization
+            if (event.context.params?.tournamentId == null) {
+                throw createError({ statusCode: 400 });
+            }
+
+            const participantSchema = z
+                .object({
+                    participantId: z.string().optional(),
+                    username: z.string(),
+                })
+                .strict();
+
+            const participantData = await validateBody(
+                event,
+                participantSchema,
+            );
+
+            const newParticipant = new TournamentParticipant();
+            Object.assign(newParticipant, participantData);
+            newParticipant.tournamentId = event.context.params.tournamentId;
+            await newParticipant.save();
+            return null;
+        }),
+    );
+
+    tournamentRouter.delete(
+        "/:tournamentId/participants",
+        eventHandler(async (event) => {
+            // TODO: Check for authorization
+            if (event.context.params?.tournamentId == null) {
+                throw createError({ statusCode: 400 });
+            }
+
+            const participantSchema = z.object({
+                participantId: z.string(),
+            });
+
+            const participantData = await validateBody(
+                event,
+                participantSchema,
+            );
+
+            const participantToDelete = await TournamentParticipant.findOne({
+                where: {
+                    tournamentId: event.context.params.tournamentId,
+                    participantId: participantData.participantId,
+                },
+            });
+
+            if (participantToDelete == null) {
+                throw createError({
+                    statusCode: 404,
+                });
+            }
+
+            await participantToDelete.remove();
+            return null;
         }),
     );
 
