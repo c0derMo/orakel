@@ -20,6 +20,7 @@ declare module 'vue-router/auto-routes' {
   export interface RouteNamedMap {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
     '/login': RouteRecordInfo<'/login', '/login', Record<never, never>, Record<never, never>>,
+    '/manage/[tournament]/': RouteRecordInfo<'/manage/[tournament]/', '/manage/:tournament', { tournament: ParamValue<true> }, { tournament: ParamValue<false> }>,
     '/tournaments/[tournament]': RouteRecordInfo<'/tournaments/[tournament]', '/tournaments/:tournament', { tournament: ParamValue<true> }, { tournament: ParamValue<false> }>,
     '/tournaments/browse': RouteRecordInfo<'/tournaments/browse', '/tournaments/browse', Record<never, never>, Record<never, never>>,
     '/tournaments/create': RouteRecordInfo<'/tournaments/create', '/tournaments/create', Record<never, never>, Record<never, never>>,

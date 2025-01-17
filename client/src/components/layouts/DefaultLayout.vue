@@ -8,19 +8,14 @@
                 >
                     Orakel
                 </span>
-                <q-btn stretch flat>Browse</q-btn>
+                <q-btn stretch flat @click="router.push('/tournaments/browse')">
+                    Browse
+                </q-btn>
 
                 <q-space />
                 <q-separator vertical inset />
 
-                <template v-if="userStore.isLoggedIn">
-                    Welcome, {{ userStore.user?.username }}
-                </template>
-                <template v-else>
-                    <q-btn stretch flat @click="router.push('/login')">
-                        Login
-                    </q-btn>
-                </template>
+                <UserHeader />
             </q-toolbar>
         </q-header>
 
@@ -34,8 +29,6 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { useUserStore } from "../../composables/userStore";
 
 const router = useRouter();
-const userStore = useUserStore();
 </script>

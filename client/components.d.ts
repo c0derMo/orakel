@@ -8,10 +8,12 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     DefaultLayout: typeof import('./src/components/layouts/DefaultLayout.vue')['default']
+    ManageLayout: typeof import('./src/components/layouts/ManageLayout.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     StageGame: typeof import('./src/components/StageGame.vue')['default']
     StageView: typeof import('./src/components/StageView.vue')['default']
     StageViewer: typeof import('./src/components/StageViewer.vue')['default']
+    UserHeader: typeof import('./src/components/layouts/UserHeader.vue')['default']
   }
 }
