@@ -1,6 +1,6 @@
 <template>
     <q-layout view="hHh lpR fFf">
-        <q-header reveal elevated class="bg-primary text-white">
+        <q-header elevated class="bg-primary text-white">
             <q-toolbar>
                 <q-btn
                     dense
@@ -63,8 +63,10 @@
         </q-drawer>
 
         <q-page-container>
-            <q-page class="flex flex-column justify-center items-start">
-                <slot />
+            <q-page class="page-padding q-pt-md">
+                <div class="flex flex-column justify-center items-start">
+                    <slot />
+                </div>
             </q-page>
         </q-page-container>
     </q-layout>
@@ -74,6 +76,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import type { ITournament } from "@shared/interfaces/ITournament";
+import { Platform } from "quasar";
 
 const router = useRouter();
 defineProps<{
@@ -81,9 +84,16 @@ defineProps<{
     title?: string;
 }>();
 
-const leftDrawerOpen = ref(true);
+const leftDrawerOpen = ref(!Platform.is.mobile);
 
 function toggleLeftDrawer() {
     leftDrawerOpen.value = !leftDrawerOpen.value;
 }
 </script>
+
+<style scoped>
+.desktop .page-padding {
+    margin-left: 350px;
+    margin-right: 350px;
+}
+</style>

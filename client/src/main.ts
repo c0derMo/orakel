@@ -1,7 +1,6 @@
 import { createApp, type Component } from "vue";
 import { Quasar } from "quasar";
 import { createRouter, createWebHistory } from "vue-router";
-import "./style.css";
 import "./style-helpers.css";
 import App from "./App.vue";
 import { routes } from "vue-router/auto-routes";

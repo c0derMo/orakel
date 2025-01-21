@@ -1,6 +1,6 @@
 <template>
     <q-layout view="hHh lpR fFf">
-        <q-header reveal elevated class="bg-primary text-white">
+        <q-header elevated class="bg-primary text-white">
             <q-toolbar>
                 <span
                     class="text-h6 q-mx-sm cursor-pointer"
@@ -20,8 +20,10 @@
         </q-header>
 
         <q-page-container>
-            <q-page class="flex flex-column justify-center items-start">
-                <slot />
+            <q-page class="q-pt-md">
+                <div class="flex flex-column justify-center items-start">
+                    <slot />
+                </div>
             </q-page>
         </q-page-container>
     </q-layout>
