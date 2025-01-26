@@ -3,9 +3,11 @@ import { IStageGame, IStageGameGroup } from "@shared/interfaces/IStageGame";
 
 export abstract class StageType {
     readonly name: string;
+    readonly publicName: string;
 
-    constructor(name: string) {
+    constructor(name: string, publicName: string) {
         this.name = name;
+        this.publicName = publicName;
     }
 
     abstract getGameGroups(stage: TournamentStage): IStageGameGroup[];

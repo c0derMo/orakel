@@ -3,6 +3,7 @@ import { authRouter } from "./api/auth";
 import { buildTournamentRouter } from "./api/tournament";
 import { ensureSerialized } from "./model/ISerializable";
 import { StageController } from "./controller/stages/stageController";
+import { buildDataRouter } from "./api/data";
 
 export function buildH3App(stageController: StageController) {
     const app = createApp({
@@ -24,6 +25,7 @@ export function buildH3App(stageController: StageController) {
             buildTournamentRouter(stageController).handler,
         ),
     );
+    app.use(useBase("/api/data", buildDataRouter(stageController).handler));
 
     router.get(
         "/",

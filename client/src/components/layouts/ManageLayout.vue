@@ -53,7 +53,26 @@
                 <q-separator />
                 <q-item-label header>Stages</q-item-label>
 
-                <q-item v-ripple clickable>
+                <q-item
+                    v-for="stage in stages"
+                    :key="stage.stageNumber"
+                    v-ripple
+                    clickable
+                >
+                    <q-item-section avatar>
+                        {{ stage.stageNumber }}
+                    </q-item-section>
+
+                    <q-item-section>{{ stage.name }}</q-item-section>
+                </q-item>
+
+                <q-item
+                    v-ripple
+                    clickable
+                    @click="
+                        router.push(`/manage/${tournament.urlName}/stages/new`)
+                    "
+                >
                     <q-item-section avatar>
                         <q-icon name="add" />
                     </q-item-section>
@@ -77,14 +96,19 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import type { ITournament } from "@shared/interfaces/ITournament";
 import { Platform } from "quasar";
+import { useAPI } from "../../composables/http";
+import type { ITournamentStage } from "@shared/interfaces/ITournamentStage";
 
 const router = useRouter();
-defineProps<{
+const props = defineProps<{
     tournament: ITournament;
     title?: string;
 }>();
 
 const leftDrawerOpen = ref(!Platform.is.mobile);
+const stages = await useAPI().fetch<ITournamentStage[]>(
+    `/api/tournament/${props.tournament.id}/stages`,
+);
 
 function toggleLeftDrawer() {
     leftDrawerOpen.value = !leftDrawerOpen.value;

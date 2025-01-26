@@ -4,7 +4,7 @@ import { StageType } from "./baseStageType";
 
 export class EliminationBracketStageType extends StageType {
     constructor() {
-        super("elimination_bracket");
+        super("elimination_bracket", "Elimination Bracket");
     }
 
     getGameGroups(stage: TournamentStage): IStageGameGroup[] {

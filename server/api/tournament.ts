@@ -121,6 +121,44 @@ export function buildTournamentRouter(
         }),
     );
 
+    tournamentRouter.put(
+        "/:tournamentId/stages",
+        eventHandler(async (event) => {
+            if (event.context.params?.tournamentId == null) {
+                throw createError({ statusCode: 400 });
+            }
+
+            const stageSchema = z
+                .object({
+                    stageNumber: z.number(),
+                    name: z.string(),
+                    type: z.string(),
+                    enrollmentConfig: z.object({}),
+                })
+                .strict();
+
+            const stageData = await validateBody(event, stageSchema);
+
+            if (
+                (await TournamentStage.countBy({
+                    tournamentId: event.context.params.tournamentId,
+                    stageNumber: stageData.stageNumber,
+                })) > 0
+            ) {
+                throw createError({
+                    statusCode: 400,
+                    statusMessage: "Stage number already exists",
+                });
+            }
+
+            const newStage = new TournamentStage();
+            Object.assign(newStage, stageData);
+            newStage.tournamentId = event.context.params.tournamentId;
+            await newStage.save();
+            return newStage.stageNumber;
+        }),
+    );
+
     tournamentRouter.get(
         "/:tournamentId/participants",
         eventHandler(async (event) => {

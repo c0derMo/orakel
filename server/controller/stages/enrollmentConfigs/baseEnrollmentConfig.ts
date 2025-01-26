@@ -51,10 +51,12 @@ interface EnrollmentConfigEvents {
 
 export class EnrollmentConfig extends EventEmitter<EnrollmentConfigEvents> {
     readonly name: string;
+    readonly publicName: string;
 
-    constructor(name: string) {
+    constructor(name: string, publicName: string) {
         super();
         this.name = name;
+        this.publicName = publicName;
     }
 
     public async addToStage(

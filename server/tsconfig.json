@@ -10,6 +10,7 @@
             "@shared/*": ["../shared/*"]
         },
         "strict": true,
-        "strictPropertyInitialization": false
+        "strictPropertyInitialization": false,
+        "target": "ESNext"
     }
 }

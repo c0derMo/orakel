@@ -1,6 +1,6 @@
 <template>
     <DefaultLayout>
-        <div style="width: 100%; padding-left: 50px; padding-right: 50px">
+        <div class="w-full q-px-xl">
             <q-table
                 title="Tournaments"
                 row-key="id"

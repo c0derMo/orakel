@@ -1,5 +1,5 @@
 import { createApp, type Component } from "vue";
-import { Quasar } from "quasar";
+import { Quasar, Notify } from "quasar";
 import { createRouter, createWebHistory } from "vue-router";
 import "./style-helpers.css";
 import App from "./App.vue";
@@ -21,9 +21,14 @@ const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 
 app.use(Quasar, {
-    plugins: {},
+    plugins: {
+        Notify,
+    },
     config: {
         dark: "auto",
+        notify: {
+            progress: true,
+        },
     },
 });
 app.use(router);

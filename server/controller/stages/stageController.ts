@@ -64,6 +64,22 @@ export class StageController {
         });
     }
 
+    getStageTypes(): Record<string, string> {
+        const result: Record<string, string> = {};
+        for (const [key, value] of this.stageTypes.entries()) {
+            result[key] = value.publicName;
+        }
+        return result;
+    }
+
+    getEnrollmentConfigs(): Record<string, string> {
+        const result: Record<string, string> = {};
+        for (const [key, value] of this.enrollmentConfigs.entries()) {
+            result[key] = value.publicName;
+        }
+        return result;
+    }
+
     private async callForEachStage(
         tournamentId: string,
         callback: (stage: ITournamentStage, config: EnrollmentConfig) => void,

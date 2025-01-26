@@ -4,7 +4,7 @@ import { ITournamentParticipant } from "@shared/interfaces/ITournament";
 
 export class AllParticipantsEnrollmentConfig extends EnrollmentConfig {
     constructor() {
-        super("all_participants");
+        super("all_participants", "All Participants");
         this.on("tournamentParticipantInserted", this.participantAdded);
         this.on("tournamentParticipantRemoved", this.participantRemoved);
     }
