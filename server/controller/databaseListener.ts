@@ -14,7 +14,7 @@ import { DatabaseController } from "./databaseController";
 
 interface DatabaseEvents<T> {
     inserted: [entity?: T];
-    updated: [entity?: T];
+    updated: [entity?: T, changes?: Partial<T>];
     removed: [entity?: T];
 }
 
@@ -70,6 +70,7 @@ function buildDatabaseSubscriber<T>(
 
         afterUpdate(event: UpdateEvent<T>): void {
             emitter.emit("updated", event.databaseEntity);
+            // TODO: Add list of changed columns here to call initialize / configUpdated on stages?
         }
     }
     return DatabaseSubscriber;

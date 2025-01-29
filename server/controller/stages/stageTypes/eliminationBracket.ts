@@ -1,20 +1,20 @@
 import { IStageGameGroup, IStageGame } from "@shared/interfaces/IStageGame";
-import { TournamentStage } from "../../../model/TournamentStage";
 import { StageType } from "./baseStageType";
 
 export class EliminationBracketStageType extends StageType {
-    constructor() {
-        super("elimination_bracket", "Elimination Bracket");
-    }
+    public static readonly name = "elimination_bracket";
+    public static readonly publicName = "Elimination Bracket";
 
-    getGameGroups(stage: TournamentStage): IStageGameGroup[] {
-        const amountRounds = Math.ceil(Math.log2(stage.participants.length));
+    getGameGroups(): IStageGameGroup[] {
+        const amountRounds = Math.ceil(
+            Math.log2(this.stage.participants.length),
+        );
         const groups: IStageGameGroup[] = [];
 
         for (let i = 0; i < amountRounds; i++) {
             groups.push({
-                tournamentId: stage.tournamentId,
-                stageNumber: stage.stageNumber,
+                tournamentId: this.stage.tournamentId,
+                stageNumber: this.stage.stageNumber,
                 groupNumber: i,
                 title: `Round ${i + 1}`,
             });
@@ -23,17 +23,19 @@ export class EliminationBracketStageType extends StageType {
         return groups;
     }
 
-    getGames(stage: TournamentStage): IStageGame[] {
+    getGames(): IStageGame[] {
         const games: IStageGame[] = [];
-        const amountRounds = Math.ceil(Math.log2(stage.participants.length));
+        const amountRounds = Math.ceil(
+            Math.log2(this.stage.participants.length),
+        );
         let gamesThisRound = Math.pow(2, amountRounds) / 2;
 
         for (let i = 0; i < amountRounds; i++) {
             for (let j = 0; j < gamesThisRound; j++) {
                 const gameNumber = games.length + 1;
                 const game: IStageGame = {
-                    tournamentId: stage.tournamentId,
-                    stageNumber: stage.stageNumber,
+                    tournamentId: this.stage.tournamentId,
+                    stageNumber: this.stage.stageNumber,
                     matchNumber: gameNumber,
                     groupNumber: i,
                     participantIds: [],
@@ -44,11 +46,11 @@ export class EliminationBracketStageType extends StageType {
                 if (i === 0) {
                     // In first round, we add all the players who are participating
                     game.participantIds.push(
-                        stage.participants[2 * (gameNumber - 1)]
+                        this.stage.participants[2 * (gameNumber - 1)]
                             ?.participantId ?? "BYE",
                     );
                     game.participantIds.push(
-                        stage.participants[2 * (gameNumber - 1) + 1]
+                        this.stage.participants[2 * (gameNumber - 1) + 1]
                             ?.participantId ?? "BYE",
                     );
                 } else {
@@ -78,7 +80,6 @@ export class EliminationBracketStageType extends StageType {
                     );
 
                     const upperMatchWinner = this.getMatchWinnerIndex(
-                        stage,
                         game.precessorGames[0],
                     );
                     if (upperMatchWinner != null) {
@@ -92,7 +93,6 @@ export class EliminationBracketStageType extends StageType {
                     }
 
                     const lowerMatchWinner = this.getMatchWinnerIndex(
-                        stage,
                         game.precessorGames[1],
                     );
                     if (lowerMatchWinner != null) {
@@ -106,7 +106,7 @@ export class EliminationBracketStageType extends StageType {
                     }
                 }
 
-                const match = stage.reportedGames.find(
+                const match = this.stage.reportedGames.find(
                     (match) => match.matchNumber === gameNumber,
                 );
                 if (match != null) {
@@ -124,11 +124,8 @@ export class EliminationBracketStageType extends StageType {
         return games;
     }
 
-    getMatchWinnerIndex(
-        stage: TournamentStage,
-        matchNumber: number,
-    ): number | null {
-        const match = stage.reportedGames.find(
+    getMatchWinnerIndex(matchNumber: number): number | null {
+        const match = this.stage.reportedGames.find(
             (match) => match.matchNumber === matchNumber,
         );
         if (match == null) {

@@ -1,15 +1,24 @@
-import { TournamentStage } from "../../../model/TournamentStage";
+import { ITournamentStage } from "@shared/interfaces/ITournamentStage";
 import { IStageGame, IStageGameGroup } from "@shared/interfaces/IStageGame";
+import { ITournament } from "@shared/interfaces/ITournament";
 
-export abstract class StageType {
-    readonly name: string;
-    readonly publicName: string;
+export class StageType {
+    public static readonly name: string;
+    public static readonly publicName: string;
 
-    constructor(name: string, publicName: string) {
-        this.name = name;
-        this.publicName = publicName;
+    protected readonly stage: ITournamentStage;
+    protected readonly tournament: ITournament;
+
+    constructor(stage: ITournamentStage, tournament: ITournament) {
+        this.stage = stage;
+        this.tournament = tournament;
     }
 
-    abstract getGameGroups(stage: TournamentStage): IStageGameGroup[];
-    abstract getGames(stage: TournamentStage): IStageGame[];
+    getGameGroups(): IStageGameGroup[] {
+        return [];
+    }
+
+    getGames(): IStageGame[] {
+        return [];
+    }
 }

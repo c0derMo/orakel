@@ -54,6 +54,11 @@ export function buildTournamentRouter(
                 throw createError({ statusCode: 400 });
             }
 
+            const tournament = await Tournament.findOne({
+                where: {
+                    id: event.context.params.tournamentId,
+                },
+            });
             const stage = await TournamentStage.findOne({
                 where: {
                     tournamentId: event.context.params.tournamentId,
@@ -65,13 +70,13 @@ export function buildTournamentRouter(
                 },
             });
 
-            if (stage == null) {
+            if (tournament == null || stage == null) {
                 throw createError({ statusCode: 404 });
             }
 
             return stageController
-                .getStageType(stage.type)
-                .getGameGroups(stage);
+                .getStageType(stage, tournament)
+                .getGameGroups();
         }),
     );
 
@@ -85,6 +90,11 @@ export function buildTournamentRouter(
                 throw createError({ statusCode: 400 });
             }
 
+            const tournament = await Tournament.findOne({
+                where: {
+                    id: event.context.params.tournamentId,
+                },
+            });
             const stage = await TournamentStage.findOne({
                 where: {
                     tournamentId: event.context.params.tournamentId,
@@ -96,11 +106,11 @@ export function buildTournamentRouter(
                 },
             });
 
-            if (stage == null) {
+            if (tournament == null || stage == null) {
                 throw createError({ statusCode: 404 });
             }
 
-            return stageController.getStageType(stage.type).getGames(stage);
+            return stageController.getStageType(stage, tournament).getGames();
         }),
     );
 

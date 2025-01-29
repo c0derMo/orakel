@@ -1,9 +1,13 @@
+import { IGameReport } from "./IStageGame";
+
 export interface ITournamentStage {
     tournamentId: string;
     stageNumber: number;
     name: string;
     type: string;
     enrollmentConfig: IStageEnrollmentConfig;
+    participants: IStageParticipant[];
+    reportedGames: IGameReport[];
 }
 
 export interface IStageEnrollmentConfig {

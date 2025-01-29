@@ -1,25 +1,25 @@
-import { ITournamentStage } from "@shared/interfaces/ITournamentStage";
 import { EnrollmentConfig } from "./baseEnrollmentConfig";
 import { ITournamentParticipant } from "@shared/interfaces/ITournament";
 
 export class AllParticipantsEnrollmentConfig extends EnrollmentConfig {
-    constructor() {
-        super("all_participants", "All Participants");
-        this.on("tournamentParticipantInserted", this.participantAdded);
-        this.on("tournamentParticipantRemoved", this.participantRemoved);
+    static readonly name = "all_participants";
+    static readonly publicName = "All Participants";
+
+    public async initialize(): Promise<void> {
+        for (const participant of this.tournament.participants) {
+            await this.addToStage(participant);
+        }
     }
 
-    public participantAdded = (
-        stage: ITournamentStage,
-        participant: ITournamentParticipant,
-    ) => {
-        void this.addToStage(stage, participant);
-    };
+    public async tournamentParticipantInserted(
+        tournamentParticipant: ITournamentParticipant,
+    ): Promise<void> {
+        await this.addToStage(tournamentParticipant);
+    }
 
-    public participantRemoved = (
-        stage: ITournamentStage,
-        participant: ITournamentParticipant,
-    ) => {
-        void this.removeFromStage(stage, participant);
-    };
+    public async tournamentParticipantRemoved(
+        tournamentParticipant: ITournamentParticipant,
+    ): Promise<void> {
+        await this.removeFromStage(tournamentParticipant);
+    }
 }

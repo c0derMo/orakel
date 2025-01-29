@@ -6,80 +6,101 @@ import {
     IStageParticipant,
     ITournamentStage,
 } from "@shared/interfaces/ITournamentStage";
-import { EventEmitter } from "node:events";
 import { StageParticipant } from "../../../model/StageParticipant";
 
-interface EnrollmentConfigEvents {
-    tournamentUpdated: [stage: ITournamentStage, tournament: ITournament];
-    tournamentParticipantInserted: [
-        stage: ITournamentStage,
-        participant: ITournamentParticipant,
-    ];
-    tournamentParticipantUpdated: [
-        stage: ITournamentStage,
-        participant: ITournamentParticipant,
-    ];
-    tournamentParticipantRemoved: [
-        stage: ITournamentStage,
-        participant: ITournamentParticipant,
-    ];
-    tournamentStageInserted: [
-        stage: ITournamentStage,
-        targetStage: ITournamentStage,
-    ];
-    tournamentStageUpdated: [
-        stage: ITournamentStage,
-        targetStage: ITournamentStage,
-    ];
-    tournamentStageRemoved: [
-        stage: ITournamentStage,
-        targetStage: ITournamentStage,
-    ];
-    stageParticipantInserted: [
-        stage: ITournamentStage,
-        participant: IStageParticipant,
-    ];
-    stageParticipantUpdated: [
-        stage: ITournamentStage,
-        participant: IStageParticipant,
-    ];
-    stageParticipantRemoved: [
-        stage: ITournamentStage,
-        participant: IStageParticipant,
-    ];
-}
+export class EnrollmentConfig {
+    public static readonly name: string;
+    public static readonly publicName: string;
 
-export class EnrollmentConfig extends EventEmitter<EnrollmentConfigEvents> {
-    readonly name: string;
-    readonly publicName: string;
+    protected readonly stage: ITournamentStage;
+    protected readonly tournament: ITournament;
 
-    constructor(name: string, publicName: string) {
-        super();
-        this.name = name;
-        this.publicName = publicName;
+    constructor(stage: ITournamentStage, tournament: ITournament) {
+        this.stage = stage;
+        this.tournament = tournament;
     }
 
-    public async addToStage(
+    public tournamentUpdated(): Promise<void> | void {
+        return;
+    }
+
+    public tournamentParticipantInserted(
+        tournamentParticipant: ITournamentParticipant,
+    ): Promise<void> | void {
+        void tournamentParticipant;
+    }
+
+    public tournamentParticipantUpdated(
+        tournamentParticipant: ITournamentParticipant,
+    ): Promise<void> | void {
+        void tournamentParticipant;
+    }
+
+    public tournamentParticipantRemoved(
+        tournamentParticipant: ITournamentParticipant,
+    ): Promise<void> | void {
+        void tournamentParticipant;
+    }
+
+    public tournamentStageInserted(
         stage: ITournamentStage,
+    ): Promise<void> | void {
+        void stage;
+    }
+
+    public tournamentStageUpdated(
+        stage: ITournamentStage,
+    ): Promise<void> | void {
+        void stage;
+    }
+
+    public tournamentStageRemoved(
+        stage: ITournamentStage,
+    ): Promise<void> | void {
+        void stage;
+    }
+
+    public stageParticipantInserted(
+        participant: IStageParticipant,
+    ): Promise<void> | void {
+        void participant;
+    }
+
+    public stageParticipantUpdated(
+        participant: IStageParticipant,
+    ): Promise<void> | void {
+        void participant;
+    }
+
+    public stageParticipantRemoved(
+        participant: IStageParticipant,
+    ): Promise<void> | void {
+        void participant;
+    }
+
+    public initialize(): Promise<void> | void {
+        return;
+    }
+
+    protected async addToStage(
         participant: ITournamentParticipant,
         additionalData?: Record<string, unknown>,
     ): Promise<void> {
         const stageParticipant = StageParticipant.create({
-            tournamentId: stage.tournamentId,
-            stageNumber: stage.stageNumber,
+            tournamentId: this.stage.tournamentId,
+            stageNumber: this.stage.stageNumber,
             participantId: participant.participantId,
-            additionalInfo: additionalData ?? {},
+            additionalInfo: additionalData,
         });
         await stageParticipant.save();
     }
 
-    public async removeFromStage(
-        stage: ITournamentStage,
+    protected async removeFromStage(
         participant: ITournamentParticipant,
     ): Promise<void> {
         await StageParticipant.delete({
-            tournamentId: stage.tournamentId,
-            stageNumber: stage.stageNumber,
+            tournamentId: this.stage.tournamentId,
+            stageNumber: this.stage.stageNumber,
             participantId: participant.participantId,
         });
     }
