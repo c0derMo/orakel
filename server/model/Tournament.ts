@@ -9,10 +9,7 @@ import {
 } from "typeorm";
 import { User } from "./User";
 import { TournamentStage } from "./TournamentStage";
-import {
-    ITournament,
-    ITournamentParticipant,
-} from "@shared/interfaces/ITournament";
+import { ITournament } from "@shared/interfaces/ITournament";
 import { TournamentParticipant } from "./TournamentParticipant";
 
 @Entity()
@@ -32,11 +29,12 @@ export class Tournament extends BaseEntity implements ITournament {
     name: string;
     @Column("boolean")
     private: boolean;
-    @OneToMany(() => TournamentStage, (stage) => stage.tournamentId)
+
+    @OneToMany(() => TournamentStage, (stage) => stage.tournament)
     stages: TournamentStage[];
     @OneToMany(
         () => TournamentParticipant,
-        (participant) => participant.tournamentId,
+        (participant) => participant.tournament,
     )
-    participants: ITournamentParticipant[];
+    participants: TournamentParticipant[];
 }

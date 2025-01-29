@@ -3,9 +3,12 @@ import {
     BaseEntity,
     Column,
     Entity,
+    JoinColumn,
+    ManyToOne,
     PrimaryColumn,
     PrimaryGeneratedColumn,
 } from "typeorm";
+import { Tournament } from "./Tournament";
 
 @Entity()
 export class TournamentParticipant
@@ -22,4 +25,10 @@ export class TournamentParticipant
     userId?: string;
     @Column("simple-json", { nullable: true })
     additionalInfo?: Record<string, unknown>;
+
+    @ManyToOne(() => Tournament)
+    @JoinColumn({
+        name: "tournamentId",
+    })
+    tournament: Tournament;
 }

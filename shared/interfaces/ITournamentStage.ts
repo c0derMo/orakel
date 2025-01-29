@@ -4,15 +4,12 @@ export interface ITournamentStage {
     tournamentId: string;
     stageNumber: number;
     name: string;
-    type: string;
-    enrollmentConfig: IStageEnrollmentConfig;
+    stageType: string;
+    stageConfig: Record<string, unknown>;
+    enrollmentType: string;
+    enrollmentConfig: Record<string, unknown>;
     participants: IStageParticipant[];
     reportedGames: IGameReport[];
-}
-
-export interface IStageEnrollmentConfig {
-    enrollmentType: string;
-    [key: string]: unknown;
 }
 
 export interface IStageParticipant {

@@ -115,6 +115,66 @@ export function buildTournamentRouter(
     );
 
     tournamentRouter.get(
+        "/:tournamentId/stages/:stageNumber",
+        eventHandler(async (event) => {
+            if (
+                event.context.params?.tournamentId == null ||
+                event.context.params?.stageNumber == null
+            ) {
+                throw createError({ statusCode: 400 });
+            }
+
+            const stage = await TournamentStage.findOne({
+                where: {
+                    tournamentId: event.context.params.tournamentId,
+                    stageNumber: parseInt(event.context.params.stageNumber),
+                },
+            });
+
+            if (stage == null) {
+                throw createError({ statusCode: 404 });
+            }
+
+            return stage;
+        }),
+    );
+
+    tournamentRouter.patch(
+        "/:tournamentId/stages/:stageNumber",
+        eventHandler(async (event) => {
+            if (
+                event.context.params?.tournamentId == null ||
+                event.context.params?.stageNumber == null
+            ) {
+                throw createError({ statusCode: 400 });
+            }
+
+            const stageSchema = z.object({
+                stageType: z.string(),
+                enrollmentType: z.string(),
+            });
+
+            const stageData = await validateBody(event, stageSchema);
+
+            const stage = await TournamentStage.findOne({
+                where: {
+                    tournamentId: event.context.params.tournamentId,
+                    stageNumber: parseInt(event.context.params.stageNumber),
+                },
+            });
+
+            if (stage == null) {
+                throw createError({ statusCode: 404 });
+            }
+
+            Object.assign(stage, stageData);
+            await stage.save();
+
+            return null;
+        }),
+    );
+
+    tournamentRouter.get(
         "/:tournamentId/stages",
         eventHandler(async (event) => {
             if (event.context.params?.tournamentId == null) {
@@ -142,8 +202,8 @@ export function buildTournamentRouter(
                 .object({
                     stageNumber: z.number(),
                     name: z.string(),
-                    type: z.string(),
-                    enrollmentConfig: z.object({}),
+                    stageType: z.string(),
+                    enrollmentType: z.string(),
                 })
                 .strict();
 

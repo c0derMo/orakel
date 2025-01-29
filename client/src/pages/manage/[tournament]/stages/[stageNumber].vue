@@ -1,22 +1,12 @@
 <template>
-    <ManageLayout :tournament="tournament" title="New Stage">
+    <ManageLayout :tournament="tournament" :title="pageTitle">
         <q-card class="w-full">
             <q-card-section class="column q-gutter-sm q-ma-sm">
-                <h5>Add stage to tournament</h5>
-
-                <q-input v-model="stageName" label="Stage name" />
-                <q-input
-                    v-model="stageNumber"
-                    label="Stage number"
-                    type="number"
-                />
                 <q-select
                     v-model="stageType"
                     label="Stage Type"
                     :options="computedStageTypes"
                 />
-
-                <!-- STAGE OPTIONS -->
 
                 <q-select
                     v-model="enrollmentConfig"
@@ -24,26 +14,32 @@
                     :options="computedEnrollmentConfigs"
                 />
 
-                <!-- ENROLLMENT CONFIG OPTIONS (& add more enrollment configs) -->
-
-                <q-btn color="green" @click="addStage">Create</q-btn>
+                <q-btn color="green" @click="save">Save</q-btn>
             </q-card-section>
         </q-card>
     </ManageLayout>
 </template>
 
 <script setup lang="ts">
+import { useRoute } from "vue-router";
 import { useAPI } from "../../../../composables/http";
-import { useRoute, useRouter } from "vue-router";
 import type { ITournament } from "@shared/interfaces/ITournament";
-import { ref, computed } from "vue";
-import { Notify } from "quasar";
+import type { ITournamentStage } from "@shared/interfaces/ITournamentStage";
+import { computed, ref } from "vue";
 import { FetchError } from "ofetch";
+import { Notify } from "quasar";
 
 const route = useRoute();
+const params = route.params as {
+    tournament: string;
+    stageNumber: string;
+};
 
 const tournament = await useAPI().fetch<ITournament>(
-    `/api/tournament/${(route.params as { tournament: string }).tournament}`,
+    `/api/tournament/${params.tournament}`,
+);
+const stage = await useAPI().fetch<ITournamentStage>(
+    `/api/tournament/${tournament.id}/stages/${params.stageNumber}`,
 );
 const stageTypes =
     await useAPI().fetch<Record<string, string>>(`/api/data/stageTypes`);
@@ -51,10 +47,7 @@ const enrollmentConfigs = await useAPI().fetch<Record<string, string>>(
     `/api/data/enrollmentConfigs`,
 );
 
-const stageName = ref("");
-const stageNumber = ref("");
-const stageType = ref({ value: "", label: "" });
-const enrollmentConfig = ref({ value: "", label: "" });
+const pageTitle = `Stage ${params.stageNumber} - ${stage.name}`;
 
 const computedStageTypes = computed(() => {
     const result = [];
@@ -78,20 +71,31 @@ const computedEnrollmentConfigs = computed(() => {
     return result;
 });
 
-async function addStage() {
+const stageType = ref(
+    computedStageTypes.value.find((v) => v.value === stage.stageType)!,
+);
+const enrollmentConfig = ref(
+    computedEnrollmentConfigs.value.find(
+        (v) => v.value === stage.enrollmentType,
+    )!,
+);
+
+async function save() {
     try {
-        await useAPI().fetch(`/api/tournament/${tournament.id}/stages`, {
-            method: "PUT",
-            body: {
-                stageNumber: parseInt(stageNumber.value),
-                name: stageName.value,
-                stageType: stageType.value.value,
-                enrollmentType: enrollmentConfig.value.value,
+        await useAPI().fetch(
+            `/api/tournament/${tournament.id}/stages/${stage.stageNumber}`,
+            {
+                method: "PATCH",
+                body: {
+                    stageType: stageType.value.value,
+                    enrollmentType: enrollmentConfig.value.value,
+                },
             },
-        });
-        await useRouter().push(
-            `/manage/${tournament.urlName}/stages/${stageNumber.value}`,
         );
+        Notify.create({
+            type: "positive",
+            message: "Saved successfully.",
+        });
     } catch (e) {
         if (e instanceof FetchError) {
             Notify.create({

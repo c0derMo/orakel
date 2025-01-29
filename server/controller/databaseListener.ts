@@ -14,7 +14,7 @@ import { DatabaseController } from "./databaseController";
 
 interface DatabaseEvents<T> {
     inserted: [entity?: T];
-    updated: [entity?: T, changes?: Partial<T>];
+    updated: [entity?: T, changedColumns?: (keyof T)[]];
     removed: [entity?: T];
 }
 
@@ -69,8 +69,11 @@ function buildDatabaseSubscriber<T>(
         }
 
         afterUpdate(event: UpdateEvent<T>): void {
-            emitter.emit("updated", event.databaseEntity);
-            // TODO: Add list of changed columns here to call initialize / configUpdated on stages?
+            emitter.emit(
+                "updated",
+                event.entity as T,
+                event.updatedColumns.map((c) => c.propertyName) as (keyof T)[],
+            );
         }
     }
     return DatabaseSubscriber;

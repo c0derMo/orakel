@@ -58,6 +58,11 @@
                     :key="stage.stageNumber"
                     v-ripple
                     clickable
+                    @click="
+                        router.push(
+                            `/manage/${tournament.urlName}/stages/${stage.stageNumber}`,
+                        )
+                    "
                 >
                     <q-item-section avatar>
                         {{ stage.stageNumber }}
