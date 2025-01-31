@@ -1,358 +1,350 @@
-import { Router, createError, createRouter, eventHandler } from "h3";
-import { getUser } from "../controller/authController";
-import { ITournament } from "@shared/interfaces/ITournament";
+import {
+    EventHandlerRequest,
+    H3Event,
+    Router,
+    createError,
+    createRouter,
+    eventHandler,
+} from "h3";
+import {
+    ITournament,
+    TournamentPermission,
+} from "@shared/interfaces/ITournament";
 import { Tournament } from "../model/Tournament";
 import { z } from "zod";
-import { validateBody } from "../utils/bodyValidation";
+import { ensureURLParameter, validateBody } from "../utils/requestValidation";
 import { StageController } from "../controller/stages/stageController";
 import { TournamentStage } from "../model/TournamentStage";
 import { TournamentParticipant } from "../model/TournamentParticipant";
+import { ensurePermission, getUserOrFail } from "../utils/auth";
 
-export function buildTournamentRouter(
-    stageController: StageController,
-): Router {
-    const tournamentRouter = createRouter();
+export class TournamentRouter {
+    private readonly stageController: StageController;
 
-    tournamentRouter.put(
-        "/",
-        eventHandler(async (event) => {
-            const user = await getUser(event);
+    constructor(stageController: StageController) {
+        this.stageController = stageController;
+    }
 
-            if (user == null) {
-                throw createError({
-                    statusCode: 403,
-                });
-            }
+    private async createTournament(event: H3Event<EventHandlerRequest>) {
+        const user = await getUserOrFail(event);
 
-            const tournamentSchema = z
-                .object({
-                    urlName: z.string(),
-                    name: z.string(),
-                    private: z.boolean(),
-                })
-                .strict();
+        const tournamentSchema = z
+            .object({
+                urlName: z.string(),
+                name: z.string(),
+                private: z.boolean(),
+            })
+            .strict();
 
-            const tournamentData = await validateBody(event, tournamentSchema);
+        const tournamentData = await validateBody(event, tournamentSchema);
 
-            // TODO: Validate url is unique, etc.
+        // TODO: Validate url is unique, etc.
 
-            const tournament = new Tournament();
-            Object.assign(tournament, tournamentData);
-            tournament.owningUser = user;
-            await tournament.save();
-            return tournament.id;
-        }),
-    );
+        const tournament = new Tournament();
+        Object.assign(tournament, tournamentData);
+        tournament.owningUser = user;
+        await tournament.save();
+        return tournament.id;
+    }
 
-    tournamentRouter.get(
-        "/:tournamentId/stages/:stageNumber/gameGroups",
-        eventHandler(async (event) => {
-            if (
-                event.context.params?.tournamentId == null ||
-                event.context.params?.stageNumber == null
-            ) {
-                throw createError({ statusCode: 400 });
-            }
+    private async getStageGameGroups(event: H3Event<EventHandlerRequest>) {
+        const tournamentId = ensureURLParameter(event, "tournamentId");
+        const stageNumber = parseInt(ensureURLParameter(event, "stageNumber"));
 
-            const tournament = await Tournament.findOne({
-                where: {
-                    id: event.context.params.tournamentId,
-                },
-            });
-            const stage = await TournamentStage.findOne({
-                where: {
-                    tournamentId: event.context.params.tournamentId,
-                    stageNumber: parseInt(event.context.params.stageNumber),
-                },
-                relations: {
-                    participants: true,
-                    reportedGames: true,
-                },
-            });
+        const tournament = await Tournament.findOneOrFail({
+            where: {
+                id: tournamentId,
+            },
+        });
+        const stage = await TournamentStage.findOneOrFail({
+            where: {
+                tournamentId: tournamentId,
+                stageNumber: stageNumber,
+            },
+            relations: {
+                participants: true,
+                reportedGames: true,
+            },
+        });
 
-            if (tournament == null || stage == null) {
-                throw createError({ statusCode: 404 });
-            }
+        return this.stageController
+            .getStageType(stage, tournament)
+            .getGameGroups();
+    }
 
-            return stageController
-                .getStageType(stage, tournament)
-                .getGameGroups();
-        }),
-    );
+    private async getStageGames(event: H3Event<EventHandlerRequest>) {
+        const tournamentId = ensureURLParameter(event, "tournamentId");
+        const stageNumber = parseInt(ensureURLParameter(event, "stageNumber"));
 
-    tournamentRouter.get(
-        "/:tournamentId/stages/:stageNumber/games",
-        eventHandler(async (event) => {
-            if (
-                event.context.params?.tournamentId == null ||
-                event.context.params?.stageNumber == null
-            ) {
-                throw createError({ statusCode: 400 });
-            }
+        const tournament = await Tournament.findOneOrFail({
+            where: {
+                id: tournamentId,
+            },
+        });
+        const stage = await TournamentStage.findOneOrFail({
+            where: {
+                tournamentId: tournamentId,
+                stageNumber: stageNumber,
+            },
+            relations: {
+                participants: true,
+                reportedGames: true,
+            },
+        });
 
-            const tournament = await Tournament.findOne({
-                where: {
-                    id: event.context.params.tournamentId,
-                },
-            });
-            const stage = await TournamentStage.findOne({
-                where: {
-                    tournamentId: event.context.params.tournamentId,
-                    stageNumber: parseInt(event.context.params.stageNumber),
-                },
-                relations: {
-                    participants: true,
-                    reportedGames: true,
-                },
-            });
+        return this.stageController.getStageType(stage, tournament).getGames();
+    }
 
-            if (tournament == null || stage == null) {
-                throw createError({ statusCode: 404 });
-            }
+    private async getStage(event: H3Event<EventHandlerRequest>) {
+        const tournamentId = ensureURLParameter(event, "tournamentId");
+        const stageNumber = parseInt(ensureURLParameter(event, "stageNumber"));
 
-            return stageController.getStageType(stage, tournament).getGames();
-        }),
-    );
+        const stage = await TournamentStage.findOneOrFail({
+            where: {
+                tournamentId: tournamentId,
+                stageNumber: stageNumber,
+            },
+        });
 
-    tournamentRouter.get(
-        "/:tournamentId/stages/:stageNumber",
-        eventHandler(async (event) => {
-            if (
-                event.context.params?.tournamentId == null ||
-                event.context.params?.stageNumber == null
-            ) {
-                throw createError({ statusCode: 400 });
-            }
+        return stage;
+    }
 
-            const stage = await TournamentStage.findOne({
-                where: {
-                    tournamentId: event.context.params.tournamentId,
-                    stageNumber: parseInt(event.context.params.stageNumber),
-                },
-            });
+    private async updateStage(event: H3Event<EventHandlerRequest>) {
+        const tournamentId = ensureURLParameter(event, "tournamentId");
+        const stageNumber = parseInt(ensureURLParameter(event, "stageNumber"));
 
-            if (stage == null) {
-                throw createError({ statusCode: 404 });
-            }
+        const stageSchema = z.object({
+            stageType: z.string(),
+            enrollmentType: z.string(),
+        });
 
-            return stage;
-        }),
-    );
+        const stageData = await validateBody(event, stageSchema);
 
-    tournamentRouter.patch(
-        "/:tournamentId/stages/:stageNumber",
-        eventHandler(async (event) => {
-            if (
-                event.context.params?.tournamentId == null ||
-                event.context.params?.stageNumber == null
-            ) {
-                throw createError({ statusCode: 400 });
-            }
+        const stage = await TournamentStage.findOneOrFail({
+            where: {
+                tournamentId: tournamentId,
+                stageNumber: stageNumber,
+            },
+        });
 
-            const stageSchema = z.object({
+        Object.assign(stage, stageData);
+        await stage.save();
+
+        return null;
+    }
+
+    private async getAllStages(event: H3Event<EventHandlerRequest>) {
+        const tournamentId = ensureURLParameter(event, "tournamentId");
+
+        const stages = await TournamentStage.find({
+            where: {
+                tournamentId: tournamentId,
+            },
+        });
+
+        return stages;
+    }
+
+    private async createStage(event: H3Event<EventHandlerRequest>) {
+        const user = await getUserOrFail(event);
+        const tournamentId = ensureURLParameter(event, "tournamentId");
+
+        const tournament = await Tournament.findOneOrFail({
+            where: {
+                id: tournamentId,
+            },
+        });
+
+        // TODO: Update permission
+        await ensurePermission(tournament, user, TournamentPermission.ADMIN);
+
+        const stageSchema = z
+            .object({
+                stageNumber: z.number(),
+                name: z.string(),
                 stageType: z.string(),
                 enrollmentType: z.string(),
+            })
+            .strict();
+
+        const stageData = await validateBody(event, stageSchema);
+
+        if (
+            (await TournamentStage.countBy({
+                tournamentId: tournamentId,
+                stageNumber: stageData.stageNumber,
+            })) > 0
+        ) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: "Stage number already exists",
             });
+        }
 
-            const stageData = await validateBody(event, stageSchema);
+        const newStage = new TournamentStage();
+        Object.assign(newStage, stageData);
+        newStage.tournamentId = tournamentId;
+        await newStage.save();
+        return newStage.stageNumber;
+    }
 
-            const stage = await TournamentStage.findOne({
-                where: {
-                    tournamentId: event.context.params.tournamentId,
-                    stageNumber: parseInt(event.context.params.stageNumber),
-                },
-            });
+    private async getParticipants(event: H3Event<EventHandlerRequest>) {
+        const tournamentId = ensureURLParameter(event, "tournamentId");
 
-            if (stage == null) {
-                throw createError({ statusCode: 404 });
-            }
+        const participants = await TournamentParticipant.find({
+            where: {
+                tournamentId: tournamentId,
+            },
+        });
 
-            Object.assign(stage, stageData);
-            await stage.save();
+        return participants;
+    }
 
-            return null;
-        }),
-    );
+    private async updateParticipant(event: H3Event<EventHandlerRequest>) {
+        const user = await getUserOrFail(event);
+        const tournamentId = ensureURLParameter(event, "tournamentId");
 
-    tournamentRouter.get(
-        "/:tournamentId/stages",
-        eventHandler(async (event) => {
-            if (event.context.params?.tournamentId == null) {
-                throw createError({ statusCode: 400 });
-            }
+        const tournament = await Tournament.findOneOrFail({
+            where: {
+                id: tournamentId,
+            },
+        });
 
-            const stages = await TournamentStage.find({
-                where: {
-                    tournamentId: event.context.params.tournamentId,
-                },
-            });
+        // TODO: Update permission
+        await ensurePermission(tournament, user, TournamentPermission.ADMIN);
 
-            return stages;
-        }),
-    );
+        const participantSchema = z
+            .object({
+                participantId: z.string().optional(),
+                username: z.string(),
+            })
+            .strict();
 
-    tournamentRouter.put(
-        "/:tournamentId/stages",
-        eventHandler(async (event) => {
-            if (event.context.params?.tournamentId == null) {
-                throw createError({ statusCode: 400 });
-            }
+        const participantData = await validateBody(event, participantSchema);
 
-            const stageSchema = z
-                .object({
-                    stageNumber: z.number(),
-                    name: z.string(),
-                    stageType: z.string(),
-                    enrollmentType: z.string(),
-                })
-                .strict();
+        const newParticipant = new TournamentParticipant();
+        Object.assign(newParticipant, participantData);
+        newParticipant.tournamentId = tournamentId;
+        await newParticipant.save();
+        return null;
+    }
 
-            const stageData = await validateBody(event, stageSchema);
+    private async deleteParticipant(event: H3Event<EventHandlerRequest>) {
+        const user = await getUserOrFail(event);
+        const tournamentId = ensureURLParameter(event, "tournamentId");
 
-            if (
-                (await TournamentStage.countBy({
-                    tournamentId: event.context.params.tournamentId,
-                    stageNumber: stageData.stageNumber,
-                })) > 0
-            ) {
-                throw createError({
-                    statusCode: 400,
-                    statusMessage: "Stage number already exists",
-                });
-            }
+        const tournament = await Tournament.findOneOrFail({
+            where: {
+                id: tournamentId,
+            },
+        });
 
-            const newStage = new TournamentStage();
-            Object.assign(newStage, stageData);
-            newStage.tournamentId = event.context.params.tournamentId;
-            await newStage.save();
-            return newStage.stageNumber;
-        }),
-    );
+        // TODO: Update permission
+        await ensurePermission(tournament, user, TournamentPermission.ADMIN);
 
-    tournamentRouter.get(
-        "/:tournamentId/participants",
-        eventHandler(async (event) => {
-            if (event.context.params?.tournamentId == null) {
-                throw createError({ statusCode: 400 });
-            }
+        const participantSchema = z.object({
+            participantId: z.string(),
+        });
 
-            const participants = await TournamentParticipant.find({
-                where: {
-                    tournamentId: event.context.params.tournamentId,
-                },
-            });
+        const participantData = await validateBody(event, participantSchema);
 
-            return participants;
-        }),
-    );
+        const participantToDelete = await TournamentParticipant.findOneOrFail({
+            where: {
+                tournamentId: tournamentId,
+                participantId: participantData.participantId,
+            },
+        });
 
-    tournamentRouter.patch(
-        "/:tournamentId/participants",
-        eventHandler(async (event) => {
-            // TODO: Check for authorization
-            if (event.context.params?.tournamentId == null) {
-                throw createError({ statusCode: 400 });
-            }
+        await participantToDelete.remove();
+        return null;
+    }
 
-            const participantSchema = z
-                .object({
-                    participantId: z.string().optional(),
-                    username: z.string(),
-                })
-                .strict();
+    private async getTournament(event: H3Event<EventHandlerRequest>) {
+        const tournamentId = ensureURLParameter(event, "tournamentId");
 
-            const participantData = await validateBody(
-                event,
-                participantSchema,
-            );
+        const tournament = await Tournament.findOneOrFail({
+            where: {
+                urlName: tournamentId,
+            },
+            relations: {
+                owningUser: true,
+            },
+        });
 
-            const newParticipant = new TournamentParticipant();
-            Object.assign(newParticipant, participantData);
-            newParticipant.tournamentId = event.context.params.tournamentId;
-            await newParticipant.save();
-            return null;
-        }),
-    );
+        (tournament as ITournament).owningUser =
+            tournament.owningUser.toPublicUser();
 
-    tournamentRouter.delete(
-        "/:tournamentId/participants",
-        eventHandler(async (event) => {
-            // TODO: Check for authorization
-            if (event.context.params?.tournamentId == null) {
-                throw createError({ statusCode: 400 });
-            }
+        return tournament;
+    }
 
-            const participantSchema = z.object({
-                participantId: z.string(),
-            });
+    private async getAllTournaments() {
+        const tournaments = await Tournament.find({
+            relations: {
+                owningUser: true,
+            },
+        });
 
-            const participantData = await validateBody(
-                event,
-                participantSchema,
-            );
-
-            const participantToDelete = await TournamentParticipant.findOne({
-                where: {
-                    tournamentId: event.context.params.tournamentId,
-                    participantId: participantData.participantId,
-                },
-            });
-
-            if (participantToDelete == null) {
-                throw createError({
-                    statusCode: 404,
-                });
-            }
-
-            await participantToDelete.remove();
-            return null;
-        }),
-    );
-
-    tournamentRouter.get(
-        "/:tournamentId",
-        eventHandler(async (event) => {
-            if (event.context.params?.tournamentId == null) {
-                throw createError({ statusCode: 400 });
-            }
-
-            const tournament = await Tournament.findOne({
-                where: {
-                    urlName: event.context.params.tournamentId,
-                },
-                relations: {
-                    owningUser: true,
-                },
-            });
-            if (tournament == null) {
-                throw createError({ statusCode: 404 });
-            }
-
+        tournaments.map<ITournament>((tournament) => {
             (tournament as ITournament).owningUser =
                 tournament.owningUser.toPublicUser();
-
             return tournament;
-        }),
-    );
+        });
 
-    tournamentRouter.get(
-        "/",
-        eventHandler(async () => {
-            const tournaments = await Tournament.find({
-                relations: {
-                    owningUser: true,
-                },
-            });
+        return tournaments;
+    }
 
-            tournaments.map<ITournament>((tournament) => {
-                (tournament as ITournament).owningUser =
-                    tournament.owningUser.toPublicUser();
-                return tournament;
-            });
+    public buildRouter(): Router {
+        const router = createRouter();
 
-            return tournaments;
-        }),
-    );
+        router.get(
+            "/:tournamentId/stages/:stageNumber/gameGroups",
+            eventHandler((event) => this.getStageGameGroups(event)),
+        );
+        router.get(
+            "/:tournamentId/stages/:stageNumber/games",
+            eventHandler((event) => this.getStageGames(event)),
+        );
+        router.get(
+            "/:tournamentId/stages/:stageNumber",
+            eventHandler((event) => this.getStage(event)),
+        );
+        router.patch(
+            "/:tournamentId/stages/:stageNumber",
+            eventHandler((event) => this.updateStage(event)),
+        );
+        router.get(
+            "/:tournamentId/stages",
+            eventHandler((event) => this.getAllStages(event)),
+        );
+        router.put(
+            "/:tournamentId/stages",
+            eventHandler((event) => this.createStage(event)),
+        );
+        router.get(
+            "/:tournamentId/participants",
+            eventHandler((event) => this.getParticipants(event)),
+        );
+        router.patch(
+            "/:tournamentId/participants",
+            eventHandler((event) => this.updateParticipant(event)),
+        );
+        router.delete(
+            "/:tournamentId/participants",
+            eventHandler((event) => this.deleteParticipant(event)),
+        );
+        router.get(
+            "/:tournamentId",
+            eventHandler((event) => this.getTournament(event)),
+        );
+        router.get(
+            "/",
+            eventHandler(() => this.getAllTournaments()),
+        );
+        router.put(
+            "/",
+            eventHandler((event) => this.createTournament(event)),
+        );
 
-    return tournamentRouter;
+        return router;
+    }
 }

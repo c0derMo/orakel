@@ -2,7 +2,14 @@ import {
     IAccessPermission,
     TournamentPermission,
 } from "@shared/interfaces/ITournament";
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import {
+    BaseEntity,
+    Column,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryColumn,
+} from "typeorm";
 import { Tournament } from "./Tournament";
 
 @Entity()
@@ -16,7 +23,7 @@ export class AccessPermission extends BaseEntity implements IAccessPermission {
 
     @ManyToOne(() => Tournament)
     @JoinColumn({
-        name: "tournamentId"
+        name: "tournamentId",
     })
     tournament: Tournament;
 }

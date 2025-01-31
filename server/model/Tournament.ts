@@ -9,7 +9,10 @@ import {
 } from "typeorm";
 import { User } from "./User";
 import { TournamentStage } from "./TournamentStage";
-import { ITournament, TournamentPermission } from "@shared/interfaces/ITournament";
+import {
+    ITournament,
+    TournamentPermission,
+} from "@shared/interfaces/ITournament";
 import { TournamentParticipant } from "./TournamentParticipant";
 import { AccessPermission } from "./AccessPermission";
 
@@ -41,20 +44,25 @@ export class Tournament extends BaseEntity implements ITournament {
     @OneToMany(() => AccessPermission, (ap) => ap.tournament)
     accessPermissions: AccessPermission[];
 
-    async hasPermission(userId: string, permission: TournamentPermission): Promise<boolean> {
+    async hasPermission(
+        userId: string,
+        permission: TournamentPermission,
+    ): Promise<boolean> {
         if (this.owner === userId) {
             return true;
         }
 
         let userPermissions: AccessPermission | undefined | null;
         if (this.accessPermissions != null) {
-            userPermissions = this.accessPermissions.find((ap) => ap.userId === userId);
+            userPermissions = this.accessPermissions.find(
+                (ap) => ap.userId === userId,
+            );
         } else {
             userPermissions = await AccessPermission.findOne({
                 where: {
                     tournamentId: this.id,
-                    userId: userId
-                }
+                    userId: userId,
+                },
             });
         }
 

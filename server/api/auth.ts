@@ -1,7 +1,7 @@
 import { createError, createRouter, eventHandler } from "h3";
 import { AuthController } from "../controller/authController";
 import { z } from "zod";
-import { validateBody } from "../utils/bodyValidation";
+import { validateBody } from "../utils/requestValidation";
 
 export const authRouter = createRouter();
 

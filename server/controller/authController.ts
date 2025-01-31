@@ -1,6 +1,5 @@
 import { User } from "../model/User";
 import bcrypt from "bcrypt";
-import { EventHandlerRequest, getRequestHeader, H3Event } from "h3";
 import jwt from "jsonwebtoken";
 
 interface AuthorizationResult {
@@ -54,32 +53,4 @@ export class AuthController {
             return null;
         }
     }
-}
-
-export function getUserToken(
-    event: H3Event<EventHandlerRequest>,
-): string | null {
-    const fullHeader = getRequestHeader(event, "Authorization");
-    if (fullHeader == null) {
-        return null;
-    }
-
-    if (!fullHeader.startsWith("Bearer ")) {
-        return null;
-    }
-
-    const token = fullHeader.substring(7);
-    return AuthController.verifyToken(token)?.userId ?? null;
-}
-
-export async function getUser(
-    event: H3Event<EventHandlerRequest>,
-): Promise<User | null> {
-    const userId = getUserToken(event);
-    if (userId == null) {
-        return null;
-    }
-
-    const user = await User.findOneBy({ id: userId });
-    return user;
 }

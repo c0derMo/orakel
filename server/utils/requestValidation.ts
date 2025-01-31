@@ -2,6 +2,16 @@ import { createError, EventHandlerRequest, H3Event, readBody } from "h3";
 import { merge } from "lodash-es";
 import { z, ZodError } from "zod";
 
+export function ensureURLParameter(
+    event: H3Event<EventHandlerRequest>,
+    urlParameter: string,
+): string {
+    if (event.context.params?.[urlParameter] == null) {
+        throw createError({ statusCode: 400 });
+    }
+    return event.context.params[urlParameter];
+}
+
 export async function validateBody<T extends z.ZodTypeAny>(
     event: H3Event<EventHandlerRequest>,
     schema: T,
@@ -15,7 +25,7 @@ export async function validateBody<T extends z.ZodTypeAny>(
         if (e instanceof ZodError) {
             throw createError({
                 statusCode: 400,
-                statusMessage: "Custom Validation error",
+                statusMessage: "Validation error",
                 data: buildErrorsMap(e),
             });
         }
