@@ -12,10 +12,30 @@
 
         <div class="row justify-center q-gutter-md">
             <div>
-                {{ game.participantIds[0] ?? game.templateParticipantNames[0] }}
+                <template v-if="game.participantIds[0] != null">
+                    {{
+                        participantNames.getParticipantName(
+                            game.tournamentId,
+                            game.participantIds[0],
+                        )
+                    }}
+                </template>
+                <span v-else class="text-italic">
+                    {{ game.templateParticipantNames[0] }}
+                </span>
             </div>
             <div>
-                {{ game.participantIds[1] ?? game.templateParticipantNames[1] }}
+                <template v-if="game.participantIds[1] != null">
+                    {{
+                        participantNames.getParticipantName(
+                            game.tournamentId,
+                            game.participantIds[1],
+                        )
+                    }}
+                </template>
+                <span v-else class="text-italic">
+                    {{ game.templateParticipantNames[1] }}
+                </span>
             </div>
         </div>
     </div>
@@ -23,6 +43,9 @@
 
 <script setup lang="ts">
 import type { IStageGame } from "@shared/interfaces/IStageGame";
+import { useParticipantNames } from "../composables/participantNames";
+
+const participantNames = useParticipantNames();
 
 defineProps<{
     game: IStageGame;

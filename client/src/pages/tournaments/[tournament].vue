@@ -17,12 +17,16 @@ import type { ITournament } from "@shared/interfaces/ITournament";
 import { useAPI } from "../../composables/http";
 import { useRoute } from "vue-router";
 import type { ITournamentStage } from "@shared/interfaces/ITournamentStage";
+import { useParticipantNames } from "../../composables/participantNames";
 
 const route = useRoute();
+const participantNames = useParticipantNames();
 
 const tournament = await useAPI().fetch<ITournament>(
     `/api/tournament/${(route.params as { tournament: string }).tournament}`,
 );
+
+await participantNames.loadTournament(tournament.id);
 
 const stages = await useAPI().fetch<ITournamentStage[]>(
     `/api/tournament/${tournament.id}/stages`,

@@ -14,6 +14,7 @@ declare module 'vue' {
     StageGame: typeof import('./src/components/StageGame.vue')['default']
     StageView: typeof import('./src/components/StageView.vue')['default']
     StageViewer: typeof import('./src/components/StageViewer.vue')['default']
+    TournamentMatchEditDialog: typeof import('./src/components/TournamentMatchEditDialog.vue')['default']
     TournamentParticipantEditDialog: typeof import('./src/components/TournamentParticipantEditDialog.vue')['default']
     UserHeader: typeof import('./src/components/layouts/UserHeader.vue')['default']
   }

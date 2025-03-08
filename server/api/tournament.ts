@@ -17,6 +17,7 @@ import { StageController } from "../controller/stages/stageController";
 import { TournamentStage } from "../model/TournamentStage";
 import { TournamentParticipant } from "../model/TournamentParticipant";
 import { ensurePermission, getUserOrFail } from "../utils/auth";
+import { GameReport } from "../model/GameReport";
 
 export class TournamentRouter {
     private readonly stageController: StageController;
@@ -95,6 +96,49 @@ export class TournamentRouter {
         return this.stageController.getStageType(stage, tournament).getGames();
     }
 
+    private async updateMatchReport(event: H3Event<EventHandlerRequest>) {
+        const user = await getUserOrFail(event);
+        const tournamentId = ensureURLParameter(event, "tournamentId");
+        const stageNumber = parseInt(ensureURLParameter(event, "stageNumber"));
+
+        const tournament = await Tournament.findOneOrFail({
+            where: {
+                id: tournamentId,
+            },
+        });
+
+        // TODO: Update permission
+        await ensurePermission(tournament, user, TournamentPermission.ADMIN);
+
+        const reportSchema = z
+            .object({
+                tournamentId: z.string(),
+                stageNumber: z.number(),
+                matchNumber: z.number(),
+                scores: z.array(z.number()),
+            })
+            .strict();
+
+        const reportData = await validateBody(event, reportSchema);
+
+        if (
+            reportData.tournamentId !== tournamentId ||
+            reportData.stageNumber !== stageNumber
+        ) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: "Body does not match path",
+            });
+        }
+
+        // TODO: Make sure match ID exists, enough scores are added, etc...
+
+        const matchReport = new GameReport();
+        Object.assign(matchReport, reportData);
+        await matchReport.save();
+        return null;
+    }
+
     private async getStage(event: H3Event<EventHandlerRequest>) {
         const tournamentId = ensureURLParameter(event, "tournamentId");
         const stageNumber = parseInt(ensureURLParameter(event, "stageNumber"));
@@ -110,8 +154,18 @@ export class TournamentRouter {
     }
 
     private async updateStage(event: H3Event<EventHandlerRequest>) {
+        const user = await getUserOrFail(event);
         const tournamentId = ensureURLParameter(event, "tournamentId");
         const stageNumber = parseInt(ensureURLParameter(event, "stageNumber"));
+
+        const tournament = await Tournament.findOneOrFail({
+            where: {
+                id: tournamentId,
+            },
+        });
+
+        // TODO: Update permission
+        await ensurePermission(tournament, user, TournamentPermission.ADMIN);
 
         const stageSchema = z.object({
             stageType: z.string(),
@@ -303,6 +357,10 @@ export class TournamentRouter {
         router.get(
             "/:tournamentId/stages/:stageNumber/games",
             eventHandler((event) => this.getStageGames(event)),
+        );
+        router.patch(
+            "/:tournamentId/stages/:stageNumber/reports",
+            eventHandler((event) => this.updateMatchReport(event)),
         );
         router.get(
             "/:tournamentId/stages/:stageNumber",

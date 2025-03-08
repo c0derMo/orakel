@@ -47,7 +47,19 @@
                     <q-item-section avatar>
                         <q-icon name="people" />
                     </q-item-section>
-                    <q-item-section> Participants </q-item-section>
+                    <q-item-section>Participants</q-item-section>
+                </q-item>
+                <q-item
+                    v-ripple
+                    clickable
+                    @click="
+                        router.push(`/manage/${tournament.urlName}/matches`)
+                    "
+                >
+                    <q-item-section avatar>
+                        <q-icon name="rocket_launch" />
+                    </q-item-section>
+                    <q-item-section>Matches</q-item-section>
                 </q-item>
 
                 <q-separator />
