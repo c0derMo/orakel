@@ -15,7 +15,7 @@ import type {
     IPublicUser,
     IUserPermissions,
 } from "@shared/interfaces/IUser";
-import { ISerializable } from "./ISerializable";
+import type { ISerializable } from "./ISerializable";
 
 @Entity()
 export class User extends BaseEntity implements IFullUser, ISerializable {

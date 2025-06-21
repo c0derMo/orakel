@@ -11,7 +11,7 @@
         "noUncheckedSideEffectImports": true,
         "moduleResolution": "bundler",
         "paths": {
-            "@shared/*": ["../shared/*"]
+            "@shared/*": ["../server/shared/*"]
         },
         "module": "esnext",
         "target": "es2020"

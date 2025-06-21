@@ -5,8 +5,9 @@ import { Tournament } from "../model/Tournament";
 import { TournamentStage } from "../model/TournamentStage";
 import { TournamentParticipant } from "../model/TournamentParticipant";
 import { StageParticipant } from "../model/StageParticipant";
-import consola from "consola";
+import { consola } from "consola";
 import { GameReport } from "../model/GameReport";
+import type { Database } from "better-sqlite3";
 
 const logger = consola.withTag("Database");
 
@@ -32,11 +33,15 @@ export class DatabaseController {
         logger.debug(entities.map((c) => c.name));
 
         this.dataSource = new DataSource({
-            type: "sqlite",
+            type: "better-sqlite3",
             database: database,
             subscribers: [],
             entities: entities,
             synchronize: true,
+            prepareDatabase: (db: Database) => {
+                logger.debug("Setting journal mode");
+                db.pragma("journal_mode = WAL");
+            },
         });
     }
 

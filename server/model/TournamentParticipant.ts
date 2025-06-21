@@ -1,4 +1,4 @@
-import { ITournamentParticipant } from "@shared/interfaces/ITournament";
+import type { ITournamentParticipant } from "@shared/interfaces/ITournament";
 import {
     BaseEntity,
     Column,

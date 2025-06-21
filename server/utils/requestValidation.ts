@@ -1,4 +1,4 @@
-import { createError, EventHandlerRequest, H3Event, readBody } from "h3";
+import { createError, type EventHandlerRequest, H3Event, readBody } from "h3";
 import { merge } from "lodash-es";
 import { z, ZodError } from "zod";
 
@@ -37,9 +37,7 @@ function buildErrorsMap(e: ZodError): Record<string, string[]> {
 
     for (const issue of e.issues) {
         const joinedPath = issue.path.join(".");
-        if (result[joinedPath] == null) {
-            result[joinedPath] = [];
-        }
+        result[joinedPath] ??= [];
 
         switch (issue.code) {
             case "invalid_type":

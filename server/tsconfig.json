@@ -1,16 +1,23 @@
 {
     "compilerOptions": {
-        "module": "ESNext",
-        "esModuleInterop": true,
+        "module": "esnext",
+        "target": "esnext",
         "moduleResolution": "node",
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "strict": true,
+        "noEmit": true,
+
+        "moduleDetection": "force",
+        "isolatedModules": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "strictNullChecks": true,
+        "baseUrl": ".",
         "paths": {
-            "@shared/*": ["../shared/*"]
+            "@shared/*": ["shared/*"]
         },
-        "strict": true,
         "strictPropertyInitialization": false,
-        "target": "ESNext"
+        "verbatimModuleSyntax": true
     }
 }

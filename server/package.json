@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "type": "module",
     "scripts": {
-        "dev": "nodemon ./index.ts",
+        "dev": "tsx --watch ./index.ts",
         "lint": "eslint .",
         "prettier": "prettier . --write"
     },
@@ -11,28 +11,28 @@
     "license": "MIT",
     "description": "",
     "dependencies": {
-        "bcrypt": "^5.1.1",
-        "consola": "^3.3.3",
-        "dotenv": "^16.4.7",
-        "h3": "latest",
+        "bcrypt": "^6.0.0",
+        "better-sqlite3": "^11.10.0",
+        "consola": "^3.4.2",
+        "dotenv": "^16.5.0",
+        "h3": "^1.15.3",
         "http-shutdown": "^1.2.2",
         "jsonwebtoken": "^9.0.2",
         "lodash-es": "^4.17.21",
-        "sqlite3": "^5.1.7",
-        "typeorm": "^0.3.20",
-        "zod": "^3.24.1"
+        "typeorm": "^0.3.25",
+        "zod": "^3.25.67"
     },
     "devDependencies": {
         "@eslint/js": "^9.17.0",
         "@types/bcrypt": "^5.0.2",
-        "@types/jsonwebtoken": "^9.0.7",
+        "@types/better-sqlite3": "^7.6.13",
+        "@types/jsonwebtoken": "^9.0.10",
         "@types/lodash-es": "^4.17.12",
-        "@types/node": "^22.10.2",
-        "eslint": "^9.17.0",
-        "nodemon": "^3.1.9",
-        "prettier": "^3.4.2",
-        "tsx": "^4.19.2",
-        "typescript": "^5.7.2",
-        "typescript-eslint": "^8.18.2"
+        "@types/node": "^24.0.3",
+        "eslint": "^9.29.0",
+        "prettier": "^3.5.3",
+        "tsx": "4.20.3",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.34.1"
     }
 }

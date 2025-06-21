@@ -1,13 +1,13 @@
 import {
-    EventHandlerRequest,
+    type EventHandlerRequest,
     H3Event,
-    Router,
+    type Router,
     createError,
     createRouter,
     eventHandler,
 } from "h3";
 import {
-    ITournament,
+    type ITournament,
     TournamentPermission,
 } from "@shared/interfaces/ITournament";
 import { Tournament } from "../model/Tournament";

@@ -1,4 +1,4 @@
-import { IGameReport } from "@shared/interfaces/IStageGame";
+import type { IGameReport } from "@shared/interfaces/IStageGame";
 import {
     BaseEntity,
     Column,

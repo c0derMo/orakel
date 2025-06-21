@@ -1,4 +1,4 @@
-import { IGameReport } from "./IStageGame";
+import type { IGameReport } from "./IStageGame";
 
 export interface ITournamentStage {
     tournamentId: string;

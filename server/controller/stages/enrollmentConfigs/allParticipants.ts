@@ -1,5 +1,5 @@
 import { EnrollmentConfig } from "./baseEnrollmentConfig";
-import { ITournamentParticipant } from "@shared/interfaces/ITournament";
+import type { ITournamentParticipant } from "@shared/interfaces/ITournament";
 
 export class AllParticipantsEnrollmentConfig extends EnrollmentConfig {
     static readonly name = "all_participants";
@@ -11,13 +11,13 @@ export class AllParticipantsEnrollmentConfig extends EnrollmentConfig {
         }
     }
 
-    public async tournamentParticipantInserted(
+    public async onTournamentParticipantInserted(
         tournamentParticipant: ITournamentParticipant,
     ): Promise<void> {
         await this.addToStage(tournamentParticipant);
     }
 
-    public async tournamentParticipantRemoved(
+    public async onTournamentParticipantRemoved(
         tournamentParticipant: ITournamentParticipant,
     ): Promise<void> {
         await this.removeFromStage(tournamentParticipant);

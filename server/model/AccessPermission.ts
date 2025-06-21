@@ -1,4 +1,4 @@
-import {
+import type {
     IAccessPermission,
     TournamentPermission,
 } from "@shared/interfaces/ITournament";

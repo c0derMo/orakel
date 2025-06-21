@@ -4,11 +4,11 @@ import { TournamentParticipant } from "../model/TournamentParticipant";
 import { TournamentStage } from "../model/TournamentStage";
 import { StageParticipant } from "../model/StageParticipant";
 import {
-    EntitySubscriberInterface,
+    type EntitySubscriberInterface,
     EventSubscriber,
-    InsertEvent,
-    RemoveEvent,
-    UpdateEvent,
+    type InsertEvent,
+    type RemoveEvent,
+    type UpdateEvent,
 } from "typeorm";
 import { DatabaseController } from "./databaseController";
 

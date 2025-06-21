@@ -1,4 +1,4 @@
-import consola from "consola";
+import { consola } from "consola";
 import bcrypt from "bcrypt";
 import { DatabaseController } from "../controller/databaseController";
 import { User } from "../model/User";

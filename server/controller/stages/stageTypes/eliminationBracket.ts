@@ -1,5 +1,13 @@
-import { IStageGameGroup, IStageGame } from "@shared/interfaces/IStageGame";
+import type {
+    IStageGameGroup,
+    IStageGame,
+} from "@shared/interfaces/IStageGame";
 import { StageType } from "./baseStageType";
+import {
+    LoserOf,
+    WinnerOf,
+    type StagePlacement,
+} from "../../../model/StagePlacement";
 
 export class EliminationBracketStageType extends StageType {
     public static readonly name = "elimination_bracket";
@@ -137,5 +145,17 @@ export class EliminationBracketStageType extends StageType {
             return 1;
         }
         return null;
+    }
+
+    getPlacements(): StagePlacement[] {
+        const placements: StagePlacement[] = [];
+
+        for (let i = 0; i < this.stage.participants.length - 1; i++) {
+            placements.push(new LoserOf(i));
+        }
+
+        placements.push(new WinnerOf(this.stage.participants.length - 1));
+
+        return placements;
     }
 }

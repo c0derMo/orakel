@@ -9,7 +9,7 @@ import {
 } from "typeorm";
 import { User } from "./User";
 import { TournamentStage } from "./TournamentStage";
-import {
+import type {
     ITournament,
     TournamentPermission,
 } from "@shared/interfaces/ITournament";

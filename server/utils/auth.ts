@@ -1,5 +1,5 @@
 import {
-    EventHandlerRequest,
+    type EventHandlerRequest,
     H3Event,
     createError,
     getRequestHeader,
@@ -7,7 +7,7 @@ import {
 import { User } from "../model/User";
 import { AuthController } from "../controller/authController";
 import { Tournament } from "../model/Tournament";
-import { TournamentPermission } from "@shared/interfaces/ITournament";
+import type { TournamentPermission } from "@shared/interfaces/ITournament";
 
 export async function getUserOrFail(
     event: H3Event<EventHandlerRequest>,

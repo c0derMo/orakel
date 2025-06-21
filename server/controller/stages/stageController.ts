@@ -1,12 +1,12 @@
-import { ITournamentStage } from "@shared/interfaces/ITournamentStage";
+import type { ITournamentStage } from "@shared/interfaces/ITournamentStage";
 import { TournamentStage } from "../../model/TournamentStage";
-import consola from "consola";
+import { consola } from "consola";
 import { DatabaseListener } from "../databaseListener";
 import { EnrollmentConfig } from "./enrollmentConfigs/baseEnrollmentConfig";
 import { AllParticipantsEnrollmentConfig } from "./enrollmentConfigs/allParticipants";
 import { StageType } from "./stageTypes/baseStageType";
 import { EliminationBracketStageType } from "./stageTypes/eliminationBracket";
-import { ITournament } from "@shared/interfaces/ITournament";
+import type { ITournament } from "@shared/interfaces/ITournament";
 import { Tournament } from "../../model/Tournament";
 import { StageParticipant } from "../../model/StageParticipant";
 
@@ -143,7 +143,7 @@ export class StageController {
             void this.callForEachStage(
                 participant.tournamentId,
                 (config) =>
-                    void config.tournamentParticipantInserted(participant),
+                    void config.onTournamentParticipantInserted(participant),
             );
         });
         listener.tournamentParticipant.on("updated", (participant) => {
@@ -151,7 +151,7 @@ export class StageController {
             void this.callForEachStage(
                 participant.tournamentId,
                 (config) =>
-                    void config.tournamentParticipantUpdated(participant),
+                    void config.onTournamentParticipantUpdated(participant),
             );
         });
         listener.tournamentParticipant.on("removed", (participant) => {
@@ -159,14 +159,14 @@ export class StageController {
             void this.callForEachStage(
                 participant.tournamentId,
                 (config) =>
-                    void config.tournamentParticipantRemoved(participant),
+                    void config.onTournamentParticipantRemoved(participant),
             );
         });
         listener.tournamentStage.on("inserted", (stage) => {
             if (stage == null) return;
             void this.callForEachStage(
                 stage.tournamentId,
-                (config) => void config.tournamentStageInserted(stage),
+                (config) => void config.onTournamentStageInserted(stage),
             );
         });
         listener.tournamentStage.on("updated", (stage, changedColumns) => {
@@ -181,7 +181,7 @@ export class StageController {
                 console.log("Post initializer?");
                 void this.callForEachStage(
                     stage.tournamentId,
-                    (config) => void config.tournamentStageUpdated(stage),
+                    (config) => void config.onTournamentStageUpdated(stage),
                 );
             });
         });
@@ -189,28 +189,28 @@ export class StageController {
             if (stage == null) return;
             void this.callForEachStage(
                 stage.tournamentId,
-                (config) => void config.tournamentStageRemoved(stage),
+                (config) => void config.onTournamentStageRemoved(stage),
             );
         });
         listener.stageParticipant.on("inserted", (participant) => {
             if (participant == null) return;
             void this.callForEachStage(
                 participant.tournamentId,
-                (config) => void config.stageParticipantInserted(participant),
+                (config) => void config.onStageParticipantInserted(participant),
             );
         });
         listener.stageParticipant.on("updated", (participant) => {
             if (participant == null) return;
             void this.callForEachStage(
                 participant.tournamentId,
-                (config) => void config.stageParticipantUpdated(participant),
+                (config) => void config.onStageParticipantUpdated(participant),
             );
         });
         listener.stageParticipant.on("removed", (participant) => {
             if (participant == null) return;
             void this.callForEachStage(
                 participant.tournamentId,
-                (config) => void config.stageParticipantRemoved(participant),
+                (config) => void config.onStageParticipantRemoved(participant),
             );
         });
     }

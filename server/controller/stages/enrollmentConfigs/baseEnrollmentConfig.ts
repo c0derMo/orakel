@@ -1,8 +1,8 @@
-import {
+import type {
     ITournament,
     ITournamentParticipant,
 } from "@shared/interfaces/ITournament";
-import {
+import type {
     IStageParticipant,
     ITournamentStage,
 } from "@shared/interfaces/ITournamentStage";
@@ -24,55 +24,55 @@ export class EnrollmentConfig {
         return;
     }
 
-    public tournamentParticipantInserted(
+    public onTournamentParticipantInserted(
         tournamentParticipant: ITournamentParticipant,
     ): Promise<void> | void {
         void tournamentParticipant;
     }
 
-    public tournamentParticipantUpdated(
+    public onTournamentParticipantUpdated(
         tournamentParticipant: ITournamentParticipant,
     ): Promise<void> | void {
         void tournamentParticipant;
     }
 
-    public tournamentParticipantRemoved(
+    public onTournamentParticipantRemoved(
         tournamentParticipant: ITournamentParticipant,
     ): Promise<void> | void {
         void tournamentParticipant;
     }
 
-    public tournamentStageInserted(
+    public onTournamentStageInserted(
         stage: ITournamentStage,
     ): Promise<void> | void {
         void stage;
     }
 
-    public tournamentStageUpdated(
+    public onTournamentStageUpdated(
         stage: ITournamentStage,
     ): Promise<void> | void {
         void stage;
     }
 
-    public tournamentStageRemoved(
+    public onTournamentStageRemoved(
         stage: ITournamentStage,
     ): Promise<void> | void {
         void stage;
     }
 
-    public stageParticipantInserted(
+    public onStageParticipantInserted(
         participant: IStageParticipant,
     ): Promise<void> | void {
         void participant;
     }
 
-    public stageParticipantUpdated(
+    public onStageParticipantUpdated(
         participant: IStageParticipant,
     ): Promise<void> | void {
         void participant;
     }
 
-    public stageParticipantRemoved(
+    public onStageParticipantRemoved(
         participant: IStageParticipant,
     ): Promise<void> | void {
         void participant;

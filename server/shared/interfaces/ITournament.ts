@@ -22,9 +22,10 @@ export interface ITournamentParticipant {
 export interface IAccessPermission {
     tournamentId: string;
     userId: string;
-    permissions: TournamentPermission[]
+    permissions: TournamentPermission[];
 }
 
 export enum TournamentPermission {
-    ADMIN
+    ADMIN = "admin",
+    NOTHING = "nothing",
 }

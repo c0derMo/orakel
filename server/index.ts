@@ -4,7 +4,7 @@ import { toNodeListener } from "h3";
 import { buildH3App } from "./app";
 import withShutdown from "http-shutdown";
 import PluginController from "./controller/pluginController";
-import consola from "consola";
+import { consola } from "consola";
 import { DatabaseController } from "./controller/databaseController";
 import { DatabaseListener } from "./controller/databaseListener";
 import { StageController } from "./controller/stages/stageController";

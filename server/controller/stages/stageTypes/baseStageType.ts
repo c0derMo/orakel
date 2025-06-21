@@ -1,6 +1,10 @@
-import { ITournamentStage } from "@shared/interfaces/ITournamentStage";
-import { IStageGame, IStageGameGroup } from "@shared/interfaces/IStageGame";
-import { ITournament } from "@shared/interfaces/ITournament";
+import type { ITournamentStage } from "@shared/interfaces/ITournamentStage";
+import type {
+    IStageGame,
+    IStageGameGroup,
+} from "@shared/interfaces/IStageGame";
+import type { ITournament } from "@shared/interfaces/ITournament";
+import type { StagePlacement } from "../../../model/StagePlacement";
 
 export class StageType {
     public static readonly name: string;
@@ -19,6 +23,10 @@ export class StageType {
     }
 
     getGames(): IStageGame[] {
+        return [];
+    }
+
+    getPlacements(): StagePlacement[] {
         return [];
     }
 }
