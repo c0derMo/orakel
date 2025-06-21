@@ -20,7 +20,7 @@ export class EnrollmentConfig {
         this.tournament = tournament;
     }
 
-    public tournamentUpdated(): Promise<void> | void {
+    public onTournamentUpdated(): Promise<void> | void {
         return;
     }
 
@@ -90,7 +90,7 @@ export class EnrollmentConfig {
             tournamentId: this.stage.tournamentId,
             stageNumber: this.stage.stageNumber,
             participantId: participant.participantId,
-            additionalInfo: additionalData,
+            additionalInfo: additionalData ?? {},
         });
         await stageParticipant.save();
     }

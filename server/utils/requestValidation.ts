@@ -47,7 +47,7 @@ function buildErrorsMap(e: ZodError): Record<string, string[]> {
                 break;
             case "unrecognized_keys":
                 for (const key of issue.keys) {
-                    result[key].push("Unrecognized key");
+                    result[joinedPath].push(`Unrecognized key: ${key}`);
                 }
                 break;
             case "invalid_union":

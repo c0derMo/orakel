@@ -8,6 +8,7 @@ import { StageParticipant } from "../model/StageParticipant";
 import { consola } from "consola";
 import { GameReport } from "../model/GameReport";
 import type { Database } from "better-sqlite3";
+import { StageMatch } from "model/StageMatch";
 
 const logger = consola.withTag("Database");
 
@@ -23,6 +24,7 @@ export class DatabaseController {
             TournamentParticipant,
             StageParticipant,
             GameReport,
+            StageMatch,
         ];
 
         logger.debug(

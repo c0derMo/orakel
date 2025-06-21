@@ -11,6 +11,7 @@ import {
     type UpdateEvent,
 } from "typeorm";
 import { DatabaseController } from "./databaseController";
+import { GameReport } from "model/GameReport";
 
 interface DatabaseEvents<T> {
     inserted: [entity?: T];
@@ -23,12 +24,14 @@ export class DatabaseListener {
     tournamentParticipant: EventEmitter<DatabaseEvents<TournamentParticipant>>;
     tournamentStage: EventEmitter<DatabaseEvents<TournamentStage>>;
     stageParticipant: EventEmitter<DatabaseEvents<StageParticipant>>;
+    gameReport: EventEmitter<DatabaseEvents<GameReport>>;
 
     constructor() {
         this.tournament = new EventEmitter();
         this.tournamentParticipant = new EventEmitter();
         this.tournamentStage = new EventEmitter();
         this.stageParticipant = new EventEmitter();
+        this.gameReport = new EventEmitter();
     }
 
     addListenersToDatabase(database: DatabaseController) {
@@ -46,6 +49,9 @@ export class DatabaseListener {
         );
         database.addSubscriber(
             buildDatabaseSubscriber(StageParticipant, this.stageParticipant),
+        );
+        database.addSubscriber(
+            buildDatabaseSubscriber(GameReport, this.gameReport),
         );
     }
 }

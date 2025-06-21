@@ -17,6 +17,14 @@
                 <q-btn color="green" @click="save">Save</q-btn>
             </q-card-section>
         </q-card>
+
+        <q-card class="w-full q-mt-md">
+            <q-card-section>
+                <div v-for="(placement, idx) of placements" :key="idx">
+                    {{ placement }}
+                </div>
+            </q-card-section>
+        </q-card>
     </ManageLayout>
 </template>
 
@@ -40,6 +48,9 @@ const tournament = await useAPI().fetch<ITournament>(
 );
 const stage = await useAPI().fetch<ITournamentStage>(
     `/api/tournament/${tournament.id}/stages/${params.stageNumber}`,
+);
+const placements = await useAPI().fetch<string[]>(
+    `/api/tournament/${tournament.id}/stages/${params.stageNumber}/placements`,
 );
 const stageTypes =
     await useAPI().fetch<Record<string, string>>(`/api/data/stageTypes`);

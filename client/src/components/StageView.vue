@@ -1,18 +1,20 @@
 <template>
-    <div class="column q-gutter-sm">
-        <h3>{{ stage.name }}</h3>
-        <div class="row no-wrap q-gutter-xl stage-box">
+    <div ref="stageBox" class="column q-gutter-md q-pt-sm">
+        <h3 style="margin-bottom: 0">{{ stage.name }}</h3>
+        <div class="row no-wrap flex-grow">
             <template v-for="(group, idx) in gameGroups" :key="idx">
-                <div>
+                <div class="column">
                     <div>{{ group.title }}</div>
 
-                    <div class="row h-full">
+                    <div class="row flex-grow">
                         <div class="match-connector-container">
                             <template
                                 v-for="game in gamesOfGroup(group.groupNumber)"
                             >
                                 <div
-                                    v-for="precessorMatch in game.precessorGames"
+                                    v-for="precessorMatch in game.precessorGames.filter(
+                                        (game) => game != null,
+                                    )"
                                     :key="`${game.matchNumber}-${precessorMatch}`"
                                     class="match-connector"
                                     :style="
@@ -26,7 +28,7 @@
                         </div>
 
                         <div
-                            class="column justify-around h-full"
+                            class="column justify-around"
                             :data-orakel-group="idx"
                         >
                             <StageGame
@@ -37,6 +39,11 @@
                                     games.findIndex(
                                         (g) =>
                                             g.matchNumber === game.matchNumber,
+                                    )
+                                "
+                                :has-succeeding-matches="
+                                    allPreceedingMatches.includes(
+                                        game.matchNumber,
                                     )
                                 "
                             />
@@ -52,6 +59,9 @@
                     v-for="game in gamesOfGroup(null)"
                     :key="game.matchNumber"
                     :game="game"
+                    :has-succeeding-matches="
+                        allPreceedingMatches.includes(game.matchNumber)
+                    "
                 />
             </div>
         </div>
@@ -65,7 +75,7 @@ import type {
     IStageGameGroup,
 } from "@shared/interfaces/IStageGame";
 import { useAPI } from "../composables/http";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 
 const props = defineProps<{
     stage: ITournamentStage;
@@ -81,12 +91,19 @@ const gameGroups = await useAPI().fetch<IStageGameGroup[]>(
 const gameHeights = ref(games.map(() => 65));
 const gameTops = ref(games.map(() => 0));
 const groupTops = ref(gameGroups.map(() => 0));
+const stageBox = ref<HTMLDivElement | null>(null);
 
 function gamesOfGroup(groupNumber: number | null): IStageGame[] {
     return games.filter(
         (game) => game.groupNumber === (groupNumber ?? undefined),
     );
 }
+
+const allPreceedingMatches = computed<number[]>(() => {
+    return games
+        .map((game) => game.precessorGames.filter((match) => match != null))
+        .reduce((l, r) => [...l, ...r], []);
+});
 
 function calculateMatchConnectorCSS(
     match: IStageGame,
@@ -139,62 +156,36 @@ function calculateMatchConnectorCSS(
         gameHeights.value[currentGameIndex] * 0.5;
 
     if (precessorGameHeight < currentGameHeight) {
-        return `top: ${precessorGameHeight}px; height: ${currentGameHeight - precessorGameHeight}px; --top-left: -10px;`;
+        return `top: ${precessorGameHeight}px; height: ${currentGameHeight - precessorGameHeight}px;`;
     } else {
-        return `top: ${currentGameHeight}px; height: ${precessorGameHeight - currentGameHeight}px; --bottom-left: -10px;`;
+        return `top: ${currentGameHeight}px; height: ${precessorGameHeight - currentGameHeight}px;`;
     }
 }
 
 onMounted(() => {
     for (let i = 0; i < games.length; i++) {
         gameHeights.value[i] =
-            document
-                .querySelector(`div[data-orakel-match="${i}"]`)
+            stageBox.value
+                ?.querySelector(`div[data-orakel-match="${i}"]`)
                 ?.getBoundingClientRect().height ?? 65;
         gameTops.value[i] =
-            document
-                .querySelector(`div[data-orakel-match="${i}"]`)
+            stageBox.value
+                ?.querySelector(`div[data-orakel-match="${i}"]`)
                 ?.getBoundingClientRect().top ?? 0;
     }
     for (let i = 0; i < gameGroups.length; i++) {
         groupTops.value[i] =
-            document
-                .querySelector(`div[data-orakel-group="${i}"]`)
+            stageBox.value
+                ?.querySelector(`div[data-orakel-group="${i}"]`)
                 ?.getBoundingClientRect().top ?? 0;
     }
 });
 </script>
 
 <style scoped>
-.stage-box {
-    overflow-y: auto;
-    overflow-x: scroll;
-}
-
 .match-connector {
     position: absolute;
     border-left: 1px solid white;
-    left: -24px;
-
-    &:after {
-        position: absolute;
-        content: " ";
-        width: 10px;
-        display: block;
-        height: 100%;
-        border-bottom: 1px solid white;
-        left: var(--bottom-left);
-    }
-
-    &:before {
-        position: absolute;
-        content: " ";
-        width: 10px;
-        display: block;
-        height: 100%;
-        border-top: 1px solid white;
-        left: var(--top-left);
-    }
 }
 
 .match-connector-container {

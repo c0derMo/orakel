@@ -4,7 +4,7 @@ export interface IStageGame {
     matchNumber: number;
     groupNumber?: number;
     participantIds: (string | null)[];
-    precessorGames: number[];
+    precessorGames: (number | null)[];
     templateParticipantNames: string[];
     participants: number;
     result?: IGameReport;
@@ -22,4 +22,5 @@ export interface IGameReport {
     stageNumber: number;
     matchNumber: number;
     scores: number[];
+    ranking: number[];
 }

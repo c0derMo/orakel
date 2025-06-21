@@ -5,9 +5,11 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
+    OneToOne,
     PrimaryColumn,
 } from "typeorm";
 import { TournamentStage } from "./TournamentStage";
+import { StageMatch } from "./StageMatch";
 
 @Entity()
 export class GameReport extends BaseEntity implements IGameReport {
@@ -19,6 +21,8 @@ export class GameReport extends BaseEntity implements IGameReport {
     matchNumber: number;
     @Column("simple-json")
     scores: number[];
+    @Column("simple-json")
+    ranking: number[];
 
     @ManyToOne(() => TournamentStage)
     @JoinColumn([
@@ -26,4 +30,12 @@ export class GameReport extends BaseEntity implements IGameReport {
         { name: "stageNumber", referencedColumnName: "stageNumber" },
     ])
     stage: TournamentStage;
+
+    @OneToOne(() => StageMatch, (match) => match.result)
+    @JoinColumn([
+        { name: "tournamentId", referencedColumnName: "tournamentId" },
+        { name: "stageNumber", referencedColumnName: "stageNumber" },
+        { name: "matchNumber", referencedColumnName: "matchNumber" },
+    ])
+    match: StageMatch;
 }

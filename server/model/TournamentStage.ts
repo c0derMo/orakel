@@ -9,8 +9,9 @@ import {
     PrimaryColumn,
 } from "typeorm";
 import { StageParticipant } from "./StageParticipant";
-import { GameReport } from "./GameReport";
 import { Tournament } from "./Tournament";
+import type { IStageGameGroup } from "@shared/interfaces/IStageGame";
+import { StageMatch } from "./StageMatch";
 
 @Entity()
 export class TournamentStage extends BaseEntity implements ITournamentStage {
@@ -30,8 +31,11 @@ export class TournamentStage extends BaseEntity implements ITournamentStage {
     enrollmentConfig: Record<string, unknown>;
     @OneToMany(() => StageParticipant, (sp) => sp.stage)
     participants: StageParticipant[];
-    @OneToMany(() => GameReport, (g) => g.stage)
-    reportedGames: GameReport[];
+    @Column("simple-json")
+    groups: IStageGameGroup[];
+
+    @OneToMany(() => StageMatch, (match) => match.stage)
+    matches: StageMatch[];
 
     @ManyToOne(() => Tournament)
     @JoinColumn({

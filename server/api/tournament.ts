@@ -18,6 +18,7 @@ import { TournamentStage } from "../model/TournamentStage";
 import { TournamentParticipant } from "../model/TournamentParticipant";
 import { ensurePermission, getUserOrFail } from "../utils/auth";
 import { GameReport } from "../model/GameReport";
+import { StageMatch } from "model/StageMatch";
 
 export class TournamentRouter {
     private readonly stageController: StageController;
@@ -52,48 +53,54 @@ export class TournamentRouter {
         const tournamentId = ensureURLParameter(event, "tournamentId");
         const stageNumber = parseInt(ensureURLParameter(event, "stageNumber"));
 
-        const tournament = await Tournament.findOneOrFail({
-            where: {
-                id: tournamentId,
-            },
-        });
         const stage = await TournamentStage.findOneOrFail({
             where: {
                 tournamentId: tournamentId,
                 stageNumber: stageNumber,
             },
-            relations: {
-                participants: true,
-                reportedGames: true,
-            },
         });
 
-        return this.stageController
-            .getStageType(stage, tournament)
-            .getGameGroups();
+        return stage.groups ?? [];
     }
 
     private async getStageGames(event: H3Event<EventHandlerRequest>) {
         const tournamentId = ensureURLParameter(event, "tournamentId");
         const stageNumber = parseInt(ensureURLParameter(event, "stageNumber"));
 
-        const tournament = await Tournament.findOneOrFail({
+        const matches = await StageMatch.find({
             where: {
-                id: tournamentId,
+                tournamentId: tournamentId,
+                stageNumber: stageNumber,
             },
         });
+        return matches;
+    }
+
+    private async getStagePlacements(event: H3Event<EventHandlerRequest>) {
+        const tournamentId = ensureURLParameter(event, "tournamentId");
+        const stageNumber = parseInt(ensureURLParameter(event, "stageNumber"));
+
         const stage = await TournamentStage.findOneOrFail({
             where: {
                 tournamentId: tournamentId,
                 stageNumber: stageNumber,
             },
             relations: {
+                tournament: true,
                 participants: true,
-                reportedGames: true,
+                matches: true,
             },
         });
 
-        return this.stageController.getStageType(stage, tournament).getGames();
+        const stageType = this.stageController.getStageType(
+            stage,
+            stage.tournament,
+        );
+        const placements = stageType.getPlacements();
+        return placements.map((placement) => {
+            placement.resolve(stage.matches);
+            return placement.toString();
+        });
     }
 
     private async updateMatchReport(event: H3Event<EventHandlerRequest>) {
@@ -116,6 +123,7 @@ export class TournamentRouter {
                 stageNumber: z.number(),
                 matchNumber: z.number(),
                 scores: z.array(z.number()),
+                ranking: z.array(z.number()),
             })
             .strict();
 
@@ -238,6 +246,7 @@ export class TournamentRouter {
         const newStage = new TournamentStage();
         Object.assign(newStage, stageData);
         newStage.tournamentId = tournamentId;
+        newStage.groups = [];
         await newStage.save();
         return newStage.stageNumber;
     }
@@ -357,6 +366,10 @@ export class TournamentRouter {
         router.get(
             "/:tournamentId/stages/:stageNumber/games",
             eventHandler((event) => this.getStageGames(event)),
+        );
+        router.get(
+            "/:tournamentId/stages/:stageNumber/placements",
+            eventHandler((event) => this.getStagePlacements(event)),
         );
         router.patch(
             "/:tournamentId/stages/:stageNumber/reports",

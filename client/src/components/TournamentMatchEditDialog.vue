@@ -42,6 +42,31 @@
                         </tbody>
                     </q-markup-table>
 
+                    <q-markup-table>
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Player</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="(_, idx) of match.participantIds"
+                                :key="idx"
+                            >
+                                <td>{{ idx + 1 }}.</td>
+                                <td>
+                                    <q-select
+                                        v-model="editable.ranking[idx]"
+                                        :options="playerIndices"
+                                        emit-value
+                                        map-options
+                                    />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </q-markup-table>
+
                     <q-banner
                         v-if="match.participantIds.some((p) => p == null)"
                         class="bg-red"
@@ -62,7 +87,7 @@
 <script setup lang="ts">
 import { useParticipantNames } from "../composables/participantNames";
 import { useAPI } from "../composables/http";
-import { ref, toRaw } from "vue";
+import { computed, ref, toRaw, watch } from "vue";
 import type { IGameReport, IStageGame } from "@shared/interfaces/IStageGame";
 
 const participantNames = useParticipantNames();
@@ -77,6 +102,32 @@ const editable = ref(structuredClone(toRaw(props.matchReport)));
 defineEmits<{
     close: [];
 }>();
+
+const playerIndices = computed(() => {
+    return props.match.participantIds.map((participant, idx) => {
+        return {
+            label:
+                participant == null
+                    ? "unknown participant"
+                    : participantNames.getParticipantName(
+                          props.match.tournamentId,
+                          participant,
+                      ),
+            value: idx,
+        };
+    });
+});
+
+function sortRanking() {
+    editable.value.ranking.sort((a, b) => {
+        return (
+            parseInt(editable.value.scores[b].toString()) -
+            parseInt(editable.value.scores[a].toString())
+        );
+    });
+}
+
+watch(() => editable.value.scores, sortRanking, { deep: true });
 
 async function editMatchReport() {
     editable.value.scores = editable.value.scores.map((p) =>

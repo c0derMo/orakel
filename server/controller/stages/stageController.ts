@@ -9,16 +9,20 @@ import { EliminationBracketStageType } from "./stageTypes/eliminationBracket";
 import type { ITournament } from "@shared/interfaces/ITournament";
 import { Tournament } from "../../model/Tournament";
 import { StageParticipant } from "../../model/StageParticipant";
+import { StageMatch } from "model/StageMatch";
+import { GameReport } from "model/GameReport";
 
 const logger = consola.withTag("StageController");
 
 export class StageController {
-    private enrollmentConfigs: Map<string, typeof EnrollmentConfig>;
-    private stageTypes: Map<string, typeof StageType>;
+    private readonly enrollmentConfigs: Map<string, typeof EnrollmentConfig>;
+    private readonly stageTypes: Map<string, typeof StageType>;
+    private readonly updateQueue: Map<string, (() => void | Promise<void>)[]>;
 
     constructor(listener: DatabaseListener) {
         this.enrollmentConfigs = new Map();
         this.stageTypes = new Map();
+        this.updateQueue = new Map();
 
         this.addEventListeners(listener);
 
@@ -56,7 +60,7 @@ export class StageController {
         this.stageTypes.set(type.name, type);
     }
 
-    getStageType(stage: ITournamentStage, tournament: ITournament): StageType {
+    getStageType(stage: TournamentStage, tournament: ITournament): StageType {
         const StageType = this.stageTypes.get(stage.stageType);
         if (StageType == null) {
             throw new Error(`No StageType ${stage.stageType}`);
@@ -66,10 +70,15 @@ export class StageController {
 
     private async getStagesOfTournament(
         tournamentId: string,
-    ): Promise<ITournamentStage[]> {
+    ): Promise<TournamentStage[]> {
         return await TournamentStage.find({
             where: {
                 tournamentId: tournamentId,
+            },
+            relations: {
+                participants: true,
+                tournament: true,
+                matches: true,
             },
         });
     }
@@ -93,8 +102,13 @@ export class StageController {
     private async initializeEnrollmentConfig(
         stage: TournamentStage,
     ): Promise<void> {
-        const tournament = await Tournament.findOneBy({
-            id: stage.tournamentId,
+        const tournament = await Tournament.findOne({
+            where: {
+                id: stage.tournamentId,
+            },
+            relations: {
+                participants: true,
+            },
         });
         if (tournament == null) {
             return;
@@ -108,9 +122,72 @@ export class StageController {
         await this.getEnrollmentConfig(stage, tournament).initialize();
     }
 
+    private async initializeStageType(stage: TournamentStage): Promise<void> {
+        const tournament = await Tournament.findOneBy({
+            id: stage.tournamentId,
+        });
+        if (tournament == null) {
+            return;
+        }
+
+        await StageMatch.delete({
+            tournamentId: stage.tournamentId,
+            stageNumber: stage.stageNumber,
+        });
+        await GameReport.delete({
+            tournamentId: stage.tournamentId,
+            stageNumber: stage.stageNumber,
+        });
+
+        const postLoadedStage = await TournamentStage.findOne({
+            where: {
+                tournamentId: stage.tournamentId,
+                stageNumber: stage.stageNumber,
+            },
+            relations: {
+                tournament: true,
+                participants: true,
+                matches: true,
+            },
+        });
+
+        await this.getStageType(
+            postLoadedStage ?? stage,
+            tournament,
+        ).initialize();
+    }
+
+    private enqueueUpdate(
+        tournamentId: string,
+        callback: () => void | Promise<void>,
+    ) {
+        if (this.updateQueue.has(tournamentId)) {
+            this.updateQueue.get(tournamentId)!.push(callback);
+            return;
+        }
+
+        this.updateQueue.set(tournamentId, [callback]);
+        void this.workQueue(tournamentId);
+    }
+
+    private async workQueue(tournamentId: string): Promise<void> {
+        const queue = this.updateQueue.get(tournamentId);
+        if (queue == null || queue.length <= 0) {
+            this.updateQueue.delete(tournamentId);
+            return;
+        }
+
+        const nextCallback = queue.splice(0, 1)[0];
+        await nextCallback();
+        return this.workQueue(tournamentId);
+    }
+
     private async callForEachStage(
         tournamentId: string,
-        callback: (config: EnrollmentConfig) => void,
+        callback: (
+            config: EnrollmentConfig,
+            type: StageType,
+        ) => Promise<void> | void,
     ) {
         const tournament = await Tournament.findOneOrFail({
             where: {
@@ -126,91 +203,184 @@ export class StageController {
                 stage,
                 tournament,
             );
-            callback(enrollmentConfig);
+            const stageType = this.getStageType(stage, tournament);
+            await callback(enrollmentConfig, stageType);
         }
     }
 
     private addEventListeners(listener: DatabaseListener) {
         listener.tournament.on("updated", (tournament) => {
             if (tournament == null) return;
-            void this.callForEachStage(
-                tournament.id,
-                (config) => void config.tournamentUpdated(),
+            this.enqueueUpdate(tournament.id, () =>
+                this.callForEachStage(tournament.id, async (config, type) => {
+                    await config.onTournamentUpdated();
+                    await type.onTournamentUpdated();
+                }),
             );
         });
         listener.tournamentParticipant.on("inserted", (participant) => {
             if (participant == null) return;
-            void this.callForEachStage(
-                participant.tournamentId,
-                (config) =>
-                    void config.onTournamentParticipantInserted(participant),
+            this.enqueueUpdate(participant.tournamentId, () =>
+                this.callForEachStage(
+                    participant.tournamentId,
+                    async (config) => {
+                        await config.onTournamentParticipantInserted(
+                            participant,
+                        );
+                    },
+                ),
             );
         });
         listener.tournamentParticipant.on("updated", (participant) => {
             if (participant == null) return;
-            void this.callForEachStage(
-                participant.tournamentId,
-                (config) =>
-                    void config.onTournamentParticipantUpdated(participant),
+            this.enqueueUpdate(participant.tournamentId, () =>
+                this.callForEachStage(
+                    participant.tournamentId,
+                    async (config) => {
+                        await config.onTournamentParticipantUpdated(
+                            participant,
+                        );
+                    },
+                ),
             );
         });
         listener.tournamentParticipant.on("removed", (participant) => {
             if (participant == null) return;
-            void this.callForEachStage(
-                participant.tournamentId,
-                (config) =>
-                    void config.onTournamentParticipantRemoved(participant),
+            this.enqueueUpdate(participant.tournamentId, () =>
+                this.callForEachStage(
+                    participant.tournamentId,
+                    async (config) => {
+                        await config.onTournamentParticipantRemoved(
+                            participant,
+                        );
+                    },
+                ),
             );
         });
         listener.tournamentStage.on("inserted", (stage) => {
             if (stage == null) return;
-            void this.callForEachStage(
-                stage.tournamentId,
-                (config) => void config.onTournamentStageInserted(stage),
+
+            this.enqueueUpdate(stage.tournamentId, async () => {
+                await this.initializeEnrollmentConfig(stage);
+            });
+            this.enqueueUpdate(stage.tournamentId, async () => {
+                await this.initializeStageType(stage);
+            });
+            this.enqueueUpdate(stage.tournamentId, () =>
+                this.callForEachStage(
+                    stage.tournamentId,
+                    async (config, type) => {
+                        await config.onTournamentStageInserted(stage);
+                        await type.onTournamentStageInserted(stage);
+                    },
+                ),
             );
         });
         listener.tournamentStage.on("updated", (stage, changedColumns) => {
             if (stage == null) return;
 
-            let initializer = Promise.resolve();
             if (changedColumns?.includes("enrollmentType")) {
-                initializer = this.initializeEnrollmentConfig(stage);
+                this.enqueueUpdate(stage.tournamentId, async () => {
+                    await this.initializeEnrollmentConfig(stage);
+                });
+                this.enqueueUpdate(stage.tournamentId, async () => {
+                    await this.initializeStageType(stage);
+                });
+            } else if (changedColumns?.includes("stageType")) {
+                this.enqueueUpdate(stage.tournamentId, async () => {
+                    await this.initializeStageType(stage);
+                });
             }
 
-            void initializer.then(() => {
-                console.log("Post initializer?");
-                void this.callForEachStage(
+            this.enqueueUpdate(stage.tournamentId, () =>
+                this.callForEachStage(
                     stage.tournamentId,
-                    (config) => void config.onTournamentStageUpdated(stage),
-                );
-            });
+                    async (config, type) => {
+                        await config.onTournamentStageUpdated(stage);
+                        await type.onTournamentStageUpdated(stage);
+                    },
+                ),
+            );
         });
         listener.tournamentStage.on("removed", (stage) => {
             if (stage == null) return;
-            void this.callForEachStage(
-                stage.tournamentId,
-                (config) => void config.onTournamentStageRemoved(stage),
+            this.enqueueUpdate(stage.tournamentId, () =>
+                this.callForEachStage(
+                    stage.tournamentId,
+                    async (config, type) => {
+                        await config.onTournamentStageRemoved(stage);
+                        await type.onTournamentStageRemoved(stage);
+                    },
+                ),
             );
         });
         listener.stageParticipant.on("inserted", (participant) => {
             if (participant == null) return;
-            void this.callForEachStage(
-                participant.tournamentId,
-                (config) => void config.onStageParticipantInserted(participant),
+            this.enqueueUpdate(participant.tournamentId, () =>
+                this.callForEachStage(
+                    participant.tournamentId,
+                    async (config, type) => {
+                        await config.onStageParticipantInserted(participant);
+                        await type.onStageParticipantInserted(participant);
+                    },
+                ),
             );
         });
         listener.stageParticipant.on("updated", (participant) => {
             if (participant == null) return;
-            void this.callForEachStage(
-                participant.tournamentId,
-                (config) => void config.onStageParticipantUpdated(participant),
+            this.enqueueUpdate(participant.tournamentId, () =>
+                this.callForEachStage(
+                    participant.tournamentId,
+                    async (config, type) => {
+                        await config.onStageParticipantUpdated(participant);
+                        await type.onStageParticipantUpdated(participant);
+                    },
+                ),
             );
         });
         listener.stageParticipant.on("removed", (participant) => {
             if (participant == null) return;
-            void this.callForEachStage(
-                participant.tournamentId,
-                (config) => void config.onStageParticipantRemoved(participant),
+            this.enqueueUpdate(participant.tournamentId, () =>
+                this.callForEachStage(
+                    participant.tournamentId,
+                    async (config, type) => {
+                        await config.onStageParticipantRemoved(participant);
+                        await type.onStageParticipantRemoved(participant);
+                    },
+                ),
+            );
+        });
+        listener.gameReport.on("inserted", (report) => {
+            if (report == null) return;
+            this.enqueueUpdate(report.tournamentId, () =>
+                this.callForEachStage(
+                    report.tournamentId,
+                    async (config, type) => {
+                        await type.onGameReportInserted(report);
+                    },
+                ),
+            );
+        });
+        listener.gameReport.on("updated", (report) => {
+            if (report == null) return;
+            this.enqueueUpdate(report.tournamentId, () =>
+                this.callForEachStage(
+                    report.tournamentId,
+                    async (config, type) => {
+                        await type.onGameReportUpdated(report);
+                    },
+                ),
+            );
+        });
+        listener.gameReport.on("removed", (report) => {
+            if (report == null) return;
+            this.enqueueUpdate(report.tournamentId, () =>
+                this.callForEachStage(
+                    report.tournamentId,
+                    async (config, type) => {
+                        await type.onGameReportRemoved(report);
+                    },
+                ),
             );
         });
     }

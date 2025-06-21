@@ -1,4 +1,4 @@
-import type { IGameReport } from "./IStageGame";
+import type { IStageGame, IStageGameGroup } from "./IStageGame";
 
 export interface ITournamentStage {
     tournamentId: string;
@@ -9,7 +9,8 @@ export interface ITournamentStage {
     enrollmentType: string;
     enrollmentConfig: Record<string, unknown>;
     participants: IStageParticipant[];
-    reportedGames: IGameReport[];
+    matches: IStageGame[];
+    groups: IStageGameGroup[];
 }
 
 export interface IStageParticipant {

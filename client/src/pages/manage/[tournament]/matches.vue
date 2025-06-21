@@ -131,7 +131,7 @@ const filteredMatches = computed(() => {
 
     if (filteredStage.value != null) {
         result = result.filter(
-            (match) => match.stageNumber === filteredStage.value.stageNumber,
+            (match) => match.stageNumber === filteredStage.value!.stageNumber,
         );
     }
     if (!includeCompleted.value) {
@@ -155,7 +155,7 @@ function resolveParticipantNames(match: IStageGame): string {
             resultingNames.push(
                 participantNames.getParticipantName(
                     tournament.id,
-                    match.participantIds[idx],
+                    match.participantIds[idx]!,
                 ),
             );
         }
@@ -194,6 +194,7 @@ function openEditor(match: IStageGame) {
             stageNumber: match.stageNumber,
             matchNumber: match.matchNumber,
             scores: match.participantIds.map(() => 0),
+            ranking: match.participantIds.map((_, idx) => idx),
         };
     } else {
         reportToEdit.value = match.result;
