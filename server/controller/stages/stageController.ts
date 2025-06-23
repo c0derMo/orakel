@@ -1,4 +1,3 @@
-import type { ITournamentStage } from "@shared/interfaces/ITournamentStage";
 import { TournamentStage } from "../../model/TournamentStage";
 import { consola } from "consola";
 import { DatabaseListener } from "../databaseListener";
@@ -6,11 +5,12 @@ import { EnrollmentConfig } from "./enrollmentConfigs/baseEnrollmentConfig";
 import { AllParticipantsEnrollmentConfig } from "./enrollmentConfigs/allParticipants";
 import { StageType } from "./stageTypes/baseStageType";
 import { EliminationBracketStageType } from "./stageTypes/eliminationBracket";
-import type { ITournament } from "@shared/interfaces/ITournament";
 import { Tournament } from "../../model/Tournament";
 import { StageParticipant } from "../../model/StageParticipant";
 import { StageMatch } from "model/StageMatch";
 import { GameReport } from "model/GameReport";
+import { LosersOfStageEnrollmentConfig } from "./enrollmentConfigs/losersOfStage";
+import { LowerEliminationBracketStageType } from "./stageTypes/lowerEliminationBracket";
 
 const logger = consola.withTag("StageController");
 
@@ -27,8 +27,10 @@ export class StageController {
         this.addEventListeners(listener);
 
         this.addEnrollmentConfig(AllParticipantsEnrollmentConfig);
+        this.addEnrollmentConfig(LosersOfStageEnrollmentConfig);
 
         this.addStageType(EliminationBracketStageType);
+        this.addStageType(LowerEliminationBracketStageType);
     }
 
     addEnrollmentConfig(config: typeof EnrollmentConfig) {
@@ -41,15 +43,12 @@ export class StageController {
         this.enrollmentConfigs.set(config.name, config);
     }
 
-    getEnrollmentConfig(
-        stage: ITournamentStage,
-        tournament: ITournament,
-    ): EnrollmentConfig {
+    getEnrollmentConfig(stage: TournamentStage): EnrollmentConfig {
         const Config = this.enrollmentConfigs.get(stage.enrollmentType);
         if (Config == null) {
             throw new Error(`No EnrollmentConfig ${stage.enrollmentType}`);
         }
-        return new Config(stage, tournament);
+        return new Config(stage, this);
     }
 
     addStageType(type: typeof StageType) {
@@ -60,12 +59,12 @@ export class StageController {
         this.stageTypes.set(type.name, type);
     }
 
-    getStageType(stage: TournamentStage, tournament: ITournament): StageType {
+    getStageType(stage: TournamentStage): StageType {
         const StageType = this.stageTypes.get(stage.stageType);
         if (StageType == null) {
             throw new Error(`No StageType ${stage.stageType}`);
         }
-        return new StageType(stage, tournament);
+        return new StageType(stage, this);
     }
 
     private async getStagesOfTournament(
@@ -119,7 +118,7 @@ export class StageController {
             stageNumber: stage.stageNumber,
         });
 
-        await this.getEnrollmentConfig(stage, tournament).initialize();
+        await this.getEnrollmentConfig(stage).initialize();
     }
 
     private async initializeStageType(stage: TournamentStage): Promise<void> {
@@ -151,10 +150,7 @@ export class StageController {
             },
         });
 
-        await this.getStageType(
-            postLoadedStage ?? stage,
-            tournament,
-        ).initialize();
+        await this.getStageType(postLoadedStage ?? stage).initialize();
     }
 
     private enqueueUpdate(
@@ -189,21 +185,10 @@ export class StageController {
             type: StageType,
         ) => Promise<void> | void,
     ) {
-        const tournament = await Tournament.findOneOrFail({
-            where: {
-                id: tournamentId,
-            },
-            relations: {
-                participants: true,
-            },
-        });
         const stages = await this.getStagesOfTournament(tournamentId);
         for (const stage of stages) {
-            const enrollmentConfig = this.getEnrollmentConfig(
-                stage,
-                tournament,
-            );
-            const stageType = this.getStageType(stage, tournament);
+            const enrollmentConfig = this.getEnrollmentConfig(stage);
+            const stageType = this.getStageType(stage);
             await callback(enrollmentConfig, stageType);
         }
     }
@@ -356,6 +341,7 @@ export class StageController {
                 this.callForEachStage(
                     report.tournamentId,
                     async (config, type) => {
+                        await config.onMatchReportInserted(report);
                         await type.onGameReportInserted(report);
                     },
                 ),
@@ -367,6 +353,7 @@ export class StageController {
                 this.callForEachStage(
                     report.tournamentId,
                     async (config, type) => {
+                        await config.onMatchReportUpdated(report);
                         await type.onGameReportUpdated(report);
                     },
                 ),
@@ -378,6 +365,7 @@ export class StageController {
                 this.callForEachStage(
                     report.tournamentId,
                     async (config, type) => {
+                        await config.onMatchReportRemoved(report);
                         await type.onGameReportRemoved(report);
                     },
                 ),

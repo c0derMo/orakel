@@ -1,7 +1,7 @@
 <template>
     <div ref="stageBox" class="column q-gutter-md q-pt-sm">
         <h3 style="margin-bottom: 0">{{ stage.name }}</h3>
-        <div class="row no-wrap flex-grow">
+        <div class="row no-wrap flex-grow box">
             <template v-for="(group, idx) in gameGroups" :key="idx">
                 <div class="column">
                     <div>{{ group.title }}</div>
@@ -35,6 +35,7 @@
                                 v-for="game in gamesOfGroup(group.groupNumber)"
                                 :key="game.matchNumber"
                                 :game="game"
+                                :stage-number="stage.stageNumber"
                                 :data-orakel-match="
                                     games.findIndex(
                                         (g) =>
@@ -76,10 +77,16 @@ import type {
 } from "@shared/interfaces/IStageGame";
 import { useAPI } from "../composables/http";
 import { ref, onMounted, computed } from "vue";
+import { useParticipantNames } from "../composables/participantNames";
 
 const props = defineProps<{
     stage: ITournamentStage;
 }>();
+
+await useParticipantNames().loadStage(
+    props.stage.tournamentId,
+    props.stage.stageNumber,
+);
 
 const games = await useAPI().fetch<IStageGame[]>(
     `/api/tournament/${props.stage.tournamentId}/stages/${props.stage.stageNumber}/games`,
@@ -190,5 +197,10 @@ onMounted(() => {
 
 .match-connector-container {
     position: relative;
+}
+
+.box {
+    max-width: 80vw;
+    overflow-x: auto;
 }
 </style>

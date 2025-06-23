@@ -19,6 +19,7 @@ import { TournamentParticipant } from "../model/TournamentParticipant";
 import { ensurePermission, getUserOrFail } from "../utils/auth";
 import { GameReport } from "../model/GameReport";
 import { StageMatch } from "model/StageMatch";
+import { StageParticipant } from "model/StageParticipant";
 
 export class TournamentRouter {
     private readonly stageController: StageController;
@@ -92,15 +93,26 @@ export class TournamentRouter {
             },
         });
 
-        const stageType = this.stageController.getStageType(
-            stage,
-            stage.tournament,
-        );
+        const stageType = this.stageController.getStageType(stage);
         const placements = stageType.getPlacements();
         return placements.map((placement) => {
             placement.resolve(stage.matches);
             return placement.toString();
         });
+    }
+
+    private async getStageParticipants(event: H3Event<EventHandlerRequest>) {
+        const tournamentId = ensureURLParameter(event, "tournamentId");
+        const stageNumber = parseInt(ensureURLParameter(event, "stageNumber"));
+
+        const participants = await StageParticipant.find({
+            where: {
+                tournamentId: tournamentId,
+                stageNumber: stageNumber,
+            },
+        });
+
+        return participants;
     }
 
     private async updateMatchReport(event: H3Event<EventHandlerRequest>) {
@@ -370,6 +382,10 @@ export class TournamentRouter {
         router.get(
             "/:tournamentId/stages/:stageNumber/placements",
             eventHandler((event) => this.getStagePlacements(event)),
+        );
+        router.get(
+            "/:tournamentId/stages/:stageNumber/participants",
+            eventHandler((event) => this.getStageParticipants(event)),
         );
         router.patch(
             "/:tournamentId/stages/:stageNumber/reports",

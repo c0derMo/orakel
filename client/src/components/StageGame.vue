@@ -23,6 +23,7 @@
                             participantNames.getParticipantName(
                                 game.tournamentId,
                                 game.participantIds[0],
+                                stageNumber,
                             )
                         }}
                     </template>
@@ -36,6 +37,7 @@
                             participantNames.getParticipantName(
                                 game.tournamentId,
                                 game.participantIds[1],
+                                stageNumber,
                             )
                         }}
                     </template>
@@ -59,6 +61,7 @@ const participantNames = useParticipantNames();
 defineProps<{
     game: IStageGame;
     hasSucceedingMatches: boolean;
+    stageNumber: number;
 }>();
 </script>
 

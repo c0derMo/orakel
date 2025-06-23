@@ -1,23 +1,23 @@
-import type {
-    ITournament,
-    ITournamentParticipant,
-} from "@shared/interfaces/ITournament";
+import type { ITournamentParticipant } from "@shared/interfaces/ITournament";
 import type {
     IStageParticipant,
     ITournamentStage,
 } from "@shared/interfaces/ITournamentStage";
 import { StageParticipant } from "../../../model/StageParticipant";
+import type { StageController } from "../stageController";
+import type { TournamentStage } from "model/TournamentStage";
+import type { IGameReport } from "@shared/interfaces/IStageGame";
 
 export class EnrollmentConfig {
     public static readonly name: string;
     public static readonly publicName: string;
 
-    protected readonly stage: ITournamentStage;
-    protected readonly tournament: ITournament;
+    protected readonly stage: TournamentStage;
+    protected readonly controller: StageController;
 
-    constructor(stage: ITournamentStage, tournament: ITournament) {
+    constructor(stage: TournamentStage, controller: StageController) {
         this.stage = stage;
-        this.tournament = tournament;
+        this.controller = controller;
     }
 
     public onTournamentUpdated(): Promise<void> | void {
@@ -76,6 +76,18 @@ export class EnrollmentConfig {
         participant: IStageParticipant,
     ): Promise<void> | void {
         void participant;
+    }
+
+    public onMatchReportInserted(report: IGameReport): Promise<void> | void {
+        void report;
+    }
+
+    public onMatchReportUpdated(report: IGameReport): Promise<void> | void {
+        void report;
+    }
+
+    public onMatchReportRemoved(report: IGameReport): Promise<void> | void {
+        void report;
     }
 
     public initialize(): Promise<void> | void {

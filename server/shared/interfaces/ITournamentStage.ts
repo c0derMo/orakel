@@ -17,5 +17,6 @@ export interface IStageParticipant {
     tournamentId: string;
     stageNumber: number;
     participantId: string;
+    dummyName: string | null;
     additionalInfo: Record<string, unknown>;
 }

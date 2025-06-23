@@ -3,20 +3,21 @@ import type {
     ITournamentStage,
 } from "@shared/interfaces/ITournamentStage";
 import type { IGameReport } from "@shared/interfaces/IStageGame";
-import type { ITournament } from "@shared/interfaces/ITournament";
 import type { TournamentStage } from "model/TournamentStage";
 import type { StagePlacement } from "model/StagePlacement";
+import type { StageController } from "../stageController";
+import { StageMatch } from "model/StageMatch";
 
 export class StageType {
     public static readonly name: string;
     public static readonly publicName: string;
 
     protected readonly stage: TournamentStage;
-    protected readonly tournament: ITournament;
+    protected readonly controller: StageController;
 
-    constructor(stage: TournamentStage, tournament: ITournament) {
+    constructor(stage: TournamentStage, controller: StageController) {
         this.stage = stage;
-        this.tournament = tournament;
+        this.controller = controller;
     }
 
     public onTournamentUpdated(): Promise<void> | void {
@@ -77,5 +78,20 @@ export class StageType {
 
     public getPlacements(): StagePlacement[] {
         return [];
+    }
+
+    public async getResolvedPlacements(): Promise<StagePlacement[]> {
+        const matches = await StageMatch.find({
+            where: {
+                tournamentId: this.stage.tournamentId,
+                stageNumber: this.stage.stageNumber,
+            },
+            relations: {
+                result: true,
+            },
+        });
+        const placements = this.getPlacements();
+        placements.forEach((placement) => placement.resolve(matches));
+        return placements;
     }
 }

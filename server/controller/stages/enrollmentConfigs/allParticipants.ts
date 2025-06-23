@@ -1,3 +1,4 @@
+import { TournamentParticipant } from "model/TournamentParticipant";
 import { EnrollmentConfig } from "./baseEnrollmentConfig";
 import type { ITournamentParticipant } from "@shared/interfaces/ITournament";
 
@@ -6,7 +7,10 @@ export class AllParticipantsEnrollmentConfig extends EnrollmentConfig {
     static readonly publicName = "All Participants";
 
     public async initialize(): Promise<void> {
-        for (const participant of this.tournament.participants) {
+        const tournamentParticipants = await TournamentParticipant.findBy({
+            tournamentId: this.stage.tournamentId,
+        });
+        for (const participant of tournamentParticipants) {
             await this.addToStage(participant);
         }
     }

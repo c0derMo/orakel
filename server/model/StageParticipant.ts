@@ -19,6 +19,9 @@ export class StageParticipant extends BaseEntity implements IStageParticipant {
     participantId: string;
     @Column("simple-json")
     additionalInfo: Record<string, unknown>;
+    @Column("text", { nullable: true })
+    dummyName: string | null;
+
     @ManyToOne(() => TournamentStage)
     @JoinColumn([
         { name: "tournamentId", referencedColumnName: "tournamentId" },

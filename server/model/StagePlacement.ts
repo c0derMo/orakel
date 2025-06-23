@@ -1,8 +1,22 @@
 import type { IStageGame } from "@shared/interfaces/IStageGame";
 
 export abstract class StagePlacement {
+    private _isResolved: boolean;
     abstract toString(): string;
-    abstract resolve(matches: IStageGame[]): void;
+
+    protected _resolve(matches: IStageGame[]): boolean {
+        void matches;
+        return false;
+    }
+
+    public resolve(matches: IStageGame[]) {
+        const success = this._resolve(matches);
+        this._isResolved = success;
+    }
+
+    public isResolved(): boolean {
+        return this._isResolved;
+    }
 }
 
 export class WinnerOf extends StagePlacement {
@@ -23,14 +37,15 @@ export class WinnerOf extends StagePlacement {
         }
     }
 
-    resolve(matches: IStageGame[]) {
+    _resolve(matches: IStageGame[]): boolean {
         const match = matches.find(
             (match) => match.matchNumber === this.matchId,
         );
         if (match?.result == null) {
-            return;
+            return false;
         }
         this.resolvedPlayer = match.participantIds[match.result.ranking[0]];
+        return true;
     }
 }
 
@@ -52,16 +67,17 @@ export class LoserOf extends StagePlacement {
         }
     }
 
-    resolve(matches: IStageGame[]) {
+    _resolve(matches: IStageGame[]): boolean {
         const match = matches.find(
             (match) => match.matchNumber === this.matchId,
         );
         if (match?.result == null) {
-            return;
+            return false;
         }
         this.resolvedPlayer =
             match.participantIds[
                 match.result.ranking[match.result.ranking.length - 1]
             ];
+        return true;
     }
 }
