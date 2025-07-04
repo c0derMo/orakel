@@ -58,7 +58,7 @@ export class LosersOfStageEnrollmentConfig extends EnrollmentConfig {
     private async updateParticipants() {
         const placements = await this.getRankingsOfPreceedingStage();
         const takingPlacements = placements.slice(0, -1);
-        for (let i = 0; i < takingPlacements.length; i++) {
+        for (let i = takingPlacements.length - 1; i >= 0; i--) {
             await this.updateOrReplaceDummy(takingPlacements[i], i);
         }
     }
@@ -70,12 +70,14 @@ export class LosersOfStageEnrollmentConfig extends EnrollmentConfig {
         let dummy = await StageParticipant.findOneBy({
             tournamentId: this.stage.tournamentId,
             stageNumber: this.stage.stageNumber,
+            seed: index,
             participantId: `dummy_${index}`,
         });
         if (dummy == null) {
             dummy = new StageParticipant();
             dummy.tournamentId = this.stage.tournamentId;
             dummy.stageNumber = this.stage.stageNumber;
+            dummy.seed = index;
             dummy.participantId = `dummy_${index}`;
             dummy.additionalInfo = {};
         }

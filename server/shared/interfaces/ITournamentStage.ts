@@ -19,4 +19,5 @@ export interface IStageParticipant {
     participantId: string;
     dummyName: string | null;
     additionalInfo: Record<string, unknown>;
+    seed: number;
 }

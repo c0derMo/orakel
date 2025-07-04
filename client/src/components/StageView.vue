@@ -28,7 +28,7 @@
                         </div>
 
                         <div
-                            class="column justify-around"
+                            class="column justify-around items-center"
                             :data-orakel-group="idx"
                         >
                             <StageGame
@@ -63,6 +63,7 @@
                     :has-succeeding-matches="
                         allPreceedingMatches.includes(game.matchNumber)
                     "
+                    :stage-number="stage.stageNumber"
                 />
             </div>
         </div>

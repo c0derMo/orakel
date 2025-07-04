@@ -9,13 +9,19 @@ import {
 } from "typeorm";
 import { TournamentStage } from "./TournamentStage";
 
-@Entity()
+@Entity({
+    orderBy: {
+        seed: "ASC",
+    },
+})
 export class StageParticipant extends BaseEntity implements IStageParticipant {
     @PrimaryColumn("text")
     tournamentId: string;
     @PrimaryColumn("integer")
     stageNumber: number;
-    @PrimaryColumn("text")
+    @PrimaryColumn("integer")
+    seed: number;
+    @Column("text")
     participantId: string;
     @Column("simple-json")
     additionalInfo: Record<string, unknown>;

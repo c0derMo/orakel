@@ -1,8 +1,12 @@
 <template>
     <div class="row no-wrap">
         <div
-            v-if="game.precessorGames.filter((game) => game != null).length > 0"
             class="connecting-tab left"
+            :class="
+                game.precessorGames.filter((game) => game != null).length > 0
+                    ? 'visible'
+                    : ''
+            "
         ></div>
 
         <div class="column box">
@@ -48,7 +52,10 @@
             </div>
         </div>
 
-        <div v-if="hasSucceedingMatches" class="connecting-tab right"></div>
+        <div
+            class="connecting-tab right"
+            :class="hasSucceedingMatches ? 'visible' : ''"
+        ></div>
     </div>
 </template>
 
@@ -84,6 +91,8 @@ defineProps<{
 .connecting-tab {
     height: 50%;
     width: 20px;
+}
+.connecting-tab.visible {
     border-bottom: 1px solid white;
 }
 .connecting-tab.left {

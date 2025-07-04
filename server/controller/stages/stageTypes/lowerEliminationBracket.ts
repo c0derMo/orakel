@@ -15,13 +15,6 @@ export class LowerEliminationBracketStageType extends SimpleStageType {
     public static readonly name = "lower_elimination_bracket";
     public static readonly publicName = "Lower Elimination Bracket";
 
-    /*
-        TODOs:
-        - Figure out who gets forfeits r1
-        - Figure out how to place players
-
-     */
-
     getGameGroups(): IStageGameGroup[] {
         const amountRounds = Math.ceil(
             Math.log2(this.stage.participants.length) * 2 - 2,
@@ -42,65 +35,72 @@ export class LowerEliminationBracketStageType extends SimpleStageType {
 
     getGames(): IStageGame[] {
         const games: IStageGame[] = [];
-        const amountRounds = Math.ceil(
-            Math.log2(this.stage.participants.length) * 2 - 2,
+
+        const amountParticipants = Array(this.stage.participants.length)
+            .fill(0)
+            .map((_, idx) => idx);
+        const dropIns = LowerEliminationBracketStageType.reverseRounds(
+            LowerEliminationBracketStageType.reverseGenerateDropIns(
+                amountParticipants,
+            ),
         );
+        const reversedParticipants = [...this.stage.participants];
 
-        let matchNumber = (Math.pow(2, amountRounds / 2) - 1) * 2;
-        let gamesThisRound = 1;
-
-        const remainingParticipants = [...this.stage.participants];
-
-        let roundIterator = amountRounds / 2 - 1;
-        while (remainingParticipants.length > 0) {
-            const lastRound = remainingParticipants.length < gamesThisRound;
-            for (let j = 0; j < gamesThisRound; j++) {
+        let roundIterator = -1;
+        let matchNumber = 1;
+        for (const droppedInThisRound of dropIns) {
+            for (const player of droppedInThisRound) {
                 games.push({
                     tournamentId: this.stage.tournamentId,
                     stageNumber: this.stage.stageNumber,
                     matchNumber: matchNumber,
-                    groupNumber: roundIterator * 2 + 1,
+                    groupNumber: roundIterator,
                     participantIds: [
-                        remainingParticipants.pop()?.participantId ?? "BYE",
-                        lastRound ? "BYE" : null,
+                        player >= 0
+                            ? reversedParticipants[player].participantId
+                            : "BYE",
+                        roundIterator == -1 ? "BYE" : null,
                     ],
-                    precessorGames: [null, matchNumber - gamesThisRound],
+                    precessorGames: [
+                        null,
+                        matchNumber - droppedInThisRound.length,
+                    ],
                     templateParticipantNames: [
                         "",
-                        `Winner of match ${matchNumber - gamesThisRound}`,
+                        `Winner of match ${matchNumber - droppedInThisRound.length}`,
                     ],
                     participants: 2,
                 });
-                matchNumber--;
+                matchNumber++;
             }
+            roundIterator++;
 
-            if (!lastRound) {
-                for (let j = 0; j < gamesThisRound; j++) {
+            if (droppedInThisRound.length > 1) {
+                for (let j = 0; j < droppedInThisRound.length / 2; j++) {
                     games.push({
                         tournamentId: this.stage.tournamentId,
                         stageNumber: this.stage.stageNumber,
                         matchNumber: matchNumber,
-                        groupNumber: roundIterator * 2,
+                        groupNumber: roundIterator,
                         participantIds: [null, null],
                         precessorGames: [
-                            matchNumber - j - gamesThisRound,
-                            matchNumber - j - gamesThisRound - 1,
+                            matchNumber + j - droppedInThisRound.length,
+                            matchNumber + j - droppedInThisRound.length + 1,
                         ],
                         templateParticipantNames: [
-                            `Winner of match ${matchNumber - j - gamesThisRound}`,
-                            `Winner of match ${matchNumber - j - gamesThisRound - 1}`,
+                            `Winner of match ${matchNumber + j - droppedInThisRound.length}`,
+                            `Winner of match ${matchNumber + j - droppedInThisRound.length + 1}`,
                         ],
                         participants: 2,
                     });
-                    matchNumber--;
+                    matchNumber++;
                 }
+                roundIterator++;
             }
-
-            roundIterator--;
-            gamesThisRound *= 2;
         }
+
         return LowerEliminationBracketStageType.renumberMatches(
-            LowerEliminationBracketStageType.cleanUpByes(games.toReversed()),
+            LowerEliminationBracketStageType.cleanUpByes(games),
         );
     }
 
@@ -140,6 +140,79 @@ export class LowerEliminationBracketStageType extends SimpleStageType {
                     : match.participantIds[1];
             otherMatch.participantIds[index] = winner;
             await otherMatch.save();
+        }
+    }
+
+    public static reverseRounds(dropIns: number[][]): number[][] {
+        for (let i = 1; i < dropIns.length; i++) {
+            switch (i % 4) {
+                case 0:
+                    dropIns[i].sort((a, b) => a - b);
+                    break;
+                case 1:
+                    dropIns[i].sort((a, b) => b - a);
+                    break;
+                case 2:
+                    dropIns[i].sort((a, b) => b - a);
+                    dropIns[i] = [
+                        ...dropIns[i].slice(dropIns[i].length / 2),
+                        ...dropIns[i].slice(0, dropIns[i].length / 2),
+                    ];
+                    break;
+                case 3:
+                    dropIns[i].sort((a, b) => a - b);
+                    dropIns[i] = [
+                        ...dropIns[i].slice(dropIns[i].length / 2),
+                        ...dropIns[i].slice(0, dropIns[i].length / 2),
+                    ];
+                    break;
+            }
+        }
+        return dropIns;
+    }
+
+    public static reverseGenerateDropIns(
+        participants: number[],
+        placementsThisRound = 1,
+    ): number[][] {
+        if (participants.length > placementsThisRound) {
+            const thisRound = participants.splice(
+                participants.length - placementsThisRound,
+                placementsThisRound,
+            );
+
+            return [
+                ...this.reverseGenerateDropIns(
+                    participants,
+                    placementsThisRound * 2,
+                ),
+                thisRound,
+            ];
+        } else {
+            const allNumbers = Array(placementsThisRound)
+                .fill(0)
+                .map((_, idx) => idx);
+            const wbr1Matches =
+                LowerEliminationBracketStageType.reverseGenerateHalfs(
+                    allNumbers,
+                );
+
+            const flattenedPlayers = wbr1Matches.flat();
+            const amountByes = placementsThisRound - participants.length;
+            console.log(amountByes);
+
+            const result = [];
+            let offset = 0;
+            for (let idx = 0; idx < placementsThisRound; idx++) {
+                if (flattenedPlayers[idx] < amountByes) {
+                    result.push(-1);
+                    offset++;
+                } else {
+                    result.push(idx - offset);
+                }
+            }
+
+            return [result];
         }
     }
 
@@ -217,8 +290,16 @@ export class LowerEliminationBracketStageType extends SimpleStageType {
             numberConversionMap.set(matches[i - 1].matchNumber, i);
             matches[i - 1].matchNumber = i;
             matches[i - 1].precessorGames = matches[i - 1].precessorGames.map(
-                (match) =>
-                    match == null ? null : numberConversionMap.get(match)!,
+                (match, idx) => {
+                    if (match == null) {
+                        return null;
+                    } else {
+                        const newNumber = numberConversionMap.get(match)!;
+                        matches[i - 1].templateParticipantNames[idx] =
+                            `Winner of match ${newNumber}`;
+                        return newNumber;
+                    }
+                },
             );
         }
         return matches;

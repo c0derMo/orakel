@@ -96,11 +96,20 @@ export class EnrollmentConfig {
 
     protected async addToStage(
         participant: ITournamentParticipant,
+        seed?: number,
         additionalData?: Record<string, unknown>,
     ): Promise<void> {
+        const actualSeed =
+            seed ??
+            ((await StageParticipant.maximum("seed", {
+                tournamentId: this.stage.tournamentId,
+                stageNumber: this.stage.stageNumber,
+            })) ?? 0) + 1;
+
         const stageParticipant = StageParticipant.create({
             tournamentId: this.stage.tournamentId,
             stageNumber: this.stage.stageNumber,
+            seed: actualSeed,
             participantId: participant.participantId,
             additionalInfo: additionalData ?? {},
         });
