@@ -1,35 +1,29 @@
 <template>
-    <ManageLayout :tournament="tournament" title="New Stage">
-        <q-card class="w-full">
-            <q-card-section class="column q-gutter-sm q-ma-sm">
-                <h5>Add stage to tournament</h5>
+    <q-card class="w-full">
+        <q-card-section class="column q-gutter-sm q-ma-sm">
+            <h5>Add stage to tournament</h5>
 
-                <q-input v-model="stageName" label="Stage name" />
-                <q-input
-                    v-model="stageNumber"
-                    label="Stage number"
-                    type="number"
-                />
-                <q-select
-                    v-model="stageType"
-                    label="Stage Type"
-                    :options="computedStageTypes"
-                />
+            <q-input v-model="stageName" label="Stage name" />
+            <q-input v-model="stageNumber" label="Stage number" type="number" />
+            <q-select
+                v-model="stageType"
+                label="Stage Type"
+                :options="computedStageTypes"
+            />
 
-                <!-- STAGE OPTIONS -->
+            <!-- STAGE OPTIONS -->
 
-                <q-select
-                    v-model="enrollmentConfig"
-                    label="Enrollment Config"
-                    :options="computedEnrollmentConfigs"
-                />
+            <q-select
+                v-model="enrollmentConfig"
+                label="Enrollment Config"
+                :options="computedEnrollmentConfigs"
+            />
 
-                <!-- ENROLLMENT CONFIG OPTIONS (& add more enrollment configs) -->
+            <!-- ENROLLMENT CONFIG OPTIONS (& add more enrollment configs) -->
 
-                <q-btn color="green" @click="addStage">Create</q-btn>
-            </q-card-section>
-        </q-card>
-    </ManageLayout>
+            <q-btn color="green" @click="addStage">Create</q-btn>
+        </q-card-section>
+    </q-card>
 </template>
 
 <script setup lang="ts">
@@ -41,6 +35,12 @@ import { Notify } from "quasar";
 import { FetchError } from "ofetch";
 
 const route = useRoute();
+
+const emits = defineEmits<{
+    setPageTitle: [title: string];
+}>();
+
+emits("setPageTitle", "New Stage");
 
 const tournament = await useAPI().fetch<ITournament>(
     `/api/tournament/${(route.params as { tournament: string }).tournament}`,

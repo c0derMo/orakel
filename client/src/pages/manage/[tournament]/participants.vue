@@ -1,5 +1,5 @@
 <template>
-    <ManageLayout :tournament="tournament" title="Tournament Participants">
+    <div class="w-full">
         <TournamentParticipantEditDialog
             v-if="participantToEdit != null"
             :participant="participantToEdit"
@@ -92,7 +92,7 @@
                 </q-card-section>
             </q-card>
         </div>
-    </ManageLayout>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -112,6 +112,12 @@ const participantToEdit = ref<ITournamentParticipant | null>(null);
 const tournament = await useAPI().fetch<ITournament>(
     `/api/tournament/${(route.params as { tournament: string }).tournament}`,
 );
+
+const emits = defineEmits<{
+    setPageTitle: [title: string];
+}>();
+
+emits("setPageTitle", "Tournament Participants");
 
 async function updateParticipants() {
     participants.value = await useAPI().fetch(

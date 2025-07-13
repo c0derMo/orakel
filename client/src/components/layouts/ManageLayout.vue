@@ -23,7 +23,13 @@
             </q-toolbar>
         </q-header>
 
-        <q-drawer v-model="leftDrawerOpen" side="left" overlay bordered>
+        <q-drawer
+            v-model="leftDrawerOpen"
+            side="left"
+            overlay
+            bordered
+            persistent
+        >
             <q-list>
                 <q-item
                     v-ripple

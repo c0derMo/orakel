@@ -1,5 +1,5 @@
 <template>
-    <ManageLayout :tournament="tournament" title="Matches">
+    <div class="w-full">
         <TournamentMatchEditDialog
             v-if="matchToEdit != null && reportToEdit != null"
             :match-report="reportToEdit"
@@ -80,7 +80,7 @@
                 </q-card-section>
             </q-card>
         </div>
-    </ManageLayout>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -99,6 +99,12 @@ import { ref, computed } from "vue";
 const route = useRoute();
 const participantNames = useParticipantNames();
 const api = useAPI();
+
+const emits = defineEmits<{
+    setPageTitle: [title: string];
+}>();
+
+emits("setPageTitle", "Matches");
 
 const tournament = await api.fetch<ITournament>(
     `/api/tournament/${(route.params as { tournament: string }).tournament}`,

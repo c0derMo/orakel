@@ -1,5 +1,5 @@
 <template>
-    <ManageLayout :tournament="tournament" :title="pageTitle">
+    <div class="w-full">
         <q-card class="w-full">
             <q-card-section class="column q-gutter-sm q-ma-sm">
                 <q-select
@@ -25,7 +25,7 @@
                 </div>
             </q-card-section>
         </q-card>
-    </ManageLayout>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -33,7 +33,7 @@ import { useRoute } from "vue-router";
 import { useAPI } from "../../../../composables/http";
 import type { ITournament } from "@shared/interfaces/ITournament";
 import type { ITournamentStage } from "@shared/interfaces/ITournamentStage";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { FetchError } from "ofetch";
 import { Notify } from "quasar";
 
@@ -46,11 +46,15 @@ const params = route.params as {
 const tournament = await useAPI().fetch<ITournament>(
     `/api/tournament/${params.tournament}`,
 );
-const stage = await useAPI().fetch<ITournamentStage>(
-    `/api/tournament/${tournament.id}/stages/${params.stageNumber}`,
+const stage = ref(
+    await useAPI().fetch<ITournamentStage>(
+        `/api/tournament/${tournament.id}/stages/${params.stageNumber}`,
+    ),
 );
-const placements = await useAPI().fetch<string[]>(
-    `/api/tournament/${tournament.id}/stages/${params.stageNumber}/placements`,
+const placements = ref(
+    await useAPI().fetch<string[]>(
+        `/api/tournament/${tournament.id}/stages/${params.stageNumber}/placements`,
+    ),
 );
 const stageTypes =
     await useAPI().fetch<Record<string, string>>(`/api/data/stageTypes`);
@@ -58,7 +62,11 @@ const enrollmentConfigs = await useAPI().fetch<Record<string, string>>(
     `/api/data/enrollmentConfigs`,
 );
 
-const pageTitle = `Stage ${params.stageNumber} - ${stage.name}`;
+const emits = defineEmits<{
+    setPageTitle: [title: string];
+}>();
+
+emits("setPageTitle", `Stage ${params.stageNumber} - ${stage.value.name}`);
 
 const computedStageTypes = computed(() => {
     const result = [];
@@ -83,18 +91,18 @@ const computedEnrollmentConfigs = computed(() => {
 });
 
 const stageType = ref(
-    computedStageTypes.value.find((v) => v.value === stage.stageType)!,
+    computedStageTypes.value.find((v) => v.value === stage.value.stageType)!,
 );
 const enrollmentConfig = ref(
     computedEnrollmentConfigs.value.find(
-        (v) => v.value === stage.enrollmentType,
+        (v) => v.value === stage.value.enrollmentType,
     )!,
 );
 
 async function save() {
     try {
         await useAPI().fetch(
-            `/api/tournament/${tournament.id}/stages/${stage.stageNumber}`,
+            `/api/tournament/${tournament.id}/stages/${stage.value.stageNumber}`,
             {
                 method: "PATCH",
                 body: {
@@ -116,4 +124,30 @@ async function save() {
         }
     }
 }
+
+watch(
+    () => (route.params as { stageNumber: string }).stageNumber,
+    async () => {
+        const params = route.params as {
+            tournament: string;
+            stageNumber: string;
+        };
+        stage.value = await useAPI().fetch<ITournamentStage>(
+            `/api/tournament/${tournament.id}/stages/${params.stageNumber}`,
+        );
+        placements.value = await useAPI().fetch<string[]>(
+            `/api/tournament/${tournament.id}/stages/${params.stageNumber}/placements`,
+        );
+        stageType.value = computedStageTypes.value.find(
+            (v) => v.value === stage.value.stageType,
+        )!;
+        enrollmentConfig.value = computedEnrollmentConfigs.value.find(
+            (v) => v.value === stage.value.enrollmentType,
+        )!;
+        emits(
+            "setPageTitle",
+            `Stage ${params.stageNumber} - ${stage.value.name}`,
+        );
+    },
+);
 </script>
