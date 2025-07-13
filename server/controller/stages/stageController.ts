@@ -129,11 +129,11 @@ export class StageController {
             return;
         }
 
-        await StageMatch.delete({
+        await GameReport.delete({
             tournamentId: stage.tournamentId,
             stageNumber: stage.stageNumber,
         });
-        await GameReport.delete({
+        await StageMatch.delete({
             tournamentId: stage.tournamentId,
             stageNumber: stage.stageNumber,
         });

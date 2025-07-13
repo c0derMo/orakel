@@ -67,7 +67,7 @@ export class LowerEliminationBracketStageType extends SimpleStageType {
                     ],
                     templateParticipantNames: [
                         "",
-                        `Winner of match ${matchNumber - droppedInThisRound.length}`,
+                        `Winner of match ${this.stage.stageNumber}.${matchNumber - droppedInThisRound.length}`,
                     ],
                     participants: 2,
                 });
@@ -88,8 +88,8 @@ export class LowerEliminationBracketStageType extends SimpleStageType {
                             matchNumber + j - droppedInThisRound.length + 1,
                         ],
                         templateParticipantNames: [
-                            `Winner of match ${matchNumber + j - droppedInThisRound.length}`,
-                            `Winner of match ${matchNumber + j - droppedInThisRound.length + 1}`,
+                            `Winner of match ${this.stage.stageNumber}.${matchNumber + j - droppedInThisRound.length}`,
+                            `Winner of match ${this.stage.stageNumber}.${matchNumber + j - droppedInThisRound.length + 1}`,
                         ],
                         participants: 2,
                     });
@@ -99,7 +99,7 @@ export class LowerEliminationBracketStageType extends SimpleStageType {
             }
         }
 
-        return LowerEliminationBracketStageType.renumberMatches(
+        return this.renumberMatches(
             LowerEliminationBracketStageType.cleanUpByes(games),
         );
     }
@@ -199,7 +199,6 @@ export class LowerEliminationBracketStageType extends SimpleStageType {
 
             const flattenedPlayers = wbr1Matches.flat();
             const amountByes = placementsThisRound - participants.length;
-            console.log(amountByes);
 
             const result = [];
             let offset = 0;
@@ -284,7 +283,7 @@ export class LowerEliminationBracketStageType extends SimpleStageType {
         return resultingMatches;
     }
 
-    private static renumberMatches(matches: IStageGame[]): IStageGame[] {
+    private renumberMatches(matches: IStageGame[]): IStageGame[] {
         const numberConversionMap = new Map<number, number>();
         for (let i = 1; i <= matches.length; i++) {
             numberConversionMap.set(matches[i - 1].matchNumber, i);
@@ -296,7 +295,7 @@ export class LowerEliminationBracketStageType extends SimpleStageType {
                     } else {
                         const newNumber = numberConversionMap.get(match)!;
                         matches[i - 1].templateParticipantNames[idx] =
-                            `Winner of match ${newNumber}`;
+                            `Winner of match ${this.stage.stageNumber}.${newNumber}`;
                         return newNumber;
                     }
                 },

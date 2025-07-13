@@ -21,17 +21,21 @@ export abstract class StagePlacement {
 
 export class WinnerOf extends StagePlacement {
     private readonly matchId: number;
+    private readonly stageNumber?: number;
     private resolvedPlayer: string | null;
 
-    constructor(matchId: number) {
+    constructor(matchId: number, stageNumber?: number) {
         super();
         this.matchId = matchId;
+        this.stageNumber = stageNumber;
         this.resolvedPlayer = null;
     }
 
     toString(): string {
         if (this.resolvedPlayer != null) {
             return this.resolvedPlayer;
+        } else if (this.stageNumber != null) {
+            return `Winner of ${this.stageNumber}.${this.matchId}`;
         } else {
             return `Winner of ${this.matchId}`;
         }
@@ -51,17 +55,21 @@ export class WinnerOf extends StagePlacement {
 
 export class LoserOf extends StagePlacement {
     private readonly matchId: number;
+    private readonly stageNumber?: number;
     private resolvedPlayer: string | null;
 
-    constructor(matchId: number) {
+    constructor(matchId: number, stageNumber?: number) {
         super();
         this.matchId = matchId;
+        this.stageNumber = stageNumber;
         this.resolvedPlayer = null;
     }
 
     toString(): string {
         if (this.resolvedPlayer != null) {
             return this.resolvedPlayer;
+        } else if (this.stageNumber != null) {
+            return `Loser of ${this.stageNumber}.${this.matchId}`;
         } else {
             return `Loser of ${this.matchId}`;
         }

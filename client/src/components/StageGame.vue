@@ -1,5 +1,9 @@
 <template>
-    <div class="row no-wrap">
+    <div
+        class="row no-wrap"
+        @mouseenter="hover = true"
+        @mouseleave="hover = false"
+    >
         <div
             class="connecting-tab left"
             :class="
@@ -13,7 +17,7 @@
             <div
                 class="text-weight-thin text-italic q-mx-auto q-mt-xs small-text"
             >
-                Match {{ game.matchNumber }}
+                Match {{ stageNumber }}.{{ game.matchNumber }}
             </div>
 
             <div class="row justify-center q-gutter-sm">
@@ -49,7 +53,11 @@
                             )
                         }}
                     </template>
-                    <span v-else class="text-italic small-text">
+                    <span
+                        v-else
+                        class="text-italic small-text opacity-0"
+                        :class="{ 'opacity-100': hover }"
+                    >
                         {{ game.templateParticipantNames[0] }}
                     </span>
                 </div>
@@ -63,7 +71,11 @@
                             )
                         }}
                     </template>
-                    <span v-else class="text-italic small-text">
+                    <span
+                        v-else
+                        class="text-italic small-text opacity-0"
+                        :class="{ 'opacity-100': hover }"
+                    >
                         {{ game.templateParticipantNames[1] }}
                     </span>
                 </div>
@@ -80,7 +92,7 @@
 <script setup lang="ts">
 import type { IStageGame } from "@shared/interfaces/IStageGame";
 import { useParticipantNames } from "../composables/participantNames";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 const participantNames = useParticipantNames();
 
@@ -89,6 +101,8 @@ const props = defineProps<{
     hasSucceedingMatches: boolean;
     stageNumber: number;
 }>();
+
+const hover = ref(false);
 
 function isWinner(index: number): boolean {
     return props.game.result?.ranking[0] === index;
@@ -141,5 +155,16 @@ const hasResult = computed<boolean>(() => {
 }
 .connecting-tab.right {
     margin-left: 15px;
+}
+
+.opacity-0 {
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 250ms;
+    transition-timing-function: ease-in-out;
+}
+
+.opacity-100 {
+    opacity: 1;
 }
 </style>

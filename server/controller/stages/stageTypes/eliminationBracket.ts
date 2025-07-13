@@ -88,10 +88,10 @@ export class EliminationBracketStageType extends SimpleStageType {
                     );
 
                     game.templateParticipantNames.push(
-                        `Winner of match ${game.precessorGames[0]}`,
+                        `Winner of match ${this.stage.stageNumber}.${game.precessorGames[0]}`,
                     );
                     game.templateParticipantNames.push(
-                        `Winner of match ${game.precessorGames[1]}`,
+                        `Winner of match ${this.stage.stageNumber}.${game.precessorGames[1]}`,
                     );
 
                     const upperMatchWinner = this.getMatchWinnerIndex(
@@ -129,7 +129,7 @@ export class EliminationBracketStageType extends SimpleStageType {
                 break;
             }
         }
-        return EliminationBracketStageType.cleanUpByes(games);
+        return this.cleanUpByes(games);
     }
 
     getMatchWinnerIndex(matchNumber: number): number | null {
@@ -212,7 +212,7 @@ export class EliminationBracketStageType extends SimpleStageType {
         ];
     }
 
-    private static cleanUpByes(matches: IStageGame[]): IStageGame[] {
+    private cleanUpByes(matches: IStageGame[]): IStageGame[] {
         const byedMatches = new Map<number, string>();
         const resultingMatches: IStageGame[] = [];
 
@@ -250,7 +250,7 @@ export class EliminationBracketStageType extends SimpleStageType {
                 match.templateParticipantNames =
                     match.templateParticipantNames.map(
                         (_, idx) =>
-                            `Winner of match ${match.precessorGames[idx]}`,
+                            `Winner of match ${this.stage.stageNumber}.${match.precessorGames[idx]}`,
                     );
                 resultingMatches.push(match);
             }
@@ -262,10 +262,15 @@ export class EliminationBracketStageType extends SimpleStageType {
         const placements: StagePlacement[] = [];
 
         for (let i = 0; i < this.stage.participants.length - 1; i++) {
-            placements.push(new LoserOf(i + 1));
+            placements.push(new LoserOf(i + 1, this.stage.stageNumber));
         }
 
-        placements.push(new WinnerOf(this.stage.participants.length - 1));
+        placements.push(
+            new WinnerOf(
+                this.stage.participants.length - 1,
+                this.stage.stageNumber,
+            ),
+        );
 
         return placements;
     }
